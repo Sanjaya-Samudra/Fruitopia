@@ -1,0 +1,43 @@
+# Node (Angular frontend)
+/node_modules/
+/frontend/node_modules/
+/dist/
+/frontend/dist/
+
+# Python (Backend, ML)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+/.env
+.env
+/venv/
+backend/.env
+backend/venv/
+
+# Jupyter Notebooks
+*.ipynb_checkpoints
+ml_models/notebooks/.ipynb_checkpoints/
+
+# VSCode
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Data
+/data/*.csv
+/data/*.xlsx
+/data/*.json
+/data/*.parquet
+
+# Misc
+*.swp
+*.swo
+
+# Build
+/build/
