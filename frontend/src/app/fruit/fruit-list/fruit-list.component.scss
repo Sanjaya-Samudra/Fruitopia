@@ -1,0 +1,168 @@
+/* ---------- Theme variables ---------- */
+$primary-1: #43c6ac;
+$primary-2: #f8ffae;
+$accent-text: #2d3a3a;
+
+/* ---------- Header / Nav / Search ---------- */
+.glassy-toolbar,
+.fruitopia-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 120;
+  background: linear-gradient(90deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 1rem;
+  box-shadow: 0 2px 10px rgba(15,81,64,0.06);
+}
+.toolbar-logo {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: $accent-text;
+}
+.toolbar-nav {
+  display: flex;
+  gap: 0.4rem;
+}
+.nav-btn {
+  min-width: 40px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.6);
+  color: $accent-text;
+}
+.nav-btn mat-icon { font-size: 18px; }
+
+.main-content {
+  max-width: 980px;
+  width: 100%;
+  margin: 0.8rem auto 1.2rem auto;
+  padding: 0 0.6rem;
+}
+
+.glassy-search {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+  margin-bottom: 0.8rem;
+  background: linear-gradient(90deg, rgba(255,255,255,0.85), rgba(255,255,255,0.72));
+  border-radius: 999px;
+  box-shadow: 0 6px 18px rgba(67,198,172,0.06);
+}
+.search-field { width: 280px; }
+.search-btn { height: 36px; padding: 0 10px; }
+
+/* ---------- Page background and container ---------- */
+.fruitopia-bg {
+  min-height: 100vh;
+  background: linear-gradient(135deg, $primary-2 0%, $primary-1 100%);
+  padding: 0.6rem 0 2rem 0;
+}
+.fruit-list-container {
+  margin: 0 auto;
+  max-width: 940px;
+  padding: 12px 12px 18px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.12);
+  box-shadow: 0 6px 30px rgba(67,198,172,0.06);
+}
+
+.fruitopia-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: $accent-text;
+  text-align: center;
+  margin: 8px 0 12px 0;
+}
+
+/* ---------- Grid and cards (compact) ---------- */
+.fruit-list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.glass-card {
+  background: rgba(255,255,255,0.98);
+  border-radius: 10px;
+  border: 1px solid rgba(67,198,172,0.08);
+  padding: 10px;
+  box-shadow: 0 6px 18px rgba(15,81,64,0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 200px;
+  align-items: stretch;
+}
+
+.glass-card:hover { transform: translateY(-6px); box-shadow: 0 10px 26px rgba(15,81,64,0.08); }
+
+.fruit-card {
+  width: 100%;
+}
+
+.fruit-card mat-card-header { padding: 6px 4px; }
+.fruit-card mat-card-title { font-size: 0.95rem; font-weight: 700; }
+.fruit-card mat-card-subtitle { font-size: 0.74rem; color: #61706b; }
+
+.fruit-card img { width: 100%; height: 100px; object-fit: cover; border-radius: 8px; }
+
+.fruit-desc { font-size: 0.83rem; color: #2d3a3a; margin: 6px 0; }
+
+.fruit-benefits { display:flex; flex-wrap:wrap; gap:6px; }
+.wow-btn { font-size: 0.72rem; padding: 4px 8px; border-radius: 999px; }
+.details-btn { font-size: 0.72rem; padding: 4px 8px; border-radius: 8px; }
+
+/* ---------- Chatbot floating button ---------- */
+.chatbot-widget {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  z-index: 999;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ffffff, #f7fff9);
+  box-shadow: 0 12px 30px rgba(15,81,64,0.12);
+  border: 1px solid rgba(67,198,172,0.12);
+}
+.chatbot-emoji { font-size: 18px; }
+.chatbot-label { font-size: 0.88rem; font-weight:700; color: $accent-text; }
+
+/* ---------- Responsive tweaks ---------- */
+@media (max-width: 900px) {
+  .fruit-list-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+  .search-field { width: 200px; }
+}
+
+@media (max-width: 480px) {
+  .fruit-list-grid { grid-template-columns: 1fr; gap: 8px; }
+  .fruit-card img { height: 120px; }
+  .toolbar-logo { font-size: 1rem; }
+  .nav-btn { min-width: 34px; height: 34px; }
+  .glassy-search { padding: 6px; }
+}
+.chatbot-label {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #2d3a3a;
+}
+
+@media (max-width: 600px) {
+  .fruit-list-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  mat-card-image {
+    height: 160px;
+  }
+}

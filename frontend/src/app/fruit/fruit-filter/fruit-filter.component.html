@@ -1,0 +1,9 @@
+<div class="fruit-filter-container">
+	<mat-form-field appearance="fill">
+		<mat-label>Filter by Category</mat-label>
+		<mat-select [(ngModel)]="selectedCategory" (selectionChange)="filterFruits()">
+			<mat-option value="all">All Fruits</mat-option>
+			<mat-option *ngFor="let category of categories" [value]="category">{{ category }}</mat-option>
+		</mat-select>
+	</mat-form-field>
+</div>

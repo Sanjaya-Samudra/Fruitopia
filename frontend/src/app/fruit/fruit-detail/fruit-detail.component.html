@@ -1,0 +1,28 @@
+<div *ngIf="fruit" class="fruit-detail-container">
+	<mat-card>
+		<mat-card-header>
+			<mat-card-title>{{ fruit.name }}</mat-card-title>
+			<mat-card-subtitle>{{ fruit.tagline }}</mat-card-subtitle>
+		</mat-card-header>
+		<img mat-card-image [src]="fruit.image" alt="{{ fruit.name }}" />
+		<mat-card-content>
+			<p>{{ fruit.description }}</p>
+			<h4>Nutrition Highlights</h4>
+			<mat-list>
+				<mat-list-item *ngFor="let nutrient of fruit.nutrition">
+					{{ nutrient }}
+				</mat-list-item>
+			</mat-list>
+			<h4>Health Benefits</h4>
+			<mat-chip-list>
+				<mat-chip color="accent" *ngFor="let benefit of fruit.benefits">{{ benefit }}</mat-chip>
+			</mat-chip-list>
+			<div class="serving-info">
+				<strong>Perfect Serving:</strong> {{ fruit.serving }}
+			</div>
+		</mat-card-content>
+		<mat-card-actions>
+			<button mat-button (click)="goBack()">Back</button>
+		</mat-card-actions>
+	</mat-card>
+</div>

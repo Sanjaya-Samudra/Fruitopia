@@ -1,0 +1,30 @@
+/* Header layout */
+.fruitopia-toolbar {
+	display: grid;
+	grid-template-columns: 220px 1fr 160px;
+	align-items: center;
+	gap: 12px;
+}
+.toolbar-left { padding-left: 12px; }
+.toolbar-center { display:flex; justify-content:center; }
+.toolbar-right { display:flex; justify-content:flex-end; gap:8px; padding-right:12px; }
+
+/* Search field in header */
+.search-field { width: 420px; max-width: 60vw; }
+
+@media (max-width: 800px) {
+	.fruitopia-toolbar { grid-template-columns: 1fr; padding: 6px; row-gap:8px; }
+	.toolbar-left { justify-self:start; }
+	.toolbar-center { order: 2; width: 100%; }
+	.toolbar-right { justify-self:end; }
+	.search-field { width: 80%; }
+}
+
+/* Header icon hover styles */
+.toolbar-right button[mat-icon-button] { background: transparent; transition: transform 0.12s ease, box-shadow 0.12s ease; }
+.toolbar-right button[mat-icon-button]:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(15,81,64,0.08); background: rgba(255,255,255,0.9); }
+/* profile removed */
+
+/* Make toolbar visually crisp */
+.glassy-toolbar { background: linear-gradient(90deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85)); box-shadow: 0 6px 24px rgba(15,81,64,0.06); }
+
