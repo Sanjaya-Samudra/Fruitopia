@@ -22,6 +22,10 @@ Fruitopia AI is an intelligent fruit recommendation system that uses machine lea
 - **Backend:** FastAPI (Python)
 - **Machine Learning:** Python (scikit-learn, TensorFlow, or PyTorch as needed)
 
+## Frontend details
+- Built with Angular standalone components and Angular Material for UI (toolbar, icons, form-field, input, buttons, tooltips).
+- Recent UI improvements: compact/sticky glassy header with integrated search, compact fruit cards, responsive grid, and a floating chatbot button.
+
 ## Getting Started
 ### 1. Clone the repository
 ```sh
@@ -51,8 +55,16 @@ cd Fruitopia
    ```
 - Run the Angular app:
    ```sh
-   ng serve
+   ng serve --open
    ```
+
+Notes:
+- The frontend uses Angular Material modules (MatToolbarModule, MatIconModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatTooltipModule). If you add components that require other Material modules, import them in the relevant standalone component (e.g., `app.component.ts`).
+
+### Quick UI notes
+- Header: search is integrated into the sticky toolbar. Use the search input to filter results (client-side filtering can be enabled).
+- Chatbot: floating button at bottom-right opens the chatbot prompt (or a slide-up panel if implemented).
+
 
 ## Contributing
 We welcome contributions! To contribute:
