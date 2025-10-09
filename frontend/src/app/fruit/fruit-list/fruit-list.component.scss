@@ -60,26 +60,11 @@ $accent-text: #2d3a3a;
 .search-btn { height: 36px; padding: 0 10px; }
 
 /* ---------- Page background and container ---------- */
-.fruitopia-bg {
-  min-height: 100vh;
-  background: linear-gradient(135deg, $primary-2 0%, $primary-1 100%);
-  padding: 0.6rem 0 2rem 0;
-}
+.fruit-list-wrapper { padding: 12px 0 24px 0 }
 .fruit-list-container {
   margin: 0 auto;
-  max-width: 940px;
-  padding: 12px 12px 18px 12px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.12);
-  box-shadow: 0 6px 30px rgba(67,198,172,0.06);
-}
-
-.fruitopia-title {
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: $accent-text;
-  text-align: center;
-  margin: 8px 0 12px 0;
+  max-width: 1140px;
+  padding: 8px 12px 18px 12px;
 }
 
 /* ---------- Grid and cards (compact) ---------- */
@@ -112,7 +97,9 @@ $accent-text: #2d3a3a;
 .fruit-card mat-card-title { font-size: 0.95rem; font-weight: 700; }
 .fruit-card mat-card-subtitle { font-size: 0.74rem; color: #61706b; }
 
-.fruit-card img { width: 100%; height: 100px; object-fit: cover; border-radius: 8px; }
+.fruit-card img { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; }
+/* ensure consistent card heights so grid looks aligned */
+.glass-card { min-height: 320px }
 
 .fruit-desc { font-size: 0.83rem; color: #2d3a3a; margin: 6px 0; }
 

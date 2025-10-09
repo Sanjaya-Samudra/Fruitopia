@@ -1,0 +1,26 @@
+{
+  "diabetes": [
+    { "class": "blueberries", "reason": "Low glycemic load and high fiber; good for blood sugar control", "score": 0.92 },
+    { "class": "apples", "reason": "Fiber and polyphenols help regulate glucose", "score": 0.85 },
+    { "class": "pears", "reason": "High fiber, low glycemic impact", "score": 0.8 }
+  ],
+  "anemia": [
+    { "class": "oranges", "reason": "High vitamin C which improves iron absorption", "score": 0.9 },
+    { "class": "pomegranates", "reason": "Rich in vitamin C and antioxidants", "score": 0.86 },
+    { "class": "kiwifruit", "reason": "Excellent source of vitamin C", "score": 0.82 }
+  ],
+  "constipation": [
+    { "class": "prunes", "reason": "Natural laxative effect and high fiber", "score": 0.94 },
+    { "class": "pears", "reason": "Good fiber content which aids bowel movements", "score": 0.85 },
+    { "class": "kiwifruit", "reason": "Contains actinidine and fiber that help digestion", "score": 0.81 }
+  ],
+  "hypertension": [
+    { "class": "bananas", "reason": "Good potassium source that supports blood pressure", "score": 0.88 },
+    { "class": "oranges", "reason": "Potassium and vitamin C help cardiovascular health", "score": 0.8 }
+  ],
+  "general": [
+    { "class": "apples", "reason": "A versatile fruit with fiber and polyphenols", "score": 0.75 },
+    { "class": "bananas", "reason": "Good for quick energy and potassium", "score": 0.72 },
+    { "class": "blueberries", "reason": "High antioxidants and good overall health", "score": 0.78 }
+  ]
+}

@@ -1,0 +1,5 @@
+fastapi
+uvicorn
+# Optional (install only if using vision/predict):
+# torch
+# torchvision

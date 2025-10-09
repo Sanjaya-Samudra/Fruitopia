@@ -1,0 +1,25 @@
+<div class="vision-upload">
+  <div class="controls">
+    <input type="file" (change)="onFile($event)" accept="image/*" />
+
+    <button mat-raised-button color="primary" (click)="upload()" [disabled]="!file || loading">
+      Upload & Predict
+    </button>
+
+    <div *ngIf="loading" class="spinner"><mat-progress-spinner mode="indeterminate" diameter="28"></mat-progress-spinner></div>
+  </div>
+
+  <div *ngIf="preview" class="preview">
+    <img [src]="preview" alt="preview" />
+  </div>
+
+  <div *ngIf="predictions.length" class="predictions">
+    <h3>Predictions</h3>
+    <ol>
+      <li *ngFor="let p of predictions">{{ p.class }} — {{ (p.score * 100) | number:'1.0-2' }}%</li>
+    </ol>
+  </div>
+  <div *ngIf="lowConfidence" class="not-fruit">
+    <p>Sorry — this doesn't look like a fruit image (or the model is not confident). Try another photo focused on the fruit.</p>
+  </div>
+</div>

@@ -1,13 +1,22 @@
 /* Header layout */
 .fruitopia-toolbar {
-	display: grid;
-	grid-template-columns: 220px 1fr 160px;
-	align-items: center;
-	gap: 12px;
+  display: grid;
+  grid-template-columns: 260px 1fr 220px;
+  align-items: center;
+  gap: 12px;
 }
-.toolbar-left { padding-left: 12px; }
-.toolbar-center { display:flex; justify-content:center; }
-.toolbar-right { display:flex; justify-content:flex-end; gap:8px; padding-right:12px; }
+.toolbar-left { padding-left: 16px; }
+.toolbar-center { display:flex; justify-content:flex-start; padding-top:6px; margin-left: 40px }
+.toolbar-right { display:flex; justify-content:flex-end; gap:10px; padding-right:18px; align-items:center }
+
+/* brand block */
+.brand { display:flex; align-items:center; gap:8px }
+.brand-logo { width:28px; height:28px; border-radius:6px }
+.brand-text { font-weight:900; font-size:1.25rem; letter-spacing:0.4px }
+
+/* Nav icon polish */
+.toolbar-right button[mat-icon-button] { transition: transform 0.12s ease, background 0.12s ease; }
+.toolbar-right button[mat-icon-button]:hover { transform: translateY(-3px); background: rgba(0,0,0,0.04); }
 
 /* Search field in header */
 .search-field { width: 420px; max-width: 60vw; }
@@ -27,4 +36,10 @@
 
 /* Make toolbar visually crisp */
 .glassy-toolbar { background: linear-gradient(90deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85)); box-shadow: 0 6px 24px rgba(15,81,64,0.06); }
+
+/* toolbar title styling */
+.toolbar-logo { font-weight: 800; letter-spacing: 0.6px }
+
+.gallery-area { max-width: 1200px; margin: 18px auto; }
+.main-content { padding: 18px 24px }
 

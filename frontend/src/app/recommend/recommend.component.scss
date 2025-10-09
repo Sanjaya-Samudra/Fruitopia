@@ -1,0 +1,5 @@
+.recommend-root { max-width: 980px; margin: 18px auto; padding: 12px }
+.controls { display:flex; gap:12px; align-items:center; margin-bottom:12px }
+.disease-input { flex: 1 1 320px }
+.results { display:grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap:12px }
+.rec-card { min-height: 240px }

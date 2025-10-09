@@ -1,0 +1,11 @@
+numpy
+Pillow
+fastapi
+uvicorn[standard]
+torch
+torchvision
+scikit-learn
+opencv-python
+python-multipart
+matplotlib
+seaborn

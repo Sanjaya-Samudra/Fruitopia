@@ -1,0 +1,7 @@
+{
+  "diabetes": ["diabetes", "high blood sugar", "sugar", "hyperglycemia", "high sugar"],
+  "anemia": ["anemia", "iron deficiency", "low iron"],
+  "constipation": ["constipation", "slow bowels", "irregular bowel", "constipated"],
+  "hypertension": ["hypertension", "high blood pressure", "high bp", "blood pressure"],
+  "general": ["general", "healthy", "wellness", "maintenance"]
+}

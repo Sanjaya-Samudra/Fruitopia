@@ -1,8 +1,9 @@
-
-
 <mat-toolbar color="primary" class="fruitopia-toolbar glassy-toolbar">
   <div class="toolbar-left">
-    <span class="toolbar-logo">🍎 Fruitopia</span>
+    <div class="brand">
+      <img class="brand-logo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='36' cy='28' r='14' fill='%23ff5a5f'/><path d='M28 18c2-6 12-8 14-6 0 2-6 6-6 6s-6 4-8 0z' fill='%232d3a3a'/></svg>" alt="Fruitopia logo" />
+      <span class="brand-text">Fruitopia</span>
+    </div>
   </div>
 
   <div class="toolbar-center">
@@ -14,12 +15,17 @@
 
   <div class="toolbar-right">
     <button mat-icon-button routerLink="/" aria-label="Home" matTooltip="Go to home page" matTooltipPosition="below"><mat-icon>home</mat-icon></button>
+    <button mat-icon-button routerLink="/gallery" aria-label="Gallery" matTooltip="View image gallery" matTooltipPosition="below"><mat-icon>photo_library</mat-icon></button>
     <button mat-icon-button routerLink="/chatbot" aria-label="Chatbot" matTooltip="Open the Fruitopia assistant" matTooltipPosition="below"><mat-icon>chat</mat-icon></button>
     <button mat-icon-button routerLink="/recommend" aria-label="Recommendations" matTooltip="Get fruit recommendations" matTooltipPosition="below"><mat-icon>star</mat-icon></button>
-    <!-- profile removed per request -->
+    <button mat-icon-button routerLink="/vision" aria-label="Vision" matTooltip="Upload an image for fruit recognition" matTooltipPosition="below"><mat-icon>camera_alt</mat-icon></button>
   </div>
 </mat-toolbar>
 
 <div class="main-content">
   <router-outlet></router-outlet>
+  <!-- gallery appears directly under the header -->
+  <div class="gallery-area">
+    <app-gallery></app-gallery>
+  </div>
 </div>

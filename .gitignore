@@ -6,21 +6,53 @@
 
 # Python (Backend, ML)
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
 *.pyd
 /.env
 .env
+
+# Virtual environments (local and nested)
+/.venv/
+.venv/
 /venv/
+venv/
+/env/
+env/
+ENV/
 backend/.env
 backend/venv/
+backend/env/
+**/.venv/
+**/venv/
+**/env/
+
+# ML / model artifacts (avoid committing large binaries)
+# common model file extensions
+*.pt
+*.pth
+*.onnx
+*.h5
+*.ckpt
+
+# model and saved model folders
+/ml_models/
+/models/
+/saved_models/
+/ml/saved_models/
+/backend/ml/models/
+
+# large datasets and splits
+/data/
+/splits/
 
 # Jupyter Notebooks
 *.ipynb_checkpoints
 ml_models/notebooks/.ipynb_checkpoints/
 
-# VSCode
+# IDEs and editors
 .vscode/
+*.idea/
 
 # OS
 .DS_Store
@@ -29,7 +61,7 @@ Thumbs.db
 # Logs
 *.log
 
-# Data
+# Data file patterns (if you want to allow specific data in repo, remove these)
 /data/*.csv
 /data/*.xlsx
 /data/*.json
@@ -41,3 +73,9 @@ Thumbs.db
 
 # Build
 /build/
+
+# Temp and system files
+*.tmp
+*.cache
+
+# Keep small helper files (if needed) — remove these patterns above if you want some data under /data/ tracked

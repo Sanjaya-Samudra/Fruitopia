@@ -1,0 +1,280 @@
+{
+  "dataset_path": "E:\\Sanjaya\\MyProjects\\Fruitopia\\data\\FruitImageDataset",
+  "num_classes": 30,
+  "classes": [
+    "acerolas",
+    "apples",
+    "apricots",
+    "avocados",
+    "bananas",
+    "blackberries",
+    "blueberries",
+    "cantaloupes",
+    "cherries",
+    "coconuts",
+    "figs",
+    "grapefruits",
+    "grapes",
+    "guava",
+    "kiwifruit",
+    "lemons",
+    "limes",
+    "mangos",
+    "olives",
+    "oranges",
+    "passionfruit",
+    "peaches",
+    "pears",
+    "pineapples",
+    "plums",
+    "pomegranates",
+    "raspberries",
+    "strawberries",
+    "tomatoes",
+    "watermelons"
+  ],
+  "counts": {
+    "acerolas": 24,
+    "apples": 16,
+    "apricots": 19,
+    "avocados": 15,
+    "bananas": 11,
+    "blackberries": 9,
+    "blueberries": 6,
+    "cantaloupes": 31,
+    "cherries": 33,
+    "coconuts": 26,
+    "figs": 26,
+    "grapefruits": 31,
+    "grapes": 38,
+    "guava": 33,
+    "kiwifruit": 36,
+    "lemons": 29,
+    "limes": 29,
+    "mangos": 34,
+    "olives": 23,
+    "oranges": 35,
+    "passionfruit": 22,
+    "peaches": 27,
+    "pears": 16,
+    "pineapples": 34,
+    "plums": 31,
+    "pomegranates": 30,
+    "raspberries": 39,
+    "strawberries": 46,
+    "tomatoes": 46,
+    "watermelons": 31
+  },
+  "samples": {
+    "acerolas": [
+      "1.jpg",
+      "10.jpg",
+      "12.jpg",
+      "15.jpg",
+      "16.jpg"
+    ],
+    "apples": [
+      "0.jpg",
+      "1.jpg",
+      "10.jpg",
+      "11.jpg",
+      "12.jpg"
+    ],
+    "apricots": [
+      "0.jpg",
+      "10.jpg",
+      "11.jpg",
+      "13.jpg",
+      "15.jpg"
+    ],
+    "avocados": [
+      "10.jpg",
+      "11.jpg",
+      "12.jpg",
+      "16.jpg",
+      "17.jpg"
+    ],
+    "bananas": [
+      "1.jpg",
+      "10.jpg",
+      "11.jpg",
+      "12.jpg",
+      "13.jpg"
+    ],
+    "blackberries": [
+      "0.jpg",
+      "1.jpg",
+      "10.jpg",
+      "11.jpg",
+      "12.jpg"
+    ],
+    "blueberries": [
+      "0.jpg",
+      "1.jpg",
+      "10.jpg",
+      "11.jpg",
+      "12.jpg"
+    ],
+    "cantaloupes": [
+      "0.jpg",
+      "1.jpg",
+      "12.jpg",
+      "13.jpg",
+      "14.jpg"
+    ],
+    "cherries": [
+      "1.jpg",
+      "10.jpg",
+      "11.jpg",
+      "12.jpg",
+      "13.jpg"
+    ],
+    "coconuts": [
+      "1.jpg",
+      "11.jpg",
+      "13.jpg",
+      "14.jpg",
+      "16.jpg"
+    ],
+    "figs": [
+      "0.jpg",
+      "1.jpg",
+      "10.jpg",
+      "11.jpg",
+      "14.jpg"
+    ],
+    "grapefruits": [
+      "0.jpg",
+      "1.jpg",
+      "10.jpg",
+      "16.jpg",
+      "17.jpg"
+    ],
+    "grapes": [
+      "0.jpg",
+      "10.jpg",
+      "12.jpg",
+      "13.jpg",
+      "14.jpg"
+    ],
+    "guava": [
+      "0.jpg",
+      "10.jpg",
+      "11.jpg",
+      "12.jpg",
+      "13.jpg"
+    ],
+    "kiwifruit": [
+      "0.jpg",
+      "1.jpg",
+      "10.jpg",
+      "11.jpg",
+      "13.jpg"
+    ],
+    "lemons": [
+      "0.jpg",
+      "1.jpg",
+      "10.jpg",
+      "11.jpg",
+      "15.jpg"
+    ],
+    "limes": [
+      "0.jpg",
+      "1.jpg",
+      "12.jpg",
+      "13.jpg",
+      "15.jpg"
+    ],
+    "mangos": [
+      "0.jpg",
+      "10.jpg",
+      "11.jpg",
+      "12.jpg",
+      "13.jpg"
+    ],
+    "olives": [
+      "0.jpg",
+      "1.jpg",
+      "12.jpg",
+      "16.jpg",
+      "20.jpg"
+    ],
+    "oranges": [
+      "0.jpg",
+      "10.jpg",
+      "12.jpg",
+      "13.jpg",
+      "14.jpg"
+    ],
+    "passionfruit": [
+      "0.jpg",
+      "1.jpg",
+      "11.jpg",
+      "17.jpg",
+      "19.jpg"
+    ],
+    "peaches": [
+      "0.jpg",
+      "1.jpg",
+      "12.jpg",
+      "14.jpg",
+      "18.jpg"
+    ],
+    "pears": [
+      "0.jpg",
+      "1.jpg",
+      "11.jpg",
+      "12.jpg",
+      "13.jpg"
+    ],
+    "pineapples": [
+      "1.jpg",
+      "11.jpg",
+      "12.jpg",
+      "13.jpg",
+      "14.jpg"
+    ],
+    "plums": [
+      "10.jpg",
+      "13.jpg",
+      "14.jpg",
+      "15.jpg",
+      "16.jpg"
+    ],
+    "pomegranates": [
+      "0.jpg",
+      "1.jpg",
+      "10.jpg",
+      "12.jpg",
+      "17.jpg"
+    ],
+    "raspberries": [
+      "0.jpg",
+      "10.jpg",
+      "11.jpg",
+      "14.jpg",
+      "15.jpg"
+    ],
+    "strawberries": [
+      "0.jpg",
+      "1.jpg",
+      "10.jpg",
+      "11.jpg",
+      "12.jpg"
+    ],
+    "tomatoes": [
+      "0.jpg",
+      "1.jpg",
+      "10.jpg",
+      "11.jpg",
+      "12.jpg"
+    ],
+    "watermelons": [
+      "1.jpg",
+      "10.jpg",
+      "12.jpg",
+      "13.jpg",
+      "14.jpg"
+    ]
+  }
+}

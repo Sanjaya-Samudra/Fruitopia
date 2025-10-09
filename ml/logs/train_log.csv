@@ -1,0 +1,9 @@
+epoch,train_loss,val_acc,val_correct,val_total,model_path
+1,2.327671,0.037383,4,107,E:\Sanjaya\MyProjects\Fruitopia\ml\models\fruit_classifier_epoch_1.pt
+2,1.258374,0.046729,5,107,E:\Sanjaya\MyProjects\Fruitopia\ml\models\fruit_classifier_epoch_2.pt
+3,0.944503,0.056075,6,107,E:\Sanjaya\MyProjects\Fruitopia\ml\models\fruit_classifier_epoch_3.pt
+4,0.770972,0.028037,3,107,E:\Sanjaya\MyProjects\Fruitopia\ml\models\fruit_classifier_epoch_4.pt
+5,0.811512,0.065421,7,107,E:\Sanjaya\MyProjects\Fruitopia\ml\models\fruit_classifier_epoch_5.pt
+6,0.601420,0.018692,2,107,E:\Sanjaya\MyProjects\Fruitopia\ml\models\fruit_classifier_epoch_6.pt
+7,0.699855,0.065421,7,107,E:\Sanjaya\MyProjects\Fruitopia\ml\models\fruit_classifier_epoch_7.pt
+8,0.551155,0.084112,9,107,E:\Sanjaya\MyProjects\Fruitopia\ml\models\fruit_classifier_epoch_8.pt

@@ -1,0 +1,40 @@
+<div class="recommend-root">
+  <h2>Get fruit recommendations</h2>
+  <div class="controls">
+    <mat-form-field appearance="outline" class="disease-input">
+      <mat-label>Type a condition (or pick one)</mat-label>
+      <input matInput placeholder="e.g. high blood sugar" [(ngModel)]="typedDisease" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Or pick a condition</mat-label>
+      <mat-select [(ngModel)]="disease">
+        <mat-option *ngFor="let d of diseases" [value]="d">{{ d }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Fruits you already have</mat-label>
+      <mat-select multiple [(ngModel)]="have">
+        <mat-option *ngFor="let c of availableClasses" [value]="c">{{ c }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-raised-button color="primary" (click)="getRecommendations()" [disabled]="!typedDisease && !disease">Recommend</button>
+  </div>
+
+  <div *ngIf="loading">Loading...</div>
+
+  <div class="results" *ngIf="recommendations.length">
+    <mat-card *ngFor="let r of recommendations" class="rec-card">
+      <mat-card-header>
+        <mat-card-title>{{ r.class }}</mat-card-title>
+        <mat-card-subtitle>{{ (r.score * 100) | number:'1.0-0' }}% match</mat-card-subtitle>
+      </mat-card-header>
+  <img mat-card-image [src]="imageUrl(r.class, r.sample)" alt="{{r.class}}" *ngIf="r.sample">
+      <mat-card-content>
+        <p>{{ r.reason }}</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

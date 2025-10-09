@@ -1,0 +1,36 @@
+<div class="gallery">
+  <div *ngIf="loading" class="loading">Loading classes...</div>
+  <div class="grid">
+    <mat-card class="class-card" *ngFor="let cls of classes">
+      <mat-card-header>
+        <div mat-card-avatar class="avatar"></div>
+        <mat-card-title>{{ cls }}</mat-card-title>
+  <mat-card-subtitle>{{ (samples[cls] && samples[cls].length) || 0 }} images</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="mosaic-container">
+          <div class="thumbs mosaic">
+            <ng-container *ngIf="samples[cls] && samples[cls].length; else noThumbs">
+              <div class="thumb-box" *ngFor="let f of samples[cls] | slice:0:4">
+                <img [src]="imgUrl(cls, f)" [alt]="f" />
+              </div>
+            </ng-container>
+          <ng-template #noThumbs>
+            <div class="placeholder">No images available</div>
+          </ng-template>
+        </div>
+      </div>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-flat-button color="primary" [routerLink]="['/gallery', cls]">Explore</button>
+        <button mat-icon-button matTooltip="Upload an image for {{cls}}" [routerLink]="['/vision']">
+          <mat-icon>camera_alt</mat-icon>
+        </button>
+        <span class="spacer"></span>
+        <button mat-icon-button matTooltip="Chat about {{cls}}" [routerLink]="['/chatbot']">
+          <mat-icon>chat</mat-icon>
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>
