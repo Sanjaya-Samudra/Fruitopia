@@ -11,17 +11,53 @@ from fastapi.responses import JSONResponse, FileResponse
 from pathlib import Path
 from typing import Optional
 import json
+import os
+import logging
+import math
 import difflib
 
 
 FILE_DIR = Path(__file__).resolve().parent  # backend/
 PROJECT_ROOT = FILE_DIR.parent
+# initialize logger early so .env loader can use it
+logger = logging.getLogger('vision_api')
+if not logger.handlers:
+    logging.basicConfig(level=logging.INFO)
+# Optional .env loader: if a file named backend/.env exists, load simple KEY=VALUE pairs into os.environ.
+try:
+    env_path = FILE_DIR / '.env'
+    if env_path.exists():
+        with open(env_path, 'r', encoding='utf-8') as envf:
+            for ln in envf:
+                ln = ln.strip()
+                if not ln or ln.startswith('#') or '=' not in ln:
+                    continue
+                k, v = ln.split('=', 1)
+                k = k.strip()
+                v = v.strip().strip('"').strip("'")
+                if k:
+                    os.environ.setdefault(k, v)
+        logger.info(f"Loaded environment overrides from {env_path}")
+except Exception:
+    logger.info('Failed to load backend/.env (ignored)')
 DATA_DIR = PROJECT_ROOT / 'data' / 'FruitImageDataset'
 RECS_FILE = FILE_DIR / 'ml' / 'disease_recs.json'
 SYN_FILE = FILE_DIR / 'ml' / 'disease_synonyms.json'
 META_FILE = FILE_DIR / 'ml' / 'metadata.json'
 
 app = FastAPI(title='Fruitopia - clean backend')
+
+
+@app.on_event('startup')
+def _startup_load_model():
+    try:
+        _ensure_model()
+        if _MODEL is not None:
+            logger.info('startup: torch model is loaded and ready')
+        else:
+            logger.info('startup: torch model not loaded (will use fallback)')
+    except Exception:
+        logger.exception('startup: unexpected error while loading model')
 
 # Development CORS: allow Angular dev server to call this API
 app.add_middleware(
@@ -54,6 +90,70 @@ def _get_available_classes() -> list:
     if DATA_DIR.exists():
         return sorted([p.name for p in DATA_DIR.iterdir() if p.is_dir()])
     return []
+
+
+def _env_flag(key: str) -> bool:
+    """Return True if environment variable 'key' is set to a truthy value, or if backend/.env contains it.
+    This is tolerant to being imported in worker processes that may not inherit parent env settings.
+    """
+    val = os.environ.get(key)
+    if val is not None:
+        return val in ('1', 'true', 'True', 'yes', 'on')
+    # fallback: try to read backend/.env
+    try:
+        env_path = FILE_DIR / '.env'
+        if env_path.exists():
+            with open(env_path, 'r', encoding='utf-8') as f:
+                for ln in f:
+                    ln = ln.strip()
+                    if not ln or ln.startswith('#') or '=' not in ln:
+                        continue
+                    k, v = ln.split('=', 1)
+                    if k.strip() == key:
+                        vv = v.strip().strip('"').strip("'")
+                        return vv in ('1', 'true', 'True', 'yes', 'on')
+    except Exception:
+        pass
+    return False
+
+
+# Lazy model state
+_MODEL = None
+_MODEL_CLASSES = None
+
+def _ensure_model():
+    """Attempt to lazily load a PyTorch model saved by ml/train.py at ml/models/fruit_classifier.pt.
+    This function swallows import errors so the server remains usable without torch.
+    """
+    global _MODEL, _MODEL_CLASSES
+    if _MODEL is not None:
+        return
+    try:
+        model_path = PROJECT_ROOT / 'ml' / 'models' / 'fruit_classifier.pt'
+        if not model_path.exists():
+            logger.info(f"_ensure_model: no model file at {model_path}")
+            return
+        # guarded imports
+        import torch
+        from torchvision import models
+        import torch.nn as nn
+
+        data = torch.load(str(model_path), map_location='cpu')
+        classes = data.get('classes')
+        if not classes or 'model_state' not in data:
+            logger.warning(f"_ensure_model: model file {model_path} missing required keys")
+            return
+        model = models.mobilenet_v2(pretrained=False)
+        model.classifier[1] = nn.Linear(model.last_channel, len(classes))
+        model.load_state_dict(data['model_state'])
+        model.eval()
+        _MODEL = model
+        _MODEL_CLASSES = classes
+        logger.info(f"_ensure_model: loaded model from {model_path} with {len(classes)} classes")
+    except Exception as e:
+        logger.info(f"_ensure_model: could not load model ({e}); continuing without torch-model")
+        _MODEL = None
+        _MODEL_CLASSES = None
 
 
 @app.get('/recommend/diseases')
@@ -128,7 +228,12 @@ def recommend(payload: dict):
 
 @app.get('/vision/health')
 def vision_health():
-    return {'ok': True, 'model_loaded': False}
+    # report whether the torch model could be loaded (lazy)
+    try:
+        _ensure_model()
+    except Exception:
+        pass
+    return {'ok': True, 'model_loaded': _MODEL is not None}
 
 
 @app.get('/vision/classes')
@@ -156,5 +261,106 @@ def vision_image(class_name: str = Query(..., alias='cls'), filename: str = Quer
 
 
 @app.post('/vision/predict')
-async def predict_stub(file: UploadFile = File(...)):
-    return JSONResponse({'error': 'model not available in this environment'}, status_code=501)
+async def predict_stub(file: Optional[UploadFile] = File(None), image: Optional[UploadFile] = File(None)):
+    # Accept either 'file' or 'image' as the multipart form field for compatibility
+    upload = file or image
+    if not upload:
+        return JSONResponse({'error': 'no file uploaded; expected form field named "file"'}, status_code=422)
+
+    # save upload to a temp path
+    try:
+        tmp_dir = FILE_DIR / 'tmp'
+        tmp_dir.mkdir(exist_ok=True)
+        tmp_path = tmp_dir / (getattr(upload, 'filename', 'upload.jpg'))
+        with open(tmp_path, 'wb') as f:
+            f.write(await upload.read())
+    except Exception as e:
+        logger.info(f"predict_stub: failed to save upload: {e}")
+        return JSONResponse({'error': 'failed to save uploaded file'}, status_code=500)
+
+    try:
+        # try torch model first (lazy-loaded)
+        _ensure_model()
+        if _MODEL is not None:
+            try:
+                import torch
+                from torchvision import transforms
+                from PIL import Image
+
+                transform = transforms.Compose([
+                    transforms.Resize((224, 224)),
+                    transforms.ToTensor(),
+                ])
+                img = Image.open(str(tmp_path)).convert('RGB')
+                tensor = transform(img).unsqueeze(0)
+                with torch.no_grad():
+                    outputs = _MODEL(tensor)
+                    probs = torch.softmax(outputs, dim=1).squeeze(0)
+                    topk = torch.topk(probs, k=min(3, probs.numel()))
+                    preds = []
+                    for idx, score in zip(topk.indices.tolist(), topk.values.tolist()):
+                        cls_name = _MODEL_CLASSES[idx] if _MODEL_CLASSES and idx < len(_MODEL_CLASSES) else str(idx)
+                        preds.append({'class': cls_name, 'score': float(score)})
+                try:
+                    tmp_path.unlink()
+                except Exception:
+                    pass
+                return JSONResponse({'predictions': preds, 'source': 'torch-model'})
+            except Exception as e:
+                logger.info(f"predict_stub: torch inference failed: {e}")
+
+        # fallback: try local helper identify_fruit
+        try:
+            from vision.image_recognition import identify_fruit  # type: ignore
+            res = identify_fruit(str(tmp_path))
+            preds = []
+            if isinstance(res, str):
+                preds = [{'class': res, 'score': 0.9}]
+            elif isinstance(res, list):
+                if res and isinstance(res[0], (list, tuple)):
+                    preds = [{'class': r[0], 'score': float(r[1])} for r in res]
+                else:
+                    preds = [{'class': r, 'score': 0.9} for r in res]
+            elif isinstance(res, dict):
+                preds = res.get('predictions') or []
+            else:
+                preds = [{'class': str(res), 'score': 0.9}]
+            try:
+                tmp_path.unlink()
+            except Exception:
+                pass
+            return JSONResponse({'predictions': preds, 'source': 'local-identify'})
+        except Exception as e:
+            logger.info(f"predict_stub: identify_fruit helper not available or failed: {e}")
+
+        # fallback to dev mock if enabled
+        if _env_flag('BACKEND_FAKE_PREDICT'):
+            fname = getattr(upload, 'filename', None) or 'unknown.jpg'
+            fake_classes = _get_available_classes() or ['apple', 'banana', 'orange']
+            idx = sum(ord(c) for c in fname) % len(fake_classes)
+            fake = {
+                'predictions': [
+                    {'class': fake_classes[idx], 'score': 0.87},
+                    {'class': fake_classes[(idx + 1) % len(fake_classes)], 'score': 0.08},
+                ],
+                'source': 'dev-mock',
+            }
+            try:
+                tmp_path.unlink()
+            except Exception:
+                pass
+            return JSONResponse(fake)
+
+        # nothing available
+        try:
+            tmp_path.unlink()
+        except Exception:
+            pass
+        return JSONResponse({'error': 'model not available in this environment'}, status_code=501)
+    except Exception as e:
+        logger.info(f"predict_stub: unexpected error: {e}")
+        try:
+            tmp_path.unlink()
+        except Exception:
+            pass
+        return JSONResponse({'error': 'internal error during prediction'}, status_code=500)

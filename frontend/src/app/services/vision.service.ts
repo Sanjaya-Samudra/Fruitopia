@@ -14,7 +14,8 @@ export class VisionService {
 
   predict(image: File): Observable<any> {
     const fd = new FormData();
-    fd.append('image', image, image.name);
+    // Backend expects the file field to be named 'file'
+    fd.append('file', image, image.name);
     return this.http.post('/vision/predict', fd);
   }
 }

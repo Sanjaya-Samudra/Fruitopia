@@ -1,0 +1,1 @@
+{"predictions":[{"class":"apples","score":0.8879969716072083},{"class":"acerolas","score":0.0517297089099884},{"class":"tomatoes","score":0.03679954260587692}],"source":"torch-model"}
