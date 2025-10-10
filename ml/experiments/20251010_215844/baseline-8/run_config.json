@@ -1,0 +1,9 @@
+{
+  "name": "baseline-8",
+  "env": {
+    "AUGMENT_LEVEL": "baseline",
+    "CLASS_WEIGHT": "0",
+    "LR_SCHEDULER": ""
+  },
+  "epochs": 8
+}

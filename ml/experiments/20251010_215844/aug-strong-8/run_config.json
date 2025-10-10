@@ -1,0 +1,9 @@
+{
+  "name": "aug-strong-8",
+  "env": {
+    "AUGMENT_LEVEL": "strong",
+    "CLASS_WEIGHT": "0",
+    "LR_SCHEDULER": ""
+  },
+  "epochs": 8
+}

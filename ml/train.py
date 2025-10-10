@@ -1,3 +1,4 @@
+import os
 import torch
 import torch.nn as nn
 from torchvision import transforms, datasets, models
@@ -12,7 +13,12 @@ import numpy as np
 
 BASE = Path(__file__).resolve().parents[1]
 SPLIT_DIR = BASE / 'data' / 'splits'
-MODEL_DIR = BASE / 'ml' / 'models'
+# Allow experiments to set a custom model directory so multiple runs don't clobber each other
+EXP_MODEL_DIR = os.environ.get('EXP_MODEL_DIR')
+if EXP_MODEL_DIR:
+    MODEL_DIR = Path(EXP_MODEL_DIR)
+else:
+    MODEL_DIR = BASE / 'ml' / 'models'
 LOG_DIR = BASE / 'ml' / 'logs'
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
 LOG_DIR.mkdir(parents=True, exist_ok=True)
@@ -20,12 +26,31 @@ MODEL_PATH = MODEL_DIR / 'fruit_classifier.pt'
 
 
 def get_dataloaders(img_size=224, batch_size=16):
-    train_transforms = transforms.Compose([
-        transforms.RandomResizedCrop(img_size, scale=(0.8, 1.0)),
-        transforms.RandomHorizontalFlip(),
-        transforms.ColorJitter(0.1, 0.1, 0.1, 0.05),
-        transforms.ToTensor(),
-    ])
+    # Allow selecting augmentation intensity via environment variable AUGMENT_LEVEL
+    augment_level = os.environ.get('AUGMENT_LEVEL', 'baseline')
+    if augment_level == 'none':
+        train_transforms = transforms.Compose([
+            transforms.Resize((img_size, img_size)),
+            transforms.ToTensor(),
+        ])
+    elif augment_level == 'strong':
+        train_transforms = transforms.Compose([
+            transforms.RandomResizedCrop(img_size, scale=(0.7, 1.0)),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomVerticalFlip(),
+            transforms.RandomRotation(20),
+            transforms.ColorJitter(0.2, 0.2, 0.2, 0.1),
+            transforms.ToTensor(),
+        ])
+    else:
+        # baseline
+        train_transforms = transforms.Compose([
+            transforms.RandomResizedCrop(img_size, scale=(0.8, 1.0)),
+            transforms.RandomHorizontalFlip(),
+            transforms.ColorJitter(0.1, 0.1, 0.1, 0.05),
+            transforms.ToTensor(),
+        ])
+
     val_transforms = transforms.Compose([
         transforms.Resize((img_size, img_size)),
         transforms.ToTensor(),
@@ -68,11 +93,43 @@ def train(epochs=3, lr=1e-3, device='cpu', batch_size=16, seed=1337):
     model.classifier[1] = nn.Linear(model.last_channel, num_classes)
     model.to(device)
 
-    criterion = nn.CrossEntropyLoss()
+    # Optionally use class-weighted loss (enable by setting env CLASS_WEIGHT=1)
+    use_class_weight = os.environ.get('CLASS_WEIGHT', '0') == '1'
+    if use_class_weight:
+        # compute weights from train dataset class counts
+        try:
+            counts = np.bincount(train_loader.dataset.targets)
+            weights = 1.0 / (counts + 1e-6)
+            weights = weights / weights.sum() * len(weights)
+            class_weights = torch.tensor(weights, dtype=torch.float32, device=device)
+            criterion = nn.CrossEntropyLoss(weight=class_weights)
+            print(f"Using class-weighted loss: {class_weights}")
+        except Exception as e:
+            print(f"Could not compute class weights, falling back to unweighted loss: {e}")
+            criterion = nn.CrossEntropyLoss()
+    else:
+        criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
+    # Optional LR scheduler (enable via LR_SCHEDULER env var, e.g., 'cosine' or 'step')
+    lr_scheduler = os.environ.get('LR_SCHEDULER', '').lower()
+    scheduler = None
+    if lr_scheduler == 'cosine':
+        try:
+            scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=max(1, epochs))
+            print("Using CosineAnnealingLR scheduler")
+        except Exception:
+            scheduler = None
+    elif lr_scheduler == 'step':
+        try:
+            scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.5)
+            print("Using StepLR scheduler")
+        except Exception:
+            scheduler = None
+
     best_val_acc = 0.0
-    best_path = MODEL_PATH.with_suffix('.best.pt')
+    MODEL_PATH = MODEL_DIR / 'fruit_classifier.pt'
+    best_path = MODEL_DIR / 'fruit_classifier.best.pt'
 
     log_file = LOG_DIR / 'train_log.csv'
     if not log_file.exists():
@@ -117,6 +174,12 @@ def train(epochs=3, lr=1e-3, device='cpu', batch_size=16, seed=1337):
             best_val_acc = val_acc
             torch.save({'model_state': model.state_dict(), 'classes': classes}, best_path)
             print(f"New best model saved to {best_path} (val_acc={best_val_acc:.4f})")
+
+        if scheduler is not None:
+            try:
+                scheduler.step()
+            except Exception:
+                pass
 
         # log
         with open(log_file, 'a', newline='', encoding='utf-8') as f:

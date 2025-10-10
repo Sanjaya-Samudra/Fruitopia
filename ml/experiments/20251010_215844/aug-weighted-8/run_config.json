@@ -1,0 +1,9 @@
+{
+  "name": "aug-weighted-8",
+  "env": {
+    "AUGMENT_LEVEL": "strong",
+    "CLASS_WEIGHT": "1",
+    "LR_SCHEDULER": ""
+  },
+  "epochs": 8
+}

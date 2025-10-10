@@ -1,0 +1,9 @@
+{
+  "name": "class-weighted-8",
+  "env": {
+    "AUGMENT_LEVEL": "baseline",
+    "CLASS_WEIGHT": "1",
+    "LR_SCHEDULER": ""
+  },
+  "epochs": 8
+}

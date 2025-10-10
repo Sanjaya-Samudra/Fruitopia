@@ -1,0 +1,9 @@
+{
+  "name": "lr-schedule-8",
+  "env": {
+    "AUGMENT_LEVEL": "baseline",
+    "CLASS_WEIGHT": "0",
+    "LR_SCHEDULER": "cosine"
+  },
+  "epochs": 8
+}
