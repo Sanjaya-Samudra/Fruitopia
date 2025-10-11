@@ -22,10 +22,8 @@
       </div>
       </mat-card-content>
       <mat-card-actions>
-        <button mat-flat-button color="primary" [routerLink]="['/gallery', cls]">Explore</button>
-        <button mat-icon-button matTooltip="Upload an image for {{cls}}" [routerLink]="['/vision']">
-          <mat-icon>camera_alt</mat-icon>
-        </button>
+  <a mat-flat-button color="primary" class="mat-flat-button" [attr.href]="'/explore/' + cls" target="_blank" rel="noopener">Explore</a>
+        <!-- per-card upload button removed intentionally; use header camera instead -->
         <span class="spacer"></span>
         <button mat-icon-button matTooltip="Chat about {{cls}}" [routerLink]="['/chatbot']">
           <mat-icon>chat</mat-icon>

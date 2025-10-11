@@ -24,8 +24,8 @@
 
 <div class="main-content">
   <router-outlet></router-outlet>
-  <!-- gallery appears directly under the header -->
-  <div class="gallery-area">
+  <!-- gallery appears directly under the header; hidden on explore pages -->
+  <div class="gallery-area" *ngIf="showGalleryArea">
     <app-gallery></app-gallery>
   </div>
 </div>

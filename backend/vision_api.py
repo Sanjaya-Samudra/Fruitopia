@@ -62,7 +62,9 @@ def _startup_load_model():
 # Development CORS: allow Angular dev server to call this API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4200"],
+    # Allow both common dev-server hostnames so the frontend can call the API
+    # whether the browser uses 'localhost' or '127.0.0.1'.
+    allow_origins=["http://localhost:4200", "http://127.0.0.1:4200"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -248,6 +250,38 @@ def vision_samples(class_name: str = Query(..., alias='cls'), n: int = Query(6, 
         return {'samples': []}
     files = [p.name for p in sorted(cls_dir.iterdir()) if p.is_file()]
     return {'samples': files[:n]}
+
+
+@app.get('/explore/{name}')
+def explore_data(name: str):
+    """Return per-fruit JSON stored under data/explore/<name>.json if available."""
+    p = PROJECT_ROOT / 'data' / 'explore' / f"{name}.json"
+    if not p.exists() or not p.is_file():
+        # also try lowercased filename
+        p2 = PROJECT_ROOT / 'data' / 'explore' / f"{name.lower()}.json"
+        if p2.exists() and p2.is_file():
+            p = p2
+        else:
+            raise HTTPException(status_code=404, detail='not found')
+    try:
+        with open(p, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        return data
+    except Exception as e:
+        logger.info(f"explore_data: failed to read {p}: {e}")
+        raise HTTPException(status_code=500, detail='failed to read data')
+
+
+@app.get('/explore')
+def explore_list():
+    """Return a list of available fruit JSON files under data/explore for debugging and discovery."""
+    d = PROJECT_ROOT / 'data' / 'explore'
+    if not d.exists() or not d.is_dir():
+        return {'available': []}
+    files = [p.name for p in sorted(d.iterdir()) if p.is_file() and p.suffix.lower() == '.json']
+    # also return names without extension
+    names = [p[:-5] if p.lower().endswith('.json') else p for p in files]
+    return {'available': names}
 
 
 @app.get('/vision/image')
