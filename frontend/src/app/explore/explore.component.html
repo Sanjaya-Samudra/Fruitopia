@@ -1,0 +1,892 @@
+<!-- Explore component template (adapted from provided HTML) -->
+<section class="hero-section" *ngIf="fruit">
+	<div class="hero-bg">
+		<div class="hero-overlay">
+			<div class="hero-content">
+				<div class="hero-text">
+					<div class="fruit-icon">
+						<img *ngIf="heroImage; else emoji" [src]="heroImage" [alt]="fruit.fruitName + ' icon'" />
+						<ng-template #emoji>🍎</ng-template>
+					</div>
+					<h1 class="hero-title">{{ fruit.fruitName || name }}</h1>
+					<p class="hero-subtitle">{{ fruit.scientificName }}</p>
+					<div class="hero-badges">
+						<span class="badge">{{ fruit.family }}</span>
+						<span class="badge">🌍 {{ fruit.origin }}</span>
+					</div>
+					<p class="hero-description" [class.expanded]="expandedDescription">{{ fruit.description }}</p>
+					<div class="read-more" *ngIf="(fruit.description?.length || 0) > 220">
+						<button class="read-more-btn" (click)="toggleDescription()">{{ expandedDescription ? 'Show less' : 'Read more' }}</button>
+					</div>
+				</div>
+				<div class="hero-stats">
+					<div class="stat-card">
+						<div class="stat-icon">🔥</div>
+						<div class="stat-text">
+							<strong>{{ fruit.nutritionalFacts?.calories_kcal }}</strong>
+							<small>Calories</small>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon">💚</div>
+						<div class="stat-text">
+							<strong>{{ (fruit.healthBenefits?.length) || 0 }}</strong>
+							<small>Benefits</small>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- Tabs Navigation -->
+<div class="tabs-container" *ngIf="fruit">
+	<div class="tabs-nav">
+		<button class="tab-btn" [class.active]="activeTab==='overview'" (click)="showTab('overview')">Overview</button>
+		<button class="tab-btn" [class.active]="activeTab==='nutrition'" (click)="showTab('nutrition')">Nutrition & Health</button>
+		<button class="tab-btn" [class.active]="activeTab==='culinary'" (click)="showTab('culinary')">Culinary & Uses</button>
+		<button class="tab-btn" [class.active]="activeTab==='science'" (click)="showTab('science')">Science & Botany</button>
+		<button class="tab-btn" [class.active]="activeTab==='cultivation'" (click)="showTab('cultivation')">Cultivation</button>
+		<button class="tab-btn" [class.active]="activeTab==='facts'" (click)="showTab('facts')">Facts & More</button>
+	</div>
+</div>
+
+<!-- Overview Tab -->
+<div class="tab-content" [class.active]="activeTab==='overview'" *ngIf="fruit">
+	<div class="container">
+		<div class="overview-grid">
+			<!-- Basic Info Card -->
+			<div class="card">
+				<div class="card-header">
+					<h3>📋 Basic Information</h3>
+				</div>
+				<div class="card-body">
+					<div class="info-grid">
+						<div class="info-item">
+							<span class="info-key">Name:</span>
+							<span class="info-value">{{ fruit.fruitName }}</span>
+						</div>
+						<div class="info-item">
+							<span class="info-key">Scientific Name:</span>
+							<span class="info-value">{{ fruit.scientificName }}</span>
+						</div>
+						<div class="info-item">
+							<span class="info-key">Family:</span>
+							<span class="info-value">{{ fruit.family }}</span>
+						</div>
+						<div class="info-item">
+							<span class="info-key">Origin:</span>
+							<span class="info-value">{{ fruit.origin }}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Nutrition Card -->
+			<div class="card">
+						<div class="card-header">
+							<h3>🥗 Nutrition Facts</h3>
+							<p class="card-subtitle">Per 100g serving</p>
+						</div>
+				<div class="card-body">
+					<table class="nutrition-table">
+						<thead>
+							<tr>
+								<th>Nutrient</th>
+								<th>Value</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Calories</td>
+								<td><strong>{{ fruit.nutritionalFacts?.calories_kcal }} kcal</strong></td>
+							</tr>
+							<tr>
+								<td>Carbohydrates</td>
+								<td><strong>{{ fruit.nutritionalFacts?.macronutrients?.carbohydrates_g }} g</strong></td>
+							</tr>
+							<tr>
+								<td>Protein</td>
+								<td><strong>{{ fruit.nutritionalFacts?.macronutrients?.protein_g }} g</strong></td>
+							</tr>
+							<tr>
+								<td>Fat</td>
+								<td><strong>{{ fruit.nutritionalFacts?.macronutrients?.fat_g }} g</strong></td>
+							</tr>
+							<tr>
+								<td>Fiber</td>
+								<td><strong>{{ fruit.nutritionalFacts?.macronutrients?.fiber_g }} g</strong></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<!-- Health Benefits -->
+			<div class="card">
+				<div class="card-header">
+					<h3>💚 Health & Benefits</h3>
+				</div>
+				<div class="card-body">
+					<div class="benefits-grid">
+						<div class="benefit-card" *ngFor="let b of (fruit.healthBenefits || [])">
+							<span class="benefit-icon">✅</span>
+							{{ b }}
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Gallery -->
+			<div class="card full-width">
+				<div class="card-header">
+					<h3>📸 Gallery</h3>
+				</div>
+				<div class="card-body">
+					<div class="gallery-grid">
+						<div class="gallery-item" *ngFor="let img of gallery; let i = index" (click)="openLightbox(i)">
+							<img [src]="img" [alt]="fruit.fruitName + ' image ' + i">
+						</div>
+						<div class="gallery-item" *ngIf="gallery.length===0 && (fruit.appearance?.images || []).length===0">
+							<div class="no-images">No images available</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Nutrition & Health Tab -->
+<div class="tab-content" [class.active]="activeTab==='nutrition'" *ngIf="fruit">
+	<div class="container">
+		<div class="detail-grid">
+					<!-- Detailed Nutrition (left column) -->
+					<div class="card donut-card">
+						<div class="card-header">
+							<h3>🥗 Detailed Nutrition</h3>
+						</div>
+						<div class="card-body">
+							<div class="macro-chart">
+								<svg viewBox="0 0 200 200" class="donut-chart">
+									<circle cx="100" cy="100" r="70" fill="none" stroke="#e0e7ff" stroke-width="20"></circle>
+									<ng-container *ngFor="let arc of svgArcs">
+										<path [attr.d]="describeArc(100,100,70,arc.start,arc.end)" [attr.stroke]="arc.color" stroke-width="20" fill="none" stroke-linecap="butt" transform="rotate(-90 100 100)"></path>
+									</ng-container>
+									<text x="100" y="105" text-anchor="middle" font-size="14" font-weight="bold">Macros</text>
+								</svg>
+							</div>
+							<div class="legend">
+								<div class="legend-item">
+									<span class="dot" style="background: #2b9df4"></span>
+									Carbohydrates {{ macroPercentages.carbs }}%
+								</div>
+								<div class="legend-item">
+									<span class="dot" style="background: #7bd389"></span>
+									Protein {{ macroPercentages.protein }}%
+								</div>
+								<div class="legend-item">
+									<span class="dot" style="background: #f4a261"></span>
+									Fat {{ macroPercentages.fat }}%
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Vitamins (center column) -->
+					<div class="card vitamins-card">
+						<div class="card-header">
+							<h3>💊 Vitamins</h3>
+						</div>
+						<div class="card-body">
+							<table class="nutrient-table" *ngIf="vitamins.length > 0">
+								<thead>
+									<tr>
+										<th>Vitamin</th>
+										<th>Amount</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr *ngFor="let v of vitamins">
+										<td class="nutrient-name">{{ v[0] }}</td>
+										<td class="nutrient-value">{{ v[1] }}</td>
+									</tr>
+								</tbody>
+							</table>
+							<div *ngIf="vitamins.length === 0" class="no-data">
+								No vitamin data available
+							</div>
+						</div>
+					</div>
+
+					<!-- Minerals (right column) -->
+					<div class="card minerals-card">
+						<div class="card-header">
+							<h3>🪨 Minerals</h3>
+						</div>
+						<div class="card-body">
+							<table class="nutrient-table" *ngIf="minerals.length > 0">
+								<thead>
+									<tr>
+										<th>Mineral</th>
+										<th>Amount</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr *ngFor="let m of minerals">
+										<td class="nutrient-name">{{ m[0] }}</td>
+										<td class="nutrient-value">{{ m[1] }}</td>
+									</tr>
+								</tbody>
+							</table>
+							<div *ngIf="minerals.length === 0" class="no-data">
+								No mineral data available
+							</div>
+						</div>
+					</div>
+
+			<!-- Health Benefits -->
+			<div class="card full-width">
+				<div class="card-header">
+					<h3>💚 Health Benefits</h3>
+				</div>
+				<div class="card-body">
+					<div class="benefits-grid">
+						<div class="benefit-card" *ngFor="let b of (fruit.healthBenefits || [])">
+							<span class="benefit-icon">✅</span>
+							{{ b }}
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Allergies & Safety -->
+			<div class="card" *ngIf="fruit.possibleAllergies">
+				<div class="card-header">
+					<h3>⚠️ Allergies & Safety</h3>
+				</div>
+				<div class="card-body">
+					<div class="info-grid">
+						<div class="info-item" *ngIf="fruit.possibleAllergies.allergens">
+							<span class="info-key">Allergens:</span>
+							<span class="info-value">{{ fruit.possibleAllergies.allergens.join(', ') }}</span>
+						</div>
+						<div class="info-item" *ngIf="fruit.possibleAllergies.allergenSeverity">
+							<span class="info-key">Severity:</span>
+							<span class="info-value">{{ fruit.possibleAllergies.allergenSeverity }}</span>
+						</div>
+						<div class="info-item" *ngIf="fruit.possibleAllergies.symptoms">
+							<span class="info-key">Symptoms:</span>
+							<span class="info-value">{{ fruit.possibleAllergies.symptoms.join(', ') }}</span>
+						</div>
+						<div class="info-item" *ngIf="fruit.possibleAllergies.precautions">
+							<span class="info-key">Precautions:</span>
+							<span class="info-value">{{ fruit.possibleAllergies.precautions }}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Medical Considerations -->
+			<div class="card" *ngIf="fruit.medicalAndDietaryConsiderations">
+				<div class="card-header">
+					<h3>🏥 Medical Considerations</h3>
+				</div>
+				<div class="card-body">
+					<div class="info-grid">
+						<div class="info-item" *ngIf="fruit.medicalAndDietaryConsiderations.glycemicIndex">
+							<span class="info-key">Glycemic Index:</span>
+							<span class="info-value">{{ fruit.medicalAndDietaryConsiderations.glycemicIndex }}</span>
+						</div>
+						<div class="info-item" *ngIf="fruit.medicalAndDietaryConsiderations.FODMAPStatus">
+							<span class="info-key">FODMAP Status:</span>
+							<span class="info-value">{{ fruit.medicalAndDietaryConsiderations.FODMAPStatus }}</span>
+						</div>
+					</div>
+					<div *ngIf="fruit.medicalAndDietaryConsiderations.notRecommendedForDiseases?.length">
+						<h4>Not Recommended For:</h4>
+						<ul class="info-list">
+							<li *ngFor="let disease of fruit.medicalAndDietaryConsiderations.notRecommendedForDiseases">
+								<strong>{{ disease.disease }}</strong>: {{ disease.reason }} - {{ disease.recommendation }}
+							</li>
+						</ul>
+					</div>
+					<div *ngIf="fruit.medicalAndDietaryConsiderations.beneficialForDiseases?.length">
+						<h4>Beneficial For:</h4>
+						<ul class="info-list">
+							<li *ngFor="let disease of fruit.medicalAndDietaryConsiderations.beneficialForDiseases">
+								<strong>{{ disease.disease }}</strong>: {{ disease.reason }} - {{ disease.recommendation }}
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Culinary & Uses Tab -->
+<div class="tab-content" [class.active]="activeTab==='culinary'" *ngIf="fruit">
+	<div class="container">
+		<div class="detail-grid">
+			<!-- Culinary Information -->
+			<div class="card">
+				<div class="card-header">
+					<h3>👨‍🍳 Culinary Information</h3>
+				</div>
+				<div class="card-body">
+					<div class="info-grid">
+						<div class="info-item" *ngIf="fruit.culinaryInformation?.tasteProfile">
+							<span class="info-key">Taste Profile:</span>
+							<span class="info-value">{{ fruit.culinaryInformation.tasteProfile }}</span>
+						</div>
+					</div>
+					<div *ngIf="fruit.culinaryInformation?.cookingMethods?.length">
+						<h4>Cooking Methods:</h4>
+						<div class="tag-list">
+							<span class="tag" *ngFor="let method of fruit.culinaryInformation.cookingMethods">{{ method }}</span>
+						</div>
+					</div>
+					<div *ngIf="fruit.culinaryInformation?.fermentationUses?.length">
+						<h4>Fermentation Uses:</h4>
+						<div class="tag-list">
+							<span class="tag" *ngFor="let use of fruit.culinaryInformation.fermentationUses">{{ use }}</span>
+						</div>
+					</div>
+					<div *ngIf="fruit.culinaryInformation?.traditionalDishes?.length">
+						<h4>Traditional Dishes:</h4>
+						<div class="tag-list">
+							<span class="tag" *ngFor="let dish of fruit.culinaryInformation.traditionalDishes">{{ dish }}</span>
+						</div>
+					</div>
+					<div *ngIf="getNormalizedPairings().length">
+						<h4>Great Pairings:</h4>
+						<div class="tag-list">
+							<span class="tag" *ngFor="let pairing of getNormalizedPairings()">{{ pairing }}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- How to Eat -->
+			<div class="card" *ngIf="fruit.howToEat">
+				<div class="card-header">
+					<h3>🍽️ How to Eat</h3>
+				</div>
+				<div class="card-body">
+					<div class="info-section" *ngIf="fruit.howToEat.raw">
+						<h4>Raw:</h4>
+						<p>{{ fruit.howToEat.raw }}</p>
+					</div>
+					<div *ngIf="fruit.howToEat.recipes?.length">
+						<h4>Recipe Ideas:</h4>
+						<div class="tag-list">
+							<span class="tag" *ngFor="let recipe of fruit.howToEat.recipes">{{ recipe }}</span>
+						</div>
+					</div>
+					<div class="info-section" *ngIf="fruit.howToEat.servingSuggestions">
+						<h4>Serving Suggestions:</h4>
+						<p>{{ fruit.howToEat.servingSuggestions }}</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Industrial & Non-Food Uses -->
+			<div class="card" *ngIf="fruit.industrialAndNonFoodUses">
+				<div class="card-header">
+					<h3>🏭 Industrial Uses</h3>
+				</div>
+				<div class="card-body">
+					<div *ngIf="fruit.industrialAndNonFoodUses.nonFoodUses?.length">
+						<h4>Non-Food Uses:</h4>
+						<ul class="info-list">
+							<li *ngFor="let use of fruit.industrialAndNonFoodUses.nonFoodUses">{{ use }}</li>
+						</ul>
+					</div>
+					<div class="info-section" *ngIf="fruit.industrialAndNonFoodUses.wasteUsage">
+						<h4>Waste Usage:</h4>
+						<p>{{ fruit.industrialAndNonFoodUses.wasteUsage }}</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Storage & Shelf Life -->
+			<div class="card full-width" *ngIf="fruit.storageAndShelfLife">
+				<div class="card-header">
+					<h3>📦 Storage & Shelf Life</h3>
+				</div>
+				<div class="card-body">
+					<div class="info-grid">
+						<div class="info-item" *ngIf="fruit.storageAndShelfLife.storageTips">
+							<span class="info-key">Storage Tips:</span>
+							<span class="info-value">{{ fruit.storageAndShelfLife.storageTips }}</span>
+						</div>
+						<div class="info-item" *ngIf="fruit.storageAndShelfLife.seasonAvailability">
+							<span class="info-key">Season:</span>
+							<span class="info-value">{{ fruit.storageAndShelfLife.seasonAvailability }}</span>
+						</div>
+						<div class="info-item" *ngIf="fruit.storageAndShelfLife.optimalStorageTemp_C">
+							<span class="info-key">Optimal Temp:</span>
+							<span class="info-value">{{ fruit.storageAndShelfLife.optimalStorageTemp_C }}°C</span>
+						</div>
+					</div>
+					<div class="storage-times">
+						<div class="storage-item">
+							<span class="storage-label">Room Temperature:</span>
+							<span class="storage-value">{{ fruit.storageAndShelfLife.shelfLife_roomTemperature_days || 'N/A' }} days</span>
+						</div>
+						<div class="storage-item">
+							<span class="storage-label">Refrigerated:</span>
+							<span class="storage-value">{{ fruit.storageAndShelfLife.shelfLife_refrigerated_days || 'N/A' }} days</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Science & Botany Tab -->
+<div class="tab-content" [class.active]="activeTab==='science'" *ngIf="fruit">
+	<div class="container">
+		<div class="detail-grid">
+			<!-- Appearance -->
+			<div class="card" *ngIf="fruit.appearance">
+				<div class="card-header">
+					<h3>👁️ Appearance</h3>
+				</div>
+				<div class="card-body">
+					<div class="info-grid">
+						<div class="info-item" *ngIf="fruit.appearance.colors">
+							<span class="info-key">Colors:</span>
+							<span class="info-value">{{ fruit.appearance.colors.join(', ') }}</span>
+						</div>
+						<div class="info-item" *ngIf="fruit.appearance.shape">
+							<span class="info-key">Shape:</span>
+							<span class="info-value">{{ fruit.appearance.shape }}</span>
+						</div>
+						<div class="info-item" *ngIf="fruit.appearance.size_range_cm">
+							<span class="info-key">Size:</span>
+							<span class="info-value">{{ fruit.appearance.size_range_cm }}</span>
+						</div>
+						<div class="info-item" *ngIf="fruit.appearance.typical_weight_g">
+							<span class="info-key">Weight:</span>
+							<span class="info-value">{{ fruit.appearance.typical_weight_g }}g</span>
+						</div>
+						<div class="info-item" *ngIf="fruit.appearance.texture">
+							<span class="info-key">Texture:</span>
+							<span class="info-value">{{ fruit.appearance.texture }}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Botanical Information -->
+			<div class="card" *ngIf="fruit.botanicalInformation">
+				<div class="card-header">
+					<h3>🌿 Botanical Information</h3>
+				</div>
+				<div class="card-body">
+					<div class="info-grid">
+						<div class="info-item" *ngIf="fruit.botanicalInformation.plantType">
+							<span class="info-key">Plant Type:</span>
+							<span class="info-value">{{ fruit.botanicalInformation.plantType }}</span>
+						</div>
+						<div class="info-item" *ngIf="fruit.botanicalInformation.floweringTime">
+							<span class="info-key">Flowering Time:</span>
+							<span class="info-value">{{ fruit.botanicalInformation.floweringTime }}</span>
+						</div>
+						<div class="info-item" *ngIf="fruit.botanicalInformation.pollinationType">
+							<span class="info-key">Pollination:</span>
+							<span class="info-value">{{ fruit.botanicalInformation.pollinationType }}</span>
+						</div>
+						<div class="info-item" *ngIf="fruit.botanicalInformation.seedType">
+							<span class="info-key">Seed Type:</span>
+							<span class="info-value">{{ fruit.botanicalInformation.seedType }}</span>
+						</div>
+						<div class="info-item" *ngIf="fruit.botanicalInformation.lifeCycle">
+							<span class="info-key">Life Cycle:</span>
+							<span class="info-value">{{ fruit.botanicalInformation.lifeCycle }}</span>
+						</div>
+						<div class="info-item" *ngIf="fruit.botanicalInformation.chromosomeNumber">
+							<span class="info-key">Chromosomes:</span>
+							<span class="info-value">{{ fruit.botanicalInformation.chromosomeNumber }}</span>
+						</div>
+					</div>
+					<div *ngIf="fruit.botanicalInformation.varietiesOrCultivars?.length">
+						<h4>Varieties:</h4>
+						<div class="tag-list">
+							<span class="tag" *ngFor="let variety of fruit.botanicalInformation.varietiesOrCultivars">{{ variety }}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Genetic Information -->
+			<div class="card" *ngIf="fruit.geneticInformation">
+				<div class="card-header">
+					<h3>🧬 Genetic Information</h3>
+				</div>
+				<div class="card-body">
+					<div class="info-grid">
+						<div class="info-item" *ngIf="fruit.geneticInformation.GMOStatus">
+							<span class="info-key">GMO Status:</span>
+							<span class="info-value">{{ fruit.geneticInformation.GMOStatus }}</span>
+						</div>
+					</div>
+					<div class="info-section" *ngIf="fruit.geneticInformation.breedingNotes">
+						<h4>Breeding Notes:</h4>
+						<p>{{ fruit.geneticInformation.breedingNotes }}</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Chemical Composition -->
+			<div class="card" *ngIf="fruit.chemicalComposition">
+				<div class="card-header">
+					<h3>🧪 Chemical Composition</h3>
+				</div>
+				<div class="card-body">
+					<div class="info-grid">
+						<div class="info-item" *ngIf="fruit.chemicalComposition.pHLevel">
+							<span class="info-key">pH Level:</span>
+							<span class="info-value">{{ fruit.chemicalComposition.pHLevel }}</span>
+						</div>
+						<div class="info-item" *ngIf="fruit.chemicalComposition.oxidationRate">
+							<span class="info-key">Oxidation Rate:</span>
+							<span class="info-value">{{ fruit.chemicalComposition.oxidationRate }}</span>
+						</div>
+					</div>
+					<div *ngIf="fruit.chemicalComposition.enzymesPresent?.length">
+						<h4>Enzymes:</h4>
+						<div class="tag-list">
+							<span class="tag" *ngFor="let enzyme of fruit.chemicalComposition.enzymesPresent">{{ enzyme }}</span>
+						</div>
+					</div>
+					<div *ngIf="fruit.chemicalComposition.aromaCompounds?.length">
+						<h4>Aroma Compounds:</h4>
+						<div class="tag-list">
+							<span class="tag" *ngFor="let compound of fruit.chemicalComposition.aromaCompounds">{{ compound }}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Phytochemicals & Medicinal -->
+			<div class="card full-width" *ngIf="fruit.phytochemicalsAndMedicinal">
+				<div class="card-header">
+					<h3>🌱 Phytochemicals & Medicinal Uses</h3>
+				</div>
+				<div class="card-body">
+					<div *ngIf="fruit.phytochemicalsAndMedicinal.phytochemicals?.length">
+						<h4>Phytochemicals:</h4>
+						<div class="tag-list">
+							<span class="tag" *ngFor="let compound of fruit.phytochemicalsAndMedicinal.phytochemicals">{{ compound }}</span>
+						</div>
+					</div>
+					<div class="info-section" *ngIf="fruit.phytochemicalsAndMedicinal.traditionalMedicinalUses">
+						<h4>Traditional Uses:</h4>
+						<p>{{ fruit.phytochemicalsAndMedicinal.traditionalMedicinalUses }}</p>
+					</div>
+					<div *ngIf="fruit.phytochemicalsAndMedicinal.clinicalStudies?.length">
+						<h4>Clinical Studies:</h4>
+						<ul class="info-list">
+							<li *ngFor="let study of fruit.phytochemicalsAndMedicinal.clinicalStudies">{{ study }}</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Cultivation Tab -->
+<div class="tab-content" [class.active]="activeTab==='cultivation'" *ngIf="fruit">
+	<div class="container">
+		<div class="detail-grid">
+			<!-- Cultivation -->
+			<div class="card" *ngIf="fruit.cultivation">
+				<div class="card-header">
+					<h3>🌾 Cultivation</h3>
+				</div>
+				<div class="card-body">
+					<div class="info-grid">
+						<div class="info-item" *ngIf="fruit.cultivation.growingConditions">
+							<span class="info-key">Growing Conditions:</span>
+							<span class="info-value">{{ fruit.cultivation.growingConditions }}</span>
+						</div>
+						<div class="info-item" *ngIf="fruit.cultivation.harvestTime">
+							<span class="info-key">Harvest Time:</span>
+							<span class="info-value">{{ fruit.cultivation.harvestTime }}</span>
+						</div>
+					</div>
+					<div *ngIf="getNormalizedPropagationMethods().length">
+						<h4>Propagation Methods:</h4>
+						<div class="tag-list">
+							<span class="tag" *ngFor="let method of getNormalizedPropagationMethods()">{{ method }}</span>
+						</div>
+					</div>
+					<div *ngIf="fruit.cultivation.commonRegions?.length">
+						<h4>Common Regions:</h4>
+						<div class="tag-list">
+							<span class="tag" *ngFor="let region of fruit.cultivation.commonRegions">{{ region }}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Sustainability -->
+			<div class="card" *ngIf="fruit.sustainability">
+				<div class="card-header">
+					<h3>🌍 Sustainability</h3>
+				</div>
+				<div class="card-body">
+					<div class="info-section" *ngIf="fruit.sustainability.ecoImpact">
+						<h4>Environmental Impact:</h4>
+						<p>{{ fruit.sustainability.ecoImpact }}</p>
+					</div>
+					<div class="info-section" *ngIf="fruit.sustainability.organicFarmingTips">
+						<h4>Organic Farming Tips:</h4>
+						<p>{{ fruit.sustainability.organicFarmingTips }}</p>
+					</div>
+					<div class="info-section" *ngIf="fruit.sustainability.carbonFootprintNotes">
+						<h4>Carbon Footprint:</h4>
+						<p>{{ fruit.sustainability.carbonFootprintNotes }}</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Environmental Interaction -->
+			<div class="card" *ngIf="fruit.environmentalInteraction">
+				<div class="card-header">
+					<h3>🐝 Environmental Interaction</h3>
+				</div>
+				<div class="card-body">
+					<div class="info-section" *ngIf="fruit.environmentalInteraction.importanceToPollinators">
+						<h4>Importance to Pollinators:</h4>
+						<p>{{ fruit.environmentalInteraction.importanceToPollinators }}</p>
+					</div>
+					<div class="info-section" *ngIf="fruit.environmentalInteraction.invasivePotential">
+						<h4>Invasive Potential:</h4>
+						<p>{{ fruit.environmentalInteraction.invasivePotential }}</p>
+					</div>
+					<div class="info-section" *ngIf="fruit.environmentalInteraction.companionPlantingTips">
+						<h4>Companion Planting:</h4>
+						<p>{{ fruit.environmentalInteraction.companionPlantingTips }}</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Pest & Disease Resistance -->
+			<div class="card" *ngIf="fruit.pestAndDiseaseResistance">
+				<div class="card-header">
+					<h3>🐛 Pest & Disease Resistance</h3>
+				</div>
+				<div class="card-body">
+					<div *ngIf="fruit.pestAndDiseaseResistance.commonPests?.length">
+						<h4>Common Pests:</h4>
+						<div class="tag-list">
+							<span class="tag" *ngFor="let pest of fruit.pestAndDiseaseResistance.commonPests">{{ pest }}</span>
+						</div>
+					</div>
+					<div *ngIf="fruit.pestAndDiseaseResistance.commonDiseases?.length">
+						<h4>Common Diseases:</h4>
+						<div class="tag-list">
+							<span class="tag" *ngFor="let disease of fruit.pestAndDiseaseResistance.commonDiseases">{{ disease }}</span>
+						</div>
+					</div>
+					<div class="info-section" *ngIf="fruit.pestAndDiseaseResistance.diseaseResistance">
+						<h4>Disease Resistance:</h4>
+						<p>{{ fruit.pestAndDiseaseResistance.diseaseResistance }}</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Ripening & Lifecycle -->
+			<div class="card full-width" *ngIf="fruit.ripeningAndLifecycle">
+				<div class="card-header">
+					<h3>🍎 Ripening & Lifecycle</h3>
+				</div>
+				<div class="card-body">
+					<div class="info-grid">
+						<div class="info-item" *ngIf="fruit.ripeningAndLifecycle.ripeningProcess">
+							<span class="info-key">Ripening Process:</span>
+							<span class="info-value">{{ fruit.ripeningAndLifecycle.ripeningProcess }}</span>
+						</div>
+						<div class="info-item" *ngIf="fruit.ripeningAndLifecycle.ethyleneSensitivity">
+							<span class="info-key">Ethylene Sensitivity:</span>
+							<span class="info-value">{{ fruit.ripeningAndLifecycle.ethyleneSensitivity }}</span>
+						</div>
+					</div>
+					<div class="info-section" *ngIf="fruit.ripeningAndLifecycle.postHarvestHandling">
+						<h4>Post-Harvest Handling:</h4>
+						<p>{{ fruit.ripeningAndLifecycle.postHarvestHandling }}</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Facts & More Tab -->
+<div class="tab-content" [class.active]="activeTab==='facts'" *ngIf="fruit">
+	<div class="container">
+		<div class="detail-grid">
+			<!-- Fun Facts -->
+			<div class="card">
+				<div class="card-header">
+					<h3>🎉 Fun Facts</h3>
+				</div>
+				<div class="card-body">
+					<ul class="facts-list">
+						<li *ngFor="let f of (fruit.funFacts || [])">{{ f }}</li>
+						<li *ngFor="let f of (fruit.uniqueFacts || [])">{{ f }}</li>
+					</ul>
+				</div>
+			</div>
+
+			<!-- Related Fruits -->
+			<div class="card" *ngIf="fruit.relatedFruits?.length">
+				<div class="card-header">
+					<h3>🍎 Related Fruits</h3>
+				</div>
+				<div class="card-body">
+					<div class="tag-list">
+						<span class="tag" *ngFor="let related of fruit.relatedFruits">{{ related }}</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Warnings -->
+			<div class="card" *ngIf="fruit.warnings?.length">
+				<div class="card-header">
+					<h3>⚠️ Warnings</h3>
+				</div>
+				<div class="card-body">
+					<ul class="warning-list">
+						<li *ngFor="let warning of fruit.warnings">{{ warning }}</li>
+					</ul>
+				</div>
+			</div>
+
+			<!-- Trade & Economy -->
+			<div class="card" *ngIf="fruit.tradeAndEconomy">
+				<div class="card-header">
+					<h3>📊 Trade & Economy</h3>
+				</div>
+				<div class="card-body">
+					<div class="info-grid">
+						<div class="info-item" *ngIf="fruit.tradeAndEconomy.marketValue_usd_per_ton">
+							<span class="info-key">Market Value:</span>
+							<span class="info-value">${{ fruit.tradeAndEconomy.marketValue_usd_per_ton }}/ton</span>
+						</div>
+					</div>
+					<div *ngIf="fruit.tradeAndEconomy.exportingCountries?.length">
+						<h4>Exporting Countries:</h4>
+						<div class="tag-list">
+							<span class="tag" *ngFor="let country of fruit.tradeAndEconomy.exportingCountries">{{ country }}</span>
+						</div>
+					</div>
+					<div *ngIf="fruit.tradeAndEconomy.importingCountries?.length">
+						<h4>Importing Countries:</h4>
+						<div class="tag-list">
+							<span class="tag" *ngFor="let country of fruit.tradeAndEconomy.importingCountries">{{ country }}</span>
+						</div>
+					</div>
+					<div class="info-section" *ngIf="fruit.tradeAndEconomy.demandTrends">
+						<h4>Demand Trends:</h4>
+						<p>{{ fruit.tradeAndEconomy.demandTrends }}</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Sensory & Marketing -->
+			<div class="card" *ngIf="fruit.sensoryAndMarketing">
+				<div class="card-header">
+					<h3>👃 Sensory & Marketing</h3>
+				</div>
+				<div class="card-body">
+					<div class="info-section" *ngIf="fruit.sensoryAndMarketing.smellDescription">
+						<h4>Smell Description:</h4>
+						<p>{{ fruit.sensoryAndMarketing.smellDescription }}</p>
+					</div>
+					<div class="info-section" *ngIf="fruit.sensoryAndMarketing.soundWhenRipe">
+						<h4>Sound When Ripe:</h4>
+						<p>{{ fruit.sensoryAndMarketing.soundWhenRipe }}</p>
+					</div>
+					<div *ngIf="fruit.sensoryAndMarketing.labelingInfo?.length">
+						<h4>Labeling:</h4>
+						<div class="tag-list">
+							<span class="tag" *ngFor="let label of fruit.sensoryAndMarketing.labelingInfo">{{ label }}</span>
+						</div>
+					</div>
+					<div class="info-item" *ngIf="fruit.sensoryAndMarketing.barcode">
+						<span class="info-key">Barcode:</span>
+						<span class="info-value">{{ fruit.sensoryAndMarketing.barcode }}</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Child Friendliness & Safety -->
+			<div class="card" *ngIf="fruit.childFriendlinessAndSafety">
+				<div class="card-header">
+					<h3>👶 Child Safety</h3>
+				</div>
+				<div class="card-body">
+					<div class="info-section" *ngIf="fruit.childFriendlinessAndSafety.chokingHazard">
+						<h4>Choking Hazard:</h4>
+						<p>{{ fruit.childFriendlinessAndSafety.chokingHazard }}</p>
+					</div>
+					<div class="info-section" *ngIf="fruit.childFriendlinessAndSafety.ageSuitability">
+						<h4>Age Suitability:</h4>
+						<p>{{ fruit.childFriendlinessAndSafety.ageSuitability }}</p>
+					</div>
+					<div class="info-section" *ngIf="fruit.childFriendlinessAndSafety.preparationForChildren">
+						<h4>Preparation for Children:</h4>
+						<p>{{ fruit.childFriendlinessAndSafety.preparationForChildren }}</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Geolocation & Mapping -->
+			<div class="card full-width" *ngIf="fruit.geolocationAndMapping">
+				<div class="card-header">
+					<h3>🗺️ Geolocation & Mapping</h3>
+				</div>
+				<div class="card-body">
+					<div class="info-grid">
+						<div class="info-item" *ngIf="fruit.geolocationAndMapping.GISCoordinates">
+							<span class="info-key">GIS Coordinates:</span>
+							<span class="info-value">{{ fruit.geolocationAndMapping.GISCoordinates.join(', ') }}</span>
+						</div>
+						<div class="info-item" *ngIf="fruit.geolocationAndMapping.elevationRange_m">
+							<span class="info-key">Elevation Range:</span>
+							<span class="info-value">{{ fruit.geolocationAndMapping.elevationRange_m }}m</span>
+						</div>
+					</div>
+					<!-- Interactive Map -->
+					<div class="map-container" *ngIf="showMap">
+						<div leaflet [leafletOptions]="mapOptions" [leafletLayers]="mapLayers" class="map"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" [class.active]="lightboxOpen" *ngIf="gallery?.length">
+	<div class="lightbox-backdrop" (click)="closeLightbox()"></div>
+	<div class="lightbox-content">
+		<button class="lb-close" (click)="closeLightbox()">✕</button>
+		<button class="lb-prev" (click)="prevLightbox()">‹</button>
+		<img id="lightbox-img" [src]="gallery[lightboxIndex]" [alt]="fruit.fruitName + ' large'" />
+		<button class="lb-next" (click)="nextLightbox()">›</button>
+	</div>
+</div>
+
+<!-- Loading / Error -->
+<div *ngIf="loading">Loading...</div>
+<div *ngIf="error">{{ error }}</div>
+

@@ -3,13 +3,14 @@
 
 Fruitopia AI is an intelligent fruit recommendation system that uses machine learning and AI to suggest the best fruits for users based on their health conditions, preferences, and available inventory. The system features disease-based recommendations, personalized suggestions, natural language input, a conversational chatbot, and fruit image recognition.
 
-
 ## Features & AI Methods
 - Disease-based fruit recommendations (Machine Learning)
 - Personalized suggestions using user profile (ML/Recommendation Systems)
 - Natural Language Processing (NLP) for user input and symptom analysis
 - Conversational AI chatbot for interactive experience
 - Fruit image recognition (Computer Vision/Deep Learning)
+- **Comprehensive Fruit Encyclopedia** with detailed nutritional data, cultivation info, and interactive maps
+- **Interactive Geolocation Maps** showing fruit origins and cultivation regions
 
 **AI Technologies Used:**
 - Machine Learning (scikit-learn, TensorFlow, or PyTorch)
@@ -17,8 +18,25 @@ Fruitopia AI is an intelligent fruit recommendation system that uses machine lea
 - Computer Vision/Image Recognition (TensorFlow, PyTorch, OpenCV)
 - Conversational AI (custom chatbot or integration with frameworks like Rasa)
 
+## Frontend Features
+
+### Explore Component
+The `/explore/[fruit-name]` route provides a comprehensive fruit encyclopedia with:
+
+- **6 Organized Tabs**: Overview, Nutrition & Health, Culinary & Uses, Science & Botany, Cultivation, and Facts & More
+- **Interactive Maps**: Leaflet-powered maps showing fruit origins and cultivation regions
+- **Nutritional Data**: Detailed vitamins, minerals, and macronutrient information with visual charts
+- **Modern UI**: Card-based design with gradients, animations, and responsive layouts
+- **Image Gallery**: Fruit photos with lightbox viewing
+- **Comprehensive Data**: Botanical information, health benefits, culinary uses, and more
+
+### Recommendation System
+- Disease-based fruit recommendations
+- Personalized suggestions
+- Natural language symptom analysis
+
 ## Tech Stack
-- **Frontend:** Angular
+- **Frontend:** Angular with Leaflet for interactive maps
 - **Backend:** FastAPI (Python)
 - **Machine Learning:** Python (scikit-learn, TensorFlow, or PyTorch as needed)
 # Fruitopia (Angular + FastAPI)
