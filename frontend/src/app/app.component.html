@@ -16,7 +16,7 @@
   <div class="toolbar-right">
     <button mat-icon-button routerLink="/" aria-label="Home" matTooltip="Go to home page" matTooltipPosition="below"><mat-icon>home</mat-icon></button>
     <button mat-icon-button routerLink="/gallery" aria-label="Gallery" matTooltip="View image gallery" matTooltipPosition="below"><mat-icon>photo_library</mat-icon></button>
-    <button mat-icon-button routerLink="/chatbot" aria-label="Chatbot" matTooltip="Open the Fruitopia assistant" matTooltipPosition="below"><mat-icon>chat</mat-icon></button>
+    <button mat-icon-button (click)="toggleChat()" aria-label="Chatbot" matTooltip="Open the Fruitopia assistant" matTooltipPosition="below"><mat-icon>chat</mat-icon></button>
     <button mat-icon-button routerLink="/recommend" aria-label="Recommendations" matTooltip="Get fruit recommendations" matTooltipPosition="below"><mat-icon>star</mat-icon></button>
     <button mat-icon-button routerLink="/vision" aria-label="Vision" matTooltip="Upload an image for fruit recognition" matTooltipPosition="below"><mat-icon>camera_alt</mat-icon></button>
   </div>
@@ -29,3 +29,6 @@
     <app-gallery></app-gallery>
   </div>
 </div>
+
+<!-- Floating Chat Widget -->
+<app-chat-widget #chatWidget></app-chat-widget>

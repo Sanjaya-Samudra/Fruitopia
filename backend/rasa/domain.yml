@@ -1,0 +1,83 @@
+version: "3.1"
+
+intents:
+  - greet
+  - goodbye
+  - affirm
+  - deny
+  - mood_great
+  - mood_unhappy
+  - bot_challenge
+  - ask_recommendation
+  - inform_disease
+  - ask_fruit_info
+  - ask_health_benefits
+  - ask_fruit_comparison
+  - ask_fruit_recipes
+  - ask_nutrition_info
+  - ask_allergies
+  - ask_warnings
+
+entities:
+  - disease
+  - fruit
+
+slots:
+  disease:
+    type: text
+    mappings:
+    - type: from_entity
+      entity: disease
+  fruit:
+    type: text
+    mappings:
+    - type: from_entity
+      entity: fruit
+  conversation_memory:
+    type: list
+    mappings:
+    - type: custom
+
+responses:
+  utter_greet:
+  - text: "Hello! I'm your Fruitopia AI Assistant. I can help you find healthy fruits based on your health conditions, provide detailed nutritional information, and answer questions about fruits. What would you like to know today?"
+
+  utter_cheer_up:
+  - text: "Here is something to cheer you up:"
+    image: "https://i.imgur.com/nGF1K8f.jpg"
+
+  utter_did_that_help:
+  - text: "Did that help you?"
+
+  utter_happy:
+  - text: "Great, carry on!"
+
+  utter_goodbye:
+  - text: "Bye! Have a healthy day with fruits! 🍎"
+
+  utter_iamabot:
+  - text: "I am a fruit recommendation AI, powered by Rasa and detailed nutritional databases."
+
+  utter_ask_disease:
+  - text: "What health condition or disease are you interested in? For example: diabetes, anemia, hypertension, etc."
+
+  utter_recommend_fruits:
+  - text: "Based on your condition, here are some fruit recommendations:"
+
+actions:
+  - utter_greet
+  - utter_cheer_up
+  - utter_did_that_help
+  - utter_happy
+  - utter_goodbye
+  - utter_iamabot
+  - utter_ask_disease
+  - utter_recommend_fruits
+  - action_recommend_fruits
+  - action_get_fruit_info
+  - action_get_fruit_comparison
+  - action_get_fruit_recipes
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

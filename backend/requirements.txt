@@ -1,5 +1,10 @@
 fastapi
 uvicorn
-# Optional (install only if using vision/predict):
-# torch
-# torchvision
+requests
+transformers
+torch
+sentence-transformers
+scikit-learn
+pandas
+numpy
+nltk

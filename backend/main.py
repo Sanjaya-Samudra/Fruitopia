@@ -12,77 +12,33 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class Fruit(BaseModel):
-    name: str
-    tagline: Optional[str]
-    image: Optional[str]
-    description: Optional[str]
-    nutrition: Optional[List[str]]
-    benefits: Optional[List[str]]
-    serving: Optional[str]
-    categories: Optional[List[str]]
-
-# Sample data for demonstration
-fruits_db = [
-    Fruit(
-        name="Blueberries",
-        tagline="The Antioxidant Champion",
-        image="https://images.unsplash.com/photo-1498557850523-fd3d118b962e?w=400&h=300&fit=crop",
-        description="Small but mighty, blueberries are packed with anthocyanins, powerful antioxidants that give them their deep blue color and incredible health benefits.",
-        nutrition=["Vitamin C: 24% DV", "Vitamin K: 36% DV", "Manganese: 25% DV"],
-        benefits=["Improves brain function", "Supports heart health", "Reduces inflammation", "Regulates blood sugar"],
-        serving="1 cup (148g) - 84 calories",
-        categories=["antioxidant-rich", "immune-boosting"]
-    ),
-    Fruit(
-        name="Avocado",
-        tagline="The Heart-Healthy Superfruit",
-        image="https://images.unsplash.com/photo-1612215047504-a6c07dbe4f7f?w=500&auto=format&fit=crop&q=60",
-        description="Rich in monounsaturated fats, avocados support heart health while providing essential nutrients and helping your body absorb fat-soluble vitamins.",
-        nutrition=["Folate: 20% DV", "Potassium: 14% DV", "Fiber: 10g"],
-        benefits=["Supports cardiovascular health", "Aids nutrient absorption", "Reduces cholesterol", "Weight management"],
-        serving="1/2 medium avocado (100g) - 160 calories",
-        categories=["heart-healthy"]
-    ),
-    # Add more fruits as needed
-]
-
-@app.get("/fruits", response_model=List[Fruit])
-def get_fruits(category: Optional[str] = Query(None)):
-    if category and category != "all":
-        return [fruit for fruit in fruits_db if category in (fruit.categories or [])]
-    return fruits_db
-
-@app.get("/fruits/{fruit_name}", response_model=Fruit)
-def get_fruit_detail(fruit_name: str):
-    for fruit in fruits_db:
-        if fruit.name.lower() == fruit_name.lower():
-            return fruit
-    return None
-
-# --- Recommendation Endpoint ---
-from fastapi import Body
-@app.post("/recommend")
-def recommend_fruits(disease: str = Body(..., embed=True)):
-    # Dummy logic: filter fruits by disease in categories
-    recommended = [fruit for fruit in fruits_db if disease.lower() in (fruit.categories or [])]
-    return {"recommended": recommended}
-
 # --- NLP Extraction Endpoint ---
 import sys
-sys.path.append("./nlp")
-from nlp_pipeline import extract_diseases
+import os
+# Add the backend directory to the path for relative imports
+backend_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(backend_dir, 'nlp'))
+try:
+    from nlp_pipeline import extract_diseases  # type: ignore
+except ImportError:
+    print("Warning: nlp_pipeline not available")
+    def extract_diseases(text): return []
+from fastapi import Body
 @app.post("/nlp/extract")
 def nlp_extract(text: str = Body(..., embed=True)):
     diseases = extract_diseases(text)
     return {"diseases": diseases}
 
 # --- Image Recognition Endpoint ---
-sys.path.append("./vision")
-from vision.image_recognition import identify_fruit
-from fastapi import UploadFile, File as FastAPIFile
+sys.path.insert(0, os.path.join(backend_dir, 'vision'))
+try:
+    from vision.image_recognition import identify_fruit
+except ImportError:
+    print("Warning: vision module not available")
+    def identify_fruit(image_path): return 'unknown'
+from fastapi import UploadFile, File
 @app.post("/vision/identify")
-async def vision_identify(image: UploadFile = FastAPIFile(...)):
+async def vision_identify(image: UploadFile = File(...)):
     # Save uploaded file temporarily
     temp_path = f"temp_{image.filename}"
     with open(temp_path, "wb") as f:
@@ -91,9 +47,53 @@ async def vision_identify(image: UploadFile = FastAPIFile(...)):
     return {"fruit": fruit_name}
 
 # --- Chatbot Endpoint ---
-sys.path.append("./chatbot")
-from chatbot import get_response
+import requests
+from uuid import uuid4
+# Add chatbot directory to path
+sys.path.append(os.path.join(backend_dir, 'chatbot'))
+
+# Initialize the custom chatbot on startup
+chatbot_initialized = False
+initialize_chatbot_func = None
+get_response_func = None
+
+def init_chatbot():
+    global chatbot_initialized, get_response_func
+    if not chatbot_initialized:
+        try:
+            from custom_chatbot import initialize_chatbot as init_func, get_response as response_func  # type: ignore
+            init_func()
+            get_response_func = response_func
+            chatbot_initialized = True
+            print("Chatbot initialized successfully")
+        except Exception as e:
+            print(f"Chatbot initialization failed: {e}")
+            get_response_func = lambda msg: "I'm sorry, I'm having trouble processing your request right now."
+
+# In-memory session storage (for demo; use Redis/DB in production)
+chat_sessions = {}
+
 @app.post("/chatbot/message")
-def chatbot_message(message: str = Body(..., embed=True)):
-    response = get_response(message)
-    return {"response": response}
+def chatbot_message(message: str = Body(..., embed=True), session_id: Optional[str] = Body(None, embed=True)):
+    # Initialize chatbot if not already done
+    if not chatbot_initialized:
+        init_chatbot()
+        
+    if not session_id:
+        session_id = str(uuid4())
+
+    # Initialize session if new
+    if session_id not in chat_sessions:
+        chat_sessions[session_id] = {"history": []}
+
+    # Get response from custom chatbot
+    try:
+        bot_response = get_response_func(message)
+    except Exception as e:
+        print(f"Chatbot error: {e}")
+        bot_response = "I'm sorry, I'm having trouble processing your request right now."
+
+    # Update session history
+    chat_sessions[session_id]["history"].append({"user": message, "bot": bot_response})
+
+    return {"response": bot_response, "session_id": session_id}

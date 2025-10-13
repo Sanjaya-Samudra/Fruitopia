@@ -1,0 +1,95 @@
+version: "3.1"
+
+stories:
+
+- story: happy path
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: mood_great
+  - action: utter_happy
+
+- story: sad path 1
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: mood_unhappy
+  - action: utter_cheer_up
+  - action: utter_did_that_help
+  - intent: affirm
+  - action: utter_happy
+
+- story: sad path 2
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: mood_unhappy
+  - action: utter_cheer_up
+  - action: utter_did_that_help
+  - intent: deny
+  - action: utter_goodbye
+
+- story: fruit recommendation
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: ask_recommendation
+  - action: utter_ask_disease
+  - intent: inform_disease
+  - action: action_recommend_fruits
+  - action: utter_recommend_fruits
+
+- story: direct disease inform
+  steps:
+  - intent: inform_disease
+  - action: action_recommend_fruits
+  - action: utter_recommend_fruits
+
+- story: ask fruit info
+  steps:
+  - intent: ask_fruit_info
+  - action: action_get_fruit_info
+
+- story: ask health benefits
+  steps:
+  - intent: ask_health_benefits
+  - action: action_get_fruit_info
+
+- story: ask nutrition info
+  steps:
+  - intent: ask_nutrition_info
+  - action: action_get_fruit_info
+
+- story: ask allergies
+  steps:
+  - intent: ask_allergies
+  - action: action_get_fruit_info
+
+- story: ask warnings
+  steps:
+  - intent: ask_warnings
+  - action: action_get_fruit_info
+
+- story: ask fruit recipes
+  steps:
+  - intent: ask_fruit_recipes
+  - action: action_get_fruit_recipes
+
+- story: fruit comparison
+  steps:
+  - intent: ask_fruit_comparison
+  - action: action_get_fruit_comparison
+
+- story: bot challenge
+  steps:
+  - intent: bot_challenge
+  - action: utter_iamabot
+
+- story: multiple fruit queries
+  steps:
+  - intent: ask_fruit_info
+  - action: action_get_fruit_info
+  - intent: ask_health_benefits
+  - action: action_get_fruit_info
+  - intent: ask_nutrition_info
+  - action: action_get_fruit_info

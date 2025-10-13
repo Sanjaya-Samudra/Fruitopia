@@ -35,15 +35,5 @@ export class FruitListComponent implements OnInit {
     // Implement navigation to fruit-detail or modal popup
     alert('Fruit details: ' + fruit.name);
   }
-
-  openChatbot() {
-    // Example: open a prompt for user message, send to backend, show response
-    const userMessage = prompt('Ask Fruitopia Chatbot anything about healthy fruits!');
-    if (userMessage) {
-      this.api.chatbotMessage(userMessage).subscribe((res: any) => {
-        alert('Chatbot says: ' + (res.response || 'No response'));
-      });
-    }
-  }
 }
 

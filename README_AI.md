@@ -52,5 +52,25 @@ Notes on provenance:
 - Update `backend/vision_api.py` to load the trained model and perform real inference.
 - Add frontend integration and image upload UI in Angular to call `/vision/predict`.
 
-5) Recording provenance
+5) Conversational AI Chatbot
+- Rasa-based chatbot for fruit recommendations and health advice with floating widget UI.
+- Features: Context awareness, conversation memory, multi-turn dialogues, image upload for fruit identification.
+- Training data: Custom NLU intents, stories, and rules for fruit/health conversations.
+- Custom actions: Fruit recommendations based on disease_recs.json and synonyms.
+- UI: Floating chat widget with quick action buttons, chat history persistence, minimize/maximize.
+- Integration: FastAPI backend proxies to Rasa server, Angular floating widget accessible from header.
+
+Setup chatbot:
+```powershell
+pip install -r backend/requirements.txt
+python train_rasa.py train
+# In separate terminals:
+python train_rasa.py actions  # Starts action server on 5055
+python train_rasa.py server   # Starts Rasa on 5005
+uvicorn backend.main:app --reload  # Starts FastAPI on 8000
+```
+
+Frontend: Click the chat icon in the header to open the floating assistant.
+
+6) Recording provenance
 - When fetching external datasets (USDA or others), the exact URLs and download timestamps will be recorded here with SHA256 checksums of downloaded files.

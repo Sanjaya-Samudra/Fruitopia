@@ -1,0 +1,286 @@
+version: "3.1"
+
+nlu:
+- intent: greet
+  examples: |
+    - hey
+    - hello
+    - hi
+    - hello there
+    - good morning
+    - good evening
+    - moin
+    - hey there
+    - let's go
+    - hey dude
+    - goodmorning
+    - goodevening
+    - good afternoon
+
+- intent: goodbye
+  examples: |
+    - bye
+    - good afternoon
+    - cu
+    - good by
+    - cee you later
+    - good night
+    - bye by
+    - bye bye
+    - see you around
+    - see you later
+    - bye for now
+    - catch you later
+
+- intent: affirm
+  examples: |
+    - yes
+    - y
+    - indeed
+    - of course
+    - that sounds good
+    - correct
+    - sure
+    - yep
+    - yeah
+    - ok
+    - okay
+    - great
+    - perfect
+
+- intent: deny
+  examples: |
+    - no
+    - n
+    - never
+    - I don't think so
+    - don't like that
+    - no way
+    - not really
+    - nope
+    - nah
+
+- intent: mood_great
+  examples: |
+    - perfect
+    - great
+    - amazing
+    - feeling like a king
+    - wonderful
+    - I am feeling very good
+    - I am great
+    - I am amazing
+    - I am going to save the world
+    - super stoked
+    - extremely good
+    - so so perfect
+    - so good
+    - so perfect
+
+- intent: mood_unhappy
+  examples: |
+    - my day was horrible
+    - I am sad
+    - I don't feel very well
+    - I am disappointed
+    - super sad
+    - I'm so sad
+    - sad
+    - very sad
+    - unhappy
+    - not good
+    - not very good
+    - extremly sad
+    - so saad
+    - so sad
+
+- intent: bot_challenge
+  examples: |
+    - are you a bot?
+    - are you a human?
+    - am I talking to a bot?
+    - am I talking to a human?
+    - what are you?
+    - who are you?
+    - are you real?
+
+- intent: ask_recommendation
+  examples: |
+    - what fruits should I eat
+    - recommend some fruits
+    - which fruits are good for me
+    - suggest healthy fruits
+    - what fruits do you recommend
+    - fruit recommendations
+    - healthy fruit suggestions
+    - what should I eat
+    - good fruits for health
+
+- intent: inform_disease
+  examples: |
+    - I have [diabetes](disease)
+    - I'm [diabetic](disease)
+    - I suffer from [heart disease](disease)
+    - I have [high blood pressure](disease)
+    - I'm dealing with [anemia](disease)
+    - I have [hypertension](disease)
+    - I'm [constipated](disease)
+    - I have [diabetes](disease)
+    - suffering from [cancer](disease)
+    - I have [asthma](disease)
+    - dealing with [arthritis](disease)
+    - I have [obesity](disease)
+    - I'm [overweight](disease)
+
+- intent: ask_fruit_info
+  examples: |
+    - tell me about [apples](fruit)
+    - what is [banana](fruit)
+    - information about [oranges](fruit)
+    - details on [strawberries](fruit)
+    - about [blueberries](fruit)
+    - what do you know about [grapes](fruit)
+    - tell me more about [pineapple](fruit)
+    - facts about [mango](fruit)
+    - info on [kiwi](fruit)
+    - learn about [peach](fruit)
+
+- intent: ask_health_benefits
+  examples: |
+    - what are the benefits of [apples](fruit)
+    - health benefits of [bananas](fruit)
+    - why is [orange](fruit) good for you
+    - benefits of eating [strawberries](fruit)
+    - how does [blueberry](fruit) help health
+    - nutritional benefits of [grape](fruit)
+    - why eat [pineapple](fruit)
+    - health advantages of [mango](fruit)
+
+- intent: ask_fruit_comparison
+  examples: |
+    - compare [apple](fruit) and [banana](fruit)
+    - which is better [orange](fruit) or [grape](fruit)
+    - difference between [strawberry](fruit) and [blueberry](fruit)
+    - [apple](fruit) vs [banana](fruit)
+    - compare nutrition of [orange](fruit) and [mango](fruit)
+
+- intent: ask_fruit_recipes
+  examples: |
+    - recipes with [apples](fruit)
+    - how to cook [banana](fruit)
+    - [orange](fruit) recipes
+    - what to make with [strawberries](fruit)
+    - [blueberry](fruit) dishes
+    - cooking [grapes](fruit)
+    - [pineapple](fruit) recipes
+    - [mango](fruit) ideas
+
+- intent: ask_nutrition_info
+  examples: |
+    - nutrition facts for [apples](fruit)
+    - calories in [banana](fruit)
+    - nutritional value of [orange](fruit)
+    - vitamins in [strawberry](fruit)
+    - protein in [blueberry](fruit)
+    - carbs in [grape](fruit)
+    - fiber content of [pineapple](fruit)
+
+- intent: ask_allergies
+  examples: |
+    - allergic to [apples](fruit)
+    - [banana](fruit) allergy
+    - can I eat [oranges](fruit) if allergic
+    - [strawberry](fruit) allergies
+    - reactions to [blueberries](fruit)
+    - [grape](fruit) allergy symptoms
+    - [pineapple](fruit) allergies
+
+- intent: ask_warnings
+  examples: |
+    - warnings about [apples](fruit)
+    - cautions for [bananas](fruit)
+    - be careful with [oranges](fruit)
+    - [strawberry](fruit) warnings
+    - [blueberry](fruit) precautions
+    - [grape](fruit) side effects
+    - [pineapple](fruit) concerns
+
+- intent: mood_great
+  examples: |
+    - perfect
+    - great
+    - amazing
+    - feeling like a king
+    - wonderful
+    - I am feeling very good
+    - I am great
+    - I am amazing
+    - I am going to save the world
+    - super stoked
+    - extremely good
+    - so so perfect
+    - so good
+    - so perfect
+
+- intent: mood_unhappy
+  examples: |
+    - my day was horrible
+    - I am sad
+    - I don't feel very well
+    - I am disappointed
+    - super sad
+    - I'm so sad
+    - sad
+    - very sad
+    - unhappy
+    - not good
+    - not very good
+    - extremly sad
+    - so saad
+    - so sad
+
+- intent: bot_challenge
+  examples: |
+    - are you a bot?
+    - are you a human?
+    - am I talking to a bot?
+    - am I talking to a human?
+
+- intent: ask_recommendation
+  examples: |
+    - recommend some fruits
+    - what fruits should I eat
+    - suggest healthy fruits
+    - which fruits are good for me
+    - fruit recommendations
+    - can you recommend fruits
+    - I need fruit suggestions
+
+- intent: inform_disease
+  examples: |
+    - I have [diabetes](disease)
+    - suffering from [hypertension](disease)
+    - I have [anemia](disease)
+    - [diabetes](disease) patient
+    - dealing with [constipation](disease)
+    - my condition is [high blood pressure](disease)
+    - [sugar](disease) problem
+    - [iron deficiency](disease)
+    - [high bp](disease)
+
+- intent: ask_fruit_info
+  examples: |
+    - tell me about [apples](fruit)
+    - what is [banana](fruit)
+    - info on [oranges](fruit)
+    - benefits of [blueberries](fruit)
+    - about [kiwi](fruit)
+    - details on [strawberries](fruit)
+
+- intent: ask_health_benefits
+  examples: |
+    - what are health benefits of fruits
+    - why eat fruits
+    - benefits of eating fruits
+    - how fruits help health
+    - fruit nutrition

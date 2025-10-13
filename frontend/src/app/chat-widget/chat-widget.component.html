@@ -1,0 +1,110 @@
+<!-- Floating Chat Button -->
+<div class="chat-widget-container">
+  <!-- Chat Toggle Button -->
+  <div class="chat-toggle" [class.open]="isOpen" (click)="toggleChat()">
+    <div class="chat-icon">
+      <mat-icon *ngIf="!isOpen">chat</mat-icon>
+      <mat-icon *ngIf="isOpen && !isMinimized">close</mat-icon>
+      <mat-icon *ngIf="isOpen && isMinimized">minimize</mat-icon>
+    </div>
+    <div class="chat-pulse" *ngIf="!isOpen"></div>
+  </div>
+
+  <!-- Chat Panel -->
+  <div class="chat-panel" [class.open]="isOpen" [class.minimized]="isMinimized">
+    <!-- Chat Header -->
+    <div class="chat-header">
+      <div class="header-info">
+        <div class="avatar">
+          <mat-icon>smart_toy</mat-icon>
+        </div>
+        <div class="info">
+          <h3>Fruitopia Assistant</h3>
+          <span class="status" [class.online]="true">Online</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button mat-icon-button (click)="minimizeChat()" matTooltip="Minimize">
+          <mat-icon>remove</mat-icon>
+        </button>
+        <button mat-icon-button (click)="clearChat()" matTooltip="Clear chat">
+          <mat-icon>delete_outline</mat-icon>
+        </button>
+        <button mat-icon-button (click)="closeChat()" matTooltip="Close">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Chat Messages -->
+    <div class="chat-messages" #messagesContainer>
+      <div *ngFor="let message of messages" class="message" [ngClass]="message.sender" [attr.data-type]="message.type">
+        <!-- Regular Text Message -->
+        <div *ngIf="message.type === 'text'" class="message-content">
+          <p>{{ message.text }}</p>
+          <span class="timestamp">{{ message.timestamp | date:'shortTime' }}</span>
+        </div>
+
+        <!-- Quick Actions -->
+        <div *ngIf="message.type === 'quick_actions'" class="quick-actions">
+          <div class="action-chips">
+            <mat-chip
+              *ngFor="let action of quickActions"
+              (click)="sendQuickAction(action)"
+              class="action-chip"
+            >
+              {{ action.label }}
+            </mat-chip>
+          </div>
+        </div>
+
+        <!-- Fruit Card (for future rich responses) -->
+        <div *ngIf="message.type === 'fruit_card'" class="fruit-card">
+          <mat-card class="fruit-card-content">
+            <mat-card-content>
+              <h4>{{ message.data?.name }}</h4>
+              <p>{{ message.data?.reason }}</p>
+              <small>Health Score: {{ message.data?.score }}/1.0</small>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+
+      <!-- Typing Indicator -->
+      <div *ngIf="isTyping" class="message bot typing">
+        <div class="message-content">
+          <div class="typing-indicator">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Input -->
+    <div class="chat-input">
+      <div class="input-container">
+        <input
+          type="text"
+          [formControl]="messageControl"
+          placeholder="Ask me about healthy fruits..."
+          (keypress)="onKeyPress($event)"
+          autocomplete="off"
+        >
+        <button
+          mat-icon-button
+          (click)="sendMessage()"
+          [disabled]="!messageControl.value?.trim() || isTyping"
+          class="send-button"
+          matTooltip="Send message"
+        >
+          <mat-icon>send</mat-icon>
+        </button>
+      </div>
+      <div class="input-footer">
+        <small>Powered by AI • Ask about nutrition, health benefits, and fruit recommendations</small>
+      </div>
+    </div>
+  </div>
+</div>

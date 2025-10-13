@@ -1,0 +1,294 @@
+{
+  "intents": {
+    "greet": [
+      "hello",
+      "hi",
+      "hey",
+      "good morning",
+      "good afternoon",
+      "good evening",
+      "howdy",
+      "greetings",
+      "what's up",
+      "hey there",
+      "hi there",
+      "hello there",
+      "good day",
+      "nice to meet you",
+      "pleased to meet you"
+    ],
+    "goodbye": [
+      "bye",
+      "goodbye",
+      "see you later",
+      "farewell",
+      "take care",
+      "bye bye",
+      "see you",
+      "good night",
+      "have a good day",
+      "see you soon",
+      "talk to you later",
+      "catch you later",
+      "until next time"
+    ],
+    "recommend_fruits": [
+      "what fruits should I eat",
+      "recommend fruits for me",
+      "suggest fruits",
+      "which fruits are good for",
+      "fruits for health",
+      "fruit recommendations",
+      "I have a condition",
+      "I'm suffering from",
+      "I need fruits for",
+      "what should I eat",
+      "healthy fruits",
+      "best fruits for"
+    ],
+    "fruit_info": [
+      "tell me about",
+      "what is",
+      "information about",
+      "details on",
+      "facts about",
+      "nutrition of",
+      "benefits of",
+      "calories in",
+      "how many calories",
+      "nutritional value",
+      "what's in",
+      "explain"
+    ],
+    "disease_specific": [
+      "diabetes",
+      "diabetic",
+      "blood sugar",
+      "high blood pressure",
+      "hypertension",
+      "heart disease",
+      "cholesterol",
+      "weight loss",
+      "obesity",
+      "cancer",
+      "immune system",
+      "digestion",
+      "constipation",
+      "inflammation",
+      "arthritis",
+      "bone health",
+      "anemia",
+      "thyroid",
+      "kidney",
+      "liver",
+      "asthma",
+      "depression",
+      "memory",
+      "brain health",
+      "skin health",
+      "hair health",
+      "eyesight",
+      "vision"
+    ],
+    "quantity_amount": [
+      "how much",
+      "how many",
+      "quantity",
+      "amount",
+      "serving size",
+      "portion",
+      "daily amount",
+      "recommended daily",
+      "per day"
+    ],
+    "seasonal_availability": [
+      "when is in season",
+      "available now",
+      "fresh now",
+      "current season",
+      "best time for",
+      "when to buy",
+      "seasonal fruits"
+    ],
+    "recipes_cooking": [
+      "how to cook",
+      "recipes with",
+      "how to prepare",
+      "cooking tips",
+      "fruit salad",
+      "smoothie recipe",
+      "juice recipe",
+      "fruit dessert"
+    ],
+    "allergy_warnings": [
+      "allergic to",
+      "allergy",
+      "can't eat",
+      "avoid",
+      "intolerant to",
+      "sensitive to",
+      "reaction to",
+      "not good for me"
+    ],
+    "shopping_cart": [
+      "add to cart",
+      "buy",
+      "purchase",
+      "order",
+      "shopping list",
+      "I want to buy",
+      "where to buy",
+      "price of"
+    ],
+    "comparison": [
+      "vs",
+      "versus",
+      "better than",
+      "which is better",
+      "compare",
+      "difference between",
+      "which has more",
+      "which is healthier"
+    ],
+    "general_health": [
+      "healthy eating",
+      "nutrition tips",
+      "diet advice",
+      "weight management",
+      "energy boost",
+      "immunity boost",
+      "detox",
+      "anti-aging",
+      "beauty"
+    ],
+    "organic_natural": [
+      "organic",
+      "natural",
+      "pesticide free",
+      "GMO free",
+      "conventional vs organic",
+      "farming methods",
+      "sustainable",
+      "environmentally friendly"
+    ],
+    "storage_preservation": [
+      "how to store",
+      "storage tips",
+      "how long does it last",
+      "keep fresh",
+      "ripening",
+      "refrigerator",
+      "room temperature",
+      "freezer"
+    ],
+    "origin_geography": [
+      "where does it come from",
+      "origin",
+      "country of origin",
+      "imported",
+      "local",
+      "grown in",
+      "cultivated in",
+      "native to"
+    ],
+    "fun_facts": [
+      "interesting facts",
+      "fun facts",
+      "did you know",
+      "trivia",
+      "history of",
+      "origin story",
+      "unique facts"
+    ],
+    "meal_planning": [
+      "meal ideas",
+      "breakfast ideas",
+      "snack ideas",
+      "lunch ideas",
+      "dinner ideas",
+      "meal prep",
+      "weekly meal plan"
+    ]
+  },
+  "responses": {
+    "greet": [
+      "Hello! I'm your fruit expert from Fruitopia. I can help you discover amazing fruits for your health and wellness. What would you like to know?",
+      "Hi there! Welcome to Fruitopia. I'm here to help you find the perfect fruits for your needs. How can I assist you today?",
+      "Greetings! I'm your friendly fruit nutritionist. I know everything about fruits and their health benefits. What can I help you with?",
+      "Hey! Fruitopia's fruit expert here. Ready to explore the wonderful world of fruits with you. What's on your mind?"
+    ],
+    "goodbye": [
+      "Goodbye! Remember to eat your fruits for better health. Come back anytime!",
+      "Take care! Stay healthy and fruity. See you soon!",
+      "Farewell! Don't forget that an apple a day keeps the doctor away. Bye!",
+      "See you later! Keep enjoying those healthy fruits!"
+    ],
+    "recommend_fruits": [
+      "Based on your health needs, here are some excellent fruit recommendations: {fruits}",
+      "For your condition, I recommend these nutrient-rich fruits: {fruits}",
+      "These fruits would be particularly beneficial for you: {fruits}",
+      "Considering your health goals, try these fruits: {fruits}"
+    ],
+    "fruit_info": [
+      "Here's what I know about {fruit}: {info}",
+      "{fruit} is a wonderful fruit! {info}",
+      "Let me tell you about {fruit}: {info}",
+      "Here's some detailed information about {fruit}: {info}"
+    ],
+    "quantity_amount": [
+      "For optimal health benefits, aim for {amount} of {fruit} per day",
+      "A typical serving of {fruit} is {amount}",
+      "The recommended daily amount of {fruit} is {amount}",
+      "You should consume about {amount} of {fruit} daily"
+    ],
+    "seasonal_availability": [
+      "{fruit} is typically in season during {season}",
+      "You can find fresh {fruit} during {season}",
+      "{fruit} is at its best and most nutritious when in season: {season}",
+      "The peak season for {fruit} is {season}"
+    ],
+    "recipes_cooking": [
+      "Here are some delicious ways to enjoy {fruit}: {recipes}",
+      "Try these recipes featuring {fruit}: {recipes}",
+      "{fruit} works great in these dishes: {recipes}",
+      "Here are some cooking ideas with {fruit}: {recipes}"
+    ],
+    "allergy_warnings": [
+      "Important: {fruit} contains {allergens}. Please consult your doctor if you have allergies",
+      "Note: {fruit} may cause reactions in people with {allergens} allergies",
+      "Caution: {fruit} contains {allergens} which some people are sensitive to",
+      "Please be aware that {fruit} has {allergens} which may affect some individuals"
+    ],
+    "comparison": [
+      "Comparing {fruit1} and {fruit2}: {comparison}",
+      "Here's how {fruit1} and {fruit2} stack up: {comparison}",
+      "The main differences between {fruit1} and {fruit2}: {comparison}",
+      "{fruit1} vs {fruit2}: {comparison}"
+    ],
+    "storage_preservation": [
+      "To keep {fruit} fresh: {storage_tips}",
+      "Storage tips for {fruit}: {storage_tips}",
+      "Here's how to store {fruit}: {storage_tips}",
+      "{fruit} storage guide: {storage_tips}"
+    ],
+    "fun_facts": [
+      "Fun fact about {fruit}: {fact}",
+      "Did you know? {fact}",
+      "Here's an interesting fact about {fruit}: {fact}",
+      "Fun trivia: {fact}"
+    ],
+    "meal_planning": [
+      "Here are some meal ideas featuring {fruit}: {meals}",
+      "Try incorporating {fruit} into these meals: {meals}",
+      "{fruit} works perfectly in these dishes: {meals}",
+      "Meal planning with {fruit}: {meals}"
+    ],
+    "default": [
+      "I'd love to help you with fruit-related questions! Could you please be more specific about what you're looking for?",
+      "I'm here to help with all things fruit-related. Could you tell me more about what you need?",
+      "I'm your fruit expert! Whether it's nutrition, recipes, or health benefits, I'm here to help. What would you like to know?",
+      "Fruitopia has extensive knowledge about fruits. What specific information are you looking for?",
+      "I can help with fruit recommendations, nutrition info, recipes, and more. How can I assist you today?"
+    ]
+  }
+}

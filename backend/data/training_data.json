@@ -1,0 +1,97 @@
+{
+  "intents": {
+    "greet": [
+      "hello",
+      "hi",
+      "hey",
+      "good morning",
+      "good afternoon",
+      "good evening",
+      "howdy",
+      "greetings",
+      "what's up",
+      "hey there"
+    ],
+    "goodbye": [
+      "bye",
+      "goodbye",
+      "see you later",
+      "farewell",
+      "take care",
+      "bye bye",
+      "see you",
+      "good night",
+      "have a good day"
+    ],
+    "recommend_fruits": [
+      "what fruits should I eat",
+      "recommend fruits for me",
+      "suggest fruits",
+      "which fruits are good for",
+      "fruits for health",
+      "fruit recommendations",
+      "I have a condition",
+      "I'm suffering from",
+      "I need fruits for"
+    ],
+    "fruit_info": [
+      "tell me about",
+      "what is",
+      "information about",
+      "details on",
+      "facts about",
+      "nutrition of",
+      "benefits of",
+      "calories in"
+    ],
+    "disease_specific": [
+      "diabetes",
+      "diabetic",
+      "blood sugar",
+      "high blood pressure",
+      "hypertension",
+      "heart disease",
+      "cholesterol",
+      "weight loss",
+      "obesity",
+      "cancer",
+      "immune system",
+      "digestion",
+      "constipation",
+      "fiber",
+      "vitamin c",
+      "antioxidants",
+      "inflammation",
+      "arthritis",
+      "bone health",
+      "calcium"
+    ]
+  },
+  "responses": {
+    "greet": [
+      "Hello! I'm your fruit expert. I can help you find the perfect fruits for your health needs. What can I help you with today?",
+      "Hi there! Welcome to Fruitopia. I know all about fruits and their health benefits. How can I assist you?",
+      "Greetings! I'm here to help you discover amazing fruits that can improve your health. What would you like to know?"
+    ],
+    "goodbye": [
+      "Goodbye! Remember to eat your fruits for better health!",
+      "Take care! Come back anytime for more fruit recommendations.",
+      "See you later! Stay healthy with fruits!"
+    ],
+    "recommend_fruits": [
+      "Based on your health needs, here are some fruits that might help: {fruits}",
+      "I recommend these fruits for your condition: {fruits}",
+      "These fruits could be beneficial for you: {fruits}"
+    ],
+    "fruit_info": [
+      "Here's what I know about {fruit}: {info}",
+      "{fruit} is a wonderful fruit! {info}",
+      "Let me tell you about {fruit}: {info}"
+    ],
+    "default": [
+      "I'm not sure I understand. Could you please rephrase your question about fruits?",
+      "I'd love to help with fruit-related questions. Could you be more specific?",
+      "I'm here to help with fruits and health. What would you like to know?"
+    ]
+  }
+}
