@@ -87,6 +87,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   }
 
   closeChat() {
+    this.chatService.closeChat();
     this.isOpen = false;
     this.isMinimized = false;
     this.saveChatHistory();
