@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
-import { VisionService } from '../services/vision.service';
+import { VisionService, Prediction } from '../services/vision.service';
 
 @Component({
   selector: 'app-vision-upload',
@@ -17,7 +17,7 @@ import { VisionService } from '../services/vision.service';
 export class VisionUploadComponent {
   file?: File;
   preview?: string | ArrayBuffer | null;
-  predictions: any[] = [];
+  predictions: Prediction[] = [];
   loading = false;
   lowConfidence = false;
 
@@ -43,7 +43,7 @@ export class VisionUploadComponent {
     if (!this.file) return;
     this.loading = true;
     this.vision.predict(this.file).subscribe({
-      next: (res) => {
+      next: (res: { predictions: Prediction[] }) => {
         this.predictions = res.predictions || [];
         this.lowConfidence = false;
         if (this.predictions.length) {
