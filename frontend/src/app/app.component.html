@@ -1,33 +1,55 @@
-<mat-toolbar color="primary" class="fruitopia-toolbar glassy-toolbar">
-  <div class="toolbar-left">
-    <div class="brand">
-      <img class="brand-logo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='36' cy='28' r='14' fill='%23ff5a5f'/><path d='M28 18c2-6 12-8 14-6 0 2-6 6-6 6s-6 4-8 0z' fill='%232d3a3a'/></svg>" alt="Fruitopia logo" />
-      <span class="brand-text">Fruitopia</span>
+<mat-toolbar color="primary" class="fruitopia-toolbar premium-toolbar">
+  <!-- Left Section: Brand -->
+  <div class="toolbar-brand">
+    <div class="brand-container">
+      <div class="logo-wrapper">
+        <img class="brand-logo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='36' cy='28' r='14' fill='%23ff5a5f'/><path d='M28 18c2-6 12-8 14-6 0 2-6 6-6 6s-6 4-8 0z' fill='%232d3a3a'/></svg>" alt="Fruitopia logo" />
+        <div class="logo-glow"></div>
+      </div>
+      <div class="brand-info">
+        <span class="brand-text">Fruitopia</span>
+        <span class="brand-subtitle">AI-Powered Fruit Intelligence</span>
+      </div>
     </div>
   </div>
 
-  <div class="toolbar-center">
-    <mat-form-field appearance="outline" class="search-field">
-      <mat-icon matPrefix>search</mat-icon>
-      <input matInput placeholder="Search fruits, benefits, or diseases..." />
-    </mat-form-field>
+  <!-- Center Section: Navigation -->
+  <div class="toolbar-navigation">
+    <nav class="nav-menu">
+      <button mat-button class="nav-item" routerLink="/" routerLinkActive="active" aria-label="Home">
+        <mat-icon>home</mat-icon>
+        <span>Home</span>
+      </button>
+      <button mat-button class="nav-item" routerLink="/gallery" routerLinkActive="active" aria-label="Gallery">
+        <mat-icon>photo_library</mat-icon>
+        <span>Gallery</span>
+      </button>
+      <button mat-button class="nav-item" routerLink="/recipes" routerLinkActive="active" aria-label="Recipes">
+        <mat-icon>restaurant</mat-icon>
+        <span>Recipes</span>
+      </button>
+      <button mat-button class="nav-item" routerLink="/recommend" routerLinkActive="active" aria-label="Recommendations">
+        <mat-icon>star</mat-icon>
+        <span>Recommend</span>
+      </button>
+      <button mat-button class="nav-item" routerLink="/vision" routerLinkActive="active" aria-label="Vision">
+        <mat-icon>camera_alt</mat-icon>
+        <span>Vision</span>
+      </button>
+    </nav>
   </div>
 
-  <div class="toolbar-right">
-    <button mat-icon-button routerLink="/" aria-label="Home" matTooltip="Go to home page" matTooltipPosition="below"><mat-icon>home</mat-icon></button>
-    <button mat-icon-button routerLink="/gallery" aria-label="Gallery" matTooltip="View image gallery" matTooltipPosition="below"><mat-icon>photo_library</mat-icon></button>
-    <button mat-icon-button (click)="toggleChat()" aria-label="Chatbot" matTooltip="Open the Fruitopia assistant" matTooltipPosition="below"><mat-icon>chat</mat-icon></button>
-    <button mat-icon-button routerLink="/recommend" aria-label="Recommendations" matTooltip="Get fruit recommendations" matTooltipPosition="below"><mat-icon>star</mat-icon></button>
-    <button mat-icon-button routerLink="/vision" aria-label="Vision" matTooltip="Upload an image for fruit recognition" matTooltipPosition="below"><mat-icon>camera_alt</mat-icon></button>
+  <!-- Right Section: Actions -->
+  <div class="toolbar-actions">
+    <button mat-flat-button class="chat-button" (click)="toggleChat()" aria-label="Talk to AI Assistant">
+      <mat-icon>chat</mat-icon>
+      <span>Talk to AI</span>
+    </button>
   </div>
 </mat-toolbar>
 
 <div class="main-content">
   <router-outlet></router-outlet>
-  <!-- gallery appears directly under the header; hidden on explore pages -->
-  <div class="gallery-area" *ngIf="showGalleryArea">
-    <app-gallery></app-gallery>
-  </div>
 </div>
 
 <!-- Floating Chat Widget -->

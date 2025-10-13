@@ -427,6 +427,135 @@ def init_chatbot():
 # In-memory session storage (for demo; use Redis/DB in production)
 chat_sessions = {}
 
+@app.post("/recipes/generate")
+def generate_recipe(
+    fruits: list = Body(..., embed=True),
+    dietary_preferences: Optional[list] = Body(None, embed=True),
+    cuisine_type: Optional[str] = Body(None, embed=True),
+    meal_type: Optional[str] = Body(None, embed=True)
+):
+    """Generate a recipe based on selected fruits and preferences."""
+    if not fruits:
+        raise HTTPException(status_code=400, detail="At least one fruit must be selected")
+
+    # For now, generate a mock recipe. Later integrate with GPT models
+    primary_fruit = fruits[0].lower()
+
+    # Mock recipe templates based on fruit type
+    recipe_templates = {
+        "apple": {
+            "title": "Fresh Apple Cinnamon Oatmeal",
+            "ingredients": [
+                "2 cups rolled oats",
+                "2 cups milk (or almond milk)",
+                "2 apples, diced",
+                "1 tsp cinnamon",
+                "2 tbsp honey",
+                "1/4 cup chopped walnuts",
+                "Pinch of salt"
+            ],
+            "instructions": [
+                "In a saucepan, bring milk to a gentle boil",
+                "Add oats and reduce heat to simmer",
+                "Cook for 5 minutes, stirring occasionally",
+                "Add diced apples, cinnamon, and honey",
+                "Continue cooking for another 3-4 minutes until apples are tender",
+                "Serve topped with walnuts and a drizzle of honey"
+            ],
+            "nutrition": {"calories": 320, "protein": 10, "carbs": 55, "fat": 8},
+            "prep_time": "15 minutes",
+            "servings": 2
+        },
+        "banana": {
+            "title": "Banana Protein Smoothie Bowl",
+            "ingredients": [
+                "2 ripe bananas",
+                "1 cup Greek yogurt",
+                "1/2 cup almond milk",
+                "2 tbsp peanut butter",
+                "1 tbsp chia seeds",
+                "1/2 cup mixed berries",
+                "2 tbsp granola"
+            ],
+            "instructions": [
+                "Add bananas, yogurt, almond milk, and peanut butter to a blender",
+                "Blend until smooth and creamy",
+                "Pour into a bowl",
+                "Top with mixed berries, chia seeds, and granola",
+                "Serve immediately for best texture"
+            ],
+            "nutrition": {"calories": 380, "protein": 18, "carbs": 45, "fat": 12},
+            "prep_time": "10 minutes",
+            "servings": 1
+        },
+        "berry": {
+            "title": "Mixed Berry Antioxidant Salad",
+            "ingredients": [
+                "2 cups mixed berries (strawberries, blueberries, raspberries)",
+                "2 cups mixed greens",
+                "1/4 cup feta cheese",
+                "1/4 cup walnuts",
+                "2 tbsp balsamic vinaigrette",
+                "1 tbsp honey",
+                "Fresh mint leaves"
+            ],
+            "instructions": [
+                "Wash and prepare all berries",
+                "In a large bowl, combine mixed greens and berries",
+                "Crumble feta cheese over the salad",
+                "Add walnuts and torn mint leaves",
+                "Drizzle with balsamic vinaigrette and honey",
+                "Toss gently and serve immediately"
+            ],
+            "nutrition": {"calories": 280, "protein": 8, "carbs": 35, "fat": 14},
+            "prep_time": "15 minutes",
+            "servings": 2
+        }
+    }
+
+    # Default recipe if fruit not in templates
+    default_recipe = {
+        "title": f"Fresh {primary_fruit.title()} Delight",
+        "ingredients": [
+            f"2 cups fresh {primary_fruit}s",
+            "1 cup Greek yogurt",
+            "2 tbsp honey",
+            "1 tsp vanilla extract",
+            "1/2 cup granola",
+            "Fresh herbs for garnish"
+        ],
+        "instructions": [
+            f"Prepare the {primary_fruit}s by washing and cutting into pieces",
+            "In a bowl, mix yogurt, honey, and vanilla",
+            f"Gently fold in the prepared {primary_fruit}s",
+            "Divide into serving bowls",
+            "Top with granola and fresh herbs",
+            "Serve chilled or at room temperature"
+        ],
+        "nutrition": {"calories": 280, "protein": 12, "carbs": 45, "fat": 8},
+        "prep_time": "15 minutes",
+        "servings": 2
+    }
+
+    # Get recipe template
+    recipe = recipe_templates.get(primary_fruit, default_recipe)
+
+    # Apply dietary preferences (basic filtering)
+    if dietary_preferences:
+        if "Vegan" in dietary_preferences:
+            recipe["ingredients"] = [ing.replace("Greek yogurt", "coconut yogurt").replace("feta cheese", "vegan feta") for ing in recipe["ingredients"]]
+        if "Gluten-Free" in dietary_preferences:
+            recipe["ingredients"] = [ing for ing in recipe["ingredients"] if "oats" not in ing.lower()]
+
+    # Apply meal type adjustments
+    if meal_type:
+        if meal_type.lower() == "breakfast":
+            recipe["title"] = f"Breakfast {recipe['title']}"
+        elif meal_type.lower() == "dessert":
+            recipe["title"] = f"{recipe['title']} Dessert"
+
+    return recipe
+
 @app.post("/chatbot/message")
 def chatbot_message(message: str = Body(..., embed=True), session_id: Optional[str] = Body(None, embed=True)):
     # Initialize chatbot if not already done

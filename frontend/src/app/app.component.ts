@@ -1,7 +1,4 @@
 import { Component, ViewChild } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs/operators';
-
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -15,32 +12,23 @@ import { GalleryComponent } from './gallery/gallery.component';
 import { HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { ChatWidgetComponent } from './chat-widget/chat-widget.component';
+import { ChatService } from './services/chat.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   standalone: true,
-  imports: [MatToolbarModule, MatIconModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatTooltipModule, MatProgressSpinnerModule, MatSnackBarModule, RouterOutlet, RouterLink, HttpClientModule, GalleryComponent, CommonModule, ChatWidgetComponent]
+  imports: [MatToolbarModule, MatIconModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatTooltipModule, MatProgressSpinnerModule, MatSnackBarModule, RouterOutlet, RouterLink, HttpClientModule, CommonModule, ChatWidgetComponent]
 })
 export class AppComponent {
   title = 'Fruitopia';
-  public showGalleryArea = true;
 
   @ViewChild(ChatWidgetComponent) chatWidget!: ChatWidgetComponent;
 
-  constructor(private router: Router) {
-    // hide gallery area on explore routes
-    this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe((ev: any) => {
-      const url: string = ev.urlAfterRedirects || ev.url || '';
-      // hide the embedded gallery area when the app route is the gallery page or explore pages
-      this.showGalleryArea = !(url.startsWith('/explore') || url.startsWith('/gallery'));
-    });
-  }
+  constructor(private chatService: ChatService) {}
 
   toggleChat() {
-    if (this.chatWidget) {
-      this.chatWidget.toggleChat();
-    }
+    this.chatService.toggleChat();
   }
 }

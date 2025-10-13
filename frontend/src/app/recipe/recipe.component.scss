@@ -1,0 +1,307 @@
+/* Recipe Header */
+.recipe-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 4rem 0;
+  text-align: center;
+
+  .header-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 2rem;
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      background: linear-gradient(45deg, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    p {
+      font-size: 1.25rem;
+      opacity: 0.9;
+      line-height: 1.6;
+    }
+  }
+}
+
+/* Recipe Form Section */
+.recipe-form-section {
+  padding: 4rem 0;
+  background: #f8f9fa;
+
+  .recipe-form-card {
+    max-width: 800px;
+    margin: 0 auto;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+
+    mat-card-content {
+      padding: 2rem;
+
+      h2 {
+        text-align: center;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        color: #333;
+      }
+
+      .form-group {
+        margin-bottom: 2rem;
+
+        h3 {
+          font-size: 1.25rem;
+          font-weight: 600;
+          margin-bottom: 0.5rem;
+          color: #333;
+        }
+
+        p {
+          color: #666;
+          margin-bottom: 1rem;
+          font-size: 0.9rem;
+        }
+
+        .fruit-chips, .dietary-chips {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.75rem;
+
+          mat-chip {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 25px;
+            font-weight: 500;
+
+            &:hover {
+              transform: scale(1.05);
+            }
+
+            &.selected {
+              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+              font-weight: 600;
+            }
+          }
+        }
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 2rem;
+
+        .form-field {
+          width: 100%;
+        }
+      }
+
+      .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+
+        button {
+          border-radius: 25px;
+          padding: 0.75rem 2rem;
+          font-weight: 600;
+          font-size: 1rem;
+
+          mat-icon {
+            margin-right: 0.5rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Recipe Result Section */
+.recipe-result-section {
+  padding: 4rem 0;
+  background: white;
+
+  .recipe-result-card {
+    max-width: 800px;
+    margin: 0 auto;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+
+    mat-card-header {
+      background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+      color: white;
+      padding: 2rem;
+
+      mat-card-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      mat-card-subtitle {
+        opacity: 0.9;
+        font-size: 1rem;
+
+        mat-icon {
+          margin-right: 0.5rem;
+          font-size: 1rem;
+        }
+      }
+    }
+
+    mat-card-content {
+      padding: 2rem;
+
+      .nutrition-info {
+        margin-bottom: 2rem;
+
+        h3 {
+          font-size: 1.25rem;
+          font-weight: 600;
+          margin-bottom: 1rem;
+          color: #333;
+        }
+
+        .nutrition-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+          gap: 1rem;
+          margin-bottom: 2rem;
+
+          .nutrition-item {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+
+            .nutrition-value {
+              display: block;
+              font-size: 1.5rem;
+              font-weight: 700;
+              color: #FF6B6B;
+              margin-bottom: 0.25rem;
+            }
+
+            .nutrition-label {
+              font-size: 0.9rem;
+              color: #666;
+              font-weight: 500;
+            }
+          }
+        }
+      }
+
+      .ingredients-section, .instructions-section {
+        margin-bottom: 2rem;
+
+        h3 {
+          font-size: 1.25rem;
+          font-weight: 600;
+          margin-bottom: 1rem;
+          color: #333;
+        }
+
+        .ingredients-list, .instructions-list {
+          padding-left: 1rem;
+
+          li {
+            margin-bottom: 0.75rem;
+            line-height: 1.6;
+            display: flex;
+            align-items: flex-start;
+
+            mat-icon {
+              color: #4ECDC4;
+              margin-right: 0.75rem;
+              margin-top: 0.25rem;
+              font-size: 1.1rem;
+              flex-shrink: 0;
+            }
+
+            strong {
+              color: #FF6B6B;
+              margin-right: 0.5rem;
+            }
+          }
+        }
+
+        .instructions-list {
+          counter-reset: step-counter;
+
+          li {
+            counter-increment: step-counter;
+
+            strong {
+              &::before {
+                content: counter(step-counter) ". ";
+                color: #FF6B6B;
+              }
+              content: none;
+            }
+          }
+        }
+      }
+    }
+
+    mat-card-actions {
+      padding: 1.5rem 2rem;
+      background: #f8f9fa;
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+
+      button {
+        border-radius: 25px;
+        font-weight: 600;
+
+        mat-icon {
+          margin-right: 0.5rem;
+        }
+      }
+    }
+  }
+}
+
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .recipe-header {
+    .header-content h1 {
+      font-size: 2.5rem;
+    }
+  }
+
+  .recipe-form-section {
+    .recipe-form-card mat-card-content {
+      padding: 1.5rem;
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+
+  .recipe-result-section {
+    .recipe-result-card {
+      mat-card-header, mat-card-content {
+        padding: 1.5rem;
+      }
+
+      .nutrition-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  }
+}

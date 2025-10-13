@@ -1,45 +1,315 @@
-/* Header layout */
+/* Premium Header Layout */
 .fruitopia-toolbar {
   display: grid;
-  grid-template-columns: 260px 1fr 220px;
+  grid-template-columns: 320px 1fr 200px;
   align-items: center;
-  gap: 12px;
-}
-.toolbar-left { padding-left: 16px; }
-.toolbar-center { display:flex; justify-content:flex-start; padding-top:6px; margin-left: 40px }
-.toolbar-right { display:flex; justify-content:flex-end; gap:10px; padding-right:18px; align-items:center }
-
-/* brand block */
-.brand { display:flex; align-items:center; gap:8px }
-.brand-logo { width:28px; height:28px; border-radius:6px }
-.brand-text { font-weight:900; font-size:1.25rem; letter-spacing:0.4px }
-
-/* Nav icon polish */
-.toolbar-right button[mat-icon-button] { transition: transform 0.12s ease, background 0.12s ease; }
-.toolbar-right button[mat-icon-button]:hover { transform: translateY(-3px); background: rgba(0,0,0,0.04); }
-
-/* Search field in header */
-.search-field { width: 420px; max-width: 60vw; }
-
-@media (max-width: 800px) {
-	.fruitopia-toolbar { grid-template-columns: 1fr; padding: 6px; row-gap:8px; }
-	.toolbar-left { justify-self:start; }
-	.toolbar-center { order: 2; width: 100%; }
-	.toolbar-right { justify-self:end; }
-	.search-field { width: 80%; }
+  min-height: 80px;
+  padding: 0 24px;
+  gap: 32px;
+  position: relative;
+  z-index: 1000;
 }
 
-/* Header icon hover styles */
-.toolbar-right button[mat-icon-button] { background: transparent; transition: transform 0.12s ease, box-shadow 0.12s ease; }
-.toolbar-right button[mat-icon-button]:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(15,81,64,0.08); background: rgba(255,255,255,0.9); }
-/* profile removed */
+.premium-toolbar {
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(249, 250, 251, 0.95) 25%,
+    rgba(243, 244, 246, 0.95) 50%,
+    rgba(255, 255, 255, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow:
+    0 8px 32px rgba(15, 81, 64, 0.08),
+    0 2px 8px rgba(15, 81, 64, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid rgba(15, 81, 64, 0.06);
+}
 
-/* Make toolbar visually crisp */
-.glassy-toolbar { background: linear-gradient(90deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85)); box-shadow: 0 6px 24px rgba(15,81,64,0.06); }
+/* Brand Section */
+.toolbar-brand {
+  display: flex;
+  align-items: center;
+}
 
-/* toolbar title styling */
-.toolbar-logo { font-weight: 800; letter-spacing: 0.6px }
+.brand-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+}
 
-.gallery-area { max-width: 1200px; margin: 18px auto; }
+.logo-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(255, 90, 95, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  z-index: 2;
+}
+
+.logo-glow {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  background: linear-gradient(135deg, rgba(255, 90, 95, 0.3), rgba(255, 152, 0, 0.2));
+  border-radius: 16px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.logo-wrapper:hover .logo-glow {
+  opacity: 1;
+}
+
+.logo-wrapper:hover .brand-logo {
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(255, 90, 95, 0.3);
+}
+
+.brand-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.brand-text {
+  font-weight: 800;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #0f5140 0%, #2d5a47 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+
+.brand-subtitle {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(15, 81, 64, 0.7);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* Navigation Section */
+.toolbar-navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.nav-menu {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 8px 16px;
+  border-radius: 24px;
+  box-shadow: inset 0 1px 2px rgba(15, 81, 64, 0.04);
+  border: 1px solid rgba(15, 81, 64, 0.06);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: rgba(15, 81, 64, 0.8);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(15, 81, 64, 0.08), transparent);
+  transition: left 0.5s ease;
+}
+
+.nav-item:hover::before {
+  left: 100%;
+}
+
+.nav-item:hover {
+  background: rgba(15, 81, 64, 0.06);
+  color: #0f5140;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15, 81, 64, 0.1);
+}
+
+.nav-item.active {
+  background: linear-gradient(135deg, #0f5140 0%, #2d5a47 100%);
+  color: white;
+  box-shadow: 0 4px 16px rgba(15, 81, 64, 0.2);
+}
+
+.nav-item mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+/* Actions Section */
+.toolbar-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.chat-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 24px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  background: linear-gradient(135deg, #ff5a5f 0%, #ff9800 100%);
+  color: white;
+  box-shadow: 0 4px 16px rgba(255, 90, 95, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.chat-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.chat-button:hover::before {
+  left: 100%;
+}
+
+.chat-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 90, 95, 0.4);
+  background: linear-gradient(135deg, #e64a4f 0%, #e68900 100%);
+}
+
+.chat-button mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .fruitopia-toolbar {
+    grid-template-columns: 280px 1fr 180px;
+    padding: 0 16px;
+    gap: 16px;
+    min-height: 70px;
+  }
+
+  .nav-menu {
+    padding: 6px 12px;
+    gap: 4px;
+  }
+
+  .nav-item {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    gap: 4px;
+  }
+
+  .nav-item span {
+    display: none;
+  }
+
+  .brand-text {
+    font-size: 1.25rem;
+  }
+
+  .brand-subtitle {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .fruitopia-toolbar {
+    grid-template-columns: 1fr;
+    padding: 16px;
+    gap: 16px;
+    min-height: auto;
+  }
+
+  .toolbar-brand {
+    justify-content: center;
+  }
+
+  .toolbar-navigation {
+    order: 2;
+  }
+
+  .toolbar-actions {
+    order: 3;
+    justify-content: center;
+  }
+
+  .nav-menu {
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 8px;
+  }
+
+  .nav-item {
+    flex: 1;
+    min-width: 80px;
+    justify-content: center;
+  }
+
+  .brand-info {
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .fruitopia-toolbar {
+    padding: 12px;
+  }
+
+  .nav-item {
+    padding: 6px 8px;
+    font-size: 0.75rem;
+  }
+
+  .chat-button {
+    padding: 10px 16px;
+    font-size: 0.8rem;
+  }
+
+  .brand-logo {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* Main Content */
 .main-content { padding: 18px 24px }
 

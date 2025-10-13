@@ -37,4 +37,8 @@ export class FruitopiaApiService {
   chatbotMessage(message: string, sessionId?: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/chatbot/message`, { message, session_id: sessionId });
   }
+
+  generateRecipe(requestData: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/recipes/generate`, requestData);
+  }
 }

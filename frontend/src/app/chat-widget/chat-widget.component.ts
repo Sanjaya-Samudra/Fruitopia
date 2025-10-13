@@ -1,11 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { FruitopiaApiService } from '../fruit/fruitopia-api.service';
+import { ChatService } from '../services/chat.service';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
+import { Subscription } from 'rxjs';
 
 interface ChatMessage {
   id: string;
@@ -46,6 +48,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   sessionId: string | null = null;
   chatHistory: ChatMessage[] = [];
   private messageIdCounter = 0;
+  private chatSubscription: Subscription = new Subscription();
 
   quickActions = [
     { label: 'Recommend for Diabetes', value: 'I have diabetes, what fruits should I eat?' },
@@ -55,22 +58,28 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
     { label: 'General Health', value: 'What are the healthiest fruits?' }
   ];
 
-  constructor(private apiService: FruitopiaApiService) {}
+  constructor(private apiService: FruitopiaApiService, private chatService: ChatService) {}
 
   ngOnInit() {
     this.loadChatHistory();
     this.addWelcomeMessage();
+
+    // Subscribe to chat service
+    this.chatSubscription = this.chatService.chatOpen$.subscribe(isOpen => {
+      this.isOpen = isOpen;
+      if (this.isOpen && this.isMinimized) {
+        this.isMinimized = false;
+      }
+    });
   }
 
   ngOnDestroy() {
     this.saveChatHistory();
+    this.chatSubscription.unsubscribe();
   }
 
   toggleChat() {
-    this.isOpen = !this.isOpen;
-    if (this.isOpen && this.isMinimized) {
-      this.isMinimized = false;
-    }
+    this.chatService.toggleChat();
   }
 
   minimizeChat() {

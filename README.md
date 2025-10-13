@@ -18,9 +18,7 @@ Fruitopia AI is an intelligent fruit recommendation system that uses machine lea
 - Computer Vision/Image Recognition (TensorFlow, PyTorch, OpenCV)
 - Conversational AI (custom chatbot or integration with frameworks like Rasa)
 
-## Frontend Features
-
-### Explore Component
+## Frontend Features### Explore Component
 The `/explore/[fruit-name]` route provides a comprehensive fruit encyclopedia with:
 
 - **6 Organized Tabs**: Overview, Nutrition & Health, Culinary & Uses, Science & Botany, Cultivation, and Facts & More

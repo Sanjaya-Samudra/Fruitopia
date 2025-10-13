@@ -1,0 +1,157 @@
+<!-- Recipe Generator Header -->
+<section class="recipe-header">
+  <div class="container">
+    <div class="header-content">
+      <h1>AI Recipe Generator</h1>
+      <p>Create personalized recipes using your favorite fruits with the power of AI</p>
+    </div>
+  </div>
+</section>
+
+<!-- Recipe Form -->
+<section class="recipe-form-section">
+  <div class="container">
+    <mat-card class="recipe-form-card">
+      <mat-card-content>
+        <h2>Create Your Recipe</h2>
+
+        <!-- Fruit Selection -->
+        <div class="form-group">
+          <h3>Select Fruits</h3>
+          <p>Choose one or more fruits for your recipe</p>
+          <div class="fruit-chips">
+            <mat-chip
+              *ngFor="let fruit of availableFruits"
+              [class.selected]="selectedFruits.includes(fruit)"
+              (click)="toggleFruit(fruit)"
+              [style.background-color]="selectedFruits.includes(fruit) ? '#4ECDC4' : '#f5f5f5'"
+              [style.color]="selectedFruits.includes(fruit) ? 'white' : 'black'">
+              {{ fruit }}
+            </mat-chip>
+          </div>
+        </div>
+
+        <!-- Dietary Preferences -->
+        <div class="form-group">
+          <h3>Dietary Preferences (Optional)</h3>
+          <div class="dietary-chips">
+            <mat-chip
+              *ngFor="let pref of dietaryOptions"
+              [class.selected]="dietaryPreferences.includes(pref)"
+              (click)="toggleDietaryPreference(pref)"
+              [style.background-color]="dietaryPreferences.includes(pref) ? '#FF6B6B' : '#f5f5f5'"
+              [style.color]="dietaryPreferences.includes(pref) ? 'white' : 'black'">
+              {{ pref }}
+            </mat-chip>
+          </div>
+        </div>
+
+        <!-- Cuisine and Meal Type -->
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Cuisine Type (Optional)</mat-label>
+            <mat-select [(ngModel)]="cuisineType">
+              <mat-option *ngFor="let cuisine of cuisineTypes" [value]="cuisine">
+                {{ cuisine }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Meal Type (Optional)</mat-label>
+            <mat-select [(ngModel)]="mealType">
+              <mat-option *ngFor="let meal of mealTypes" [value]="meal">
+                {{ meal }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="form-actions">
+          <button mat-raised-button color="primary" (click)="generateRecipe()" [disabled]="isLoading || selectedFruits.length === 0">
+            <mat-icon *ngIf="!isLoading">restaurant</mat-icon>
+            <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+            {{ isLoading ? 'Generating Recipe...' : 'Generate Recipe' }}
+          </button>
+          <button mat-stroked-button (click)="resetForm()" [disabled]="isLoading">
+            <mat-icon>refresh</mat-icon>
+            Reset
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</section>
+
+<!-- Generated Recipe Display -->
+<section class="recipe-result-section" *ngIf="generatedRecipe">
+  <div class="container">
+    <mat-card class="recipe-result-card">
+      <mat-card-header>
+        <mat-card-title>{{ generatedRecipe.title }}</mat-card-title>
+        <mat-card-subtitle>
+          <mat-icon>schedule</mat-icon> {{ generatedRecipe.prepTime }} |
+          <mat-icon>people</mat-icon> {{ generatedRecipe.servings }} servings
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <!-- Nutritional Info -->
+        <div class="nutrition-info">
+          <h3>Nutritional Information (per serving)</h3>
+          <div class="nutrition-grid">
+            <div class="nutrition-item">
+              <span class="nutrition-value">{{ generatedRecipe.nutritionalInfo.calories }}</span>
+              <span class="nutrition-label">Calories</span>
+            </div>
+            <div class="nutrition-item">
+              <span class="nutrition-value">{{ generatedRecipe.nutritionalInfo.protein }}g</span>
+              <span class="nutrition-label">Protein</span>
+            </div>
+            <div class="nutrition-item">
+              <span class="nutrition-value">{{ generatedRecipe.nutritionalInfo.carbs }}g</span>
+              <span class="nutrition-label">Carbs</span>
+            </div>
+            <div class="nutrition-item">
+              <span class="nutrition-value">{{ generatedRecipe.nutritionalInfo.fat }}g</span>
+              <span class="nutrition-label">Fat</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ingredients -->
+        <div class="ingredients-section">
+          <h3>Ingredients</h3>
+          <ul class="ingredients-list">
+            <li *ngFor="let ingredient of generatedRecipe.ingredients">
+              <mat-icon>check_circle</mat-icon>
+              {{ ingredient }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- Instructions -->
+        <div class="instructions-section">
+          <h3>Instructions</h3>
+          <ol class="instructions-list">
+            <li *ngFor="let instruction of generatedRecipe.instructions; let i = index">
+              <strong>Step {{ i + 1 }}:</strong> {{ instruction }}
+            </li>
+          </ol>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-raised-button color="accent">
+          <mat-icon>share</mat-icon>
+          Share Recipe
+        </button>
+        <button mat-stroked-button>
+          <mat-icon>favorite</mat-icon>
+          Save Recipe
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</section>
