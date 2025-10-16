@@ -102,14 +102,14 @@
       <p>Experience the future of nutrition with our intelligent fruit discovery platform</p>
     </div>
     <div class="features-grid">
-      <mat-card *ngFor="let feature of features" class="feature-card" [routerLink]="feature.comingSoon ? null : feature.route" [class.coming-soon]="feature.comingSoon">
+      <mat-card *ngFor="let feature of features" class="feature-card" [routerLink]="feature.comingSoon || feature.action ? null : feature.route" [class.coming-soon]="feature.comingSoon" (click)="feature.action === 'toggleChat' ? toggleChat() : null">
         <mat-card-content>
           <div class="feature-icon" [style.background-color]="feature.color + '20'">
             <mat-icon [style.color]="feature.color">{{ feature.icon }}</mat-icon>
           </div>
           <h3>{{ feature.title }}</h3>
           <p>{{ feature.description }}</p>
-          <button mat-button class="feature-link" [style.color]="feature.color" [disabled]="feature.comingSoon">
+          <button mat-button class="feature-link" [style.color]="feature.color" [disabled]="feature.comingSoon" (click)="feature.action === 'toggleChat' ? toggleChat() : null">
             {{ feature.comingSoon ? 'Coming Soon' : 'Try Now' }} <mat-icon>{{ feature.comingSoon ? 'schedule' : 'arrow_forward' }}</mat-icon>
           </button>
         </mat-card-content>

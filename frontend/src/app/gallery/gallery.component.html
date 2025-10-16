@@ -93,7 +93,7 @@
 
             <!-- Card Actions -->
             <mat-card-actions class="card-actions">
-              <button mat-raised-button class="explore-btn" [attr.href]="'/explore/' + cls" target="_blank" rel="noopener">
+              <button mat-raised-button class="explore-btn" [routerLink]="['/explore', cls]">
                 <mat-icon>explore</mat-icon>
                 <span>Explore</span>
               </button>

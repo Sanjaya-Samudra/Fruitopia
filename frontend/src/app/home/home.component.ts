@@ -81,7 +81,8 @@ export class HomeComponent implements OnInit {
       icon: 'smart_toy',
       title: 'AI-Powered Assistant',
       description: 'Get personalized fruit recommendations and nutritional advice from our advanced AI chatbot.',
-      route: '/chat',
+      route: null,
+      action: 'toggleChat',
       color: '#FF6B6B',
       comingSoon: false
     },

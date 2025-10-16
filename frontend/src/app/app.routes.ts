@@ -6,7 +6,6 @@ import { GalleryComponent } from './gallery/gallery.component';
 import { ExploreComponent } from './explore/explore.component';
 import { RecommendComponent } from './recommend/recommend.component';
 import { RecipeComponent } from './recipe/recipe.component';
-import { ChatWidgetComponent } from './chat-widget/chat-widget.component';
 
 export const routes: Routes = [
 	{ path: '', component: HomeComponent },
@@ -15,6 +14,5 @@ export const routes: Routes = [
 	{ path: 'gallery', component: GalleryComponent },
 	{ path: 'explore/:name', component: ExploreComponent },
 	{ path: 'recommend', component: RecommendComponent },
-	{ path: 'recipes', component: RecipeComponent },
-	{ path: 'chat', component: ChatWidgetComponent }
+	{ path: 'recipes', component: RecipeComponent }
 ];

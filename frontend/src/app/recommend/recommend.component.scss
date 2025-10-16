@@ -242,6 +242,19 @@
   gap: 12px;
 }
 
+.selected-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.selected-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: #0f5140;
+}
+
 .option-icon {
   font-size: 20px;
   width: 20px;
