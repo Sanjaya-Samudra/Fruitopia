@@ -3,6 +3,7 @@ uvicorn
 requests
 transformers
 torch
+torchvision
 sentence-transformers
 scikit-learn
 pandas

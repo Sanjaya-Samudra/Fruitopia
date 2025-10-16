@@ -18,6 +18,9 @@ import difflib
 import sys
 from uuid import uuid4
 
+# Add backend directory to Python path for relative imports
+backend_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, backend_dir)
 
 FILE_DIR = Path(__file__).resolve().parent  # backend/
 PROJECT_ROOT = FILE_DIR.parent
