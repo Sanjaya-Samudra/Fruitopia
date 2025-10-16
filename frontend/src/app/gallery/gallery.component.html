@@ -1,34 +1,123 @@
-<div class="gallery">
-  <div *ngIf="loading" class="loading">Loading classes...</div>
-  <div class="grid">
-    <mat-card class="class-card" *ngFor="let cls of classes">
-      <mat-card-header>
-        <div mat-card-avatar class="avatar"></div>
-        <mat-card-title>{{ cls }}</mat-card-title>
-  <mat-card-subtitle>{{ (samples[cls] && samples[cls].length) || 0 }} images</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="mosaic-container">
-          <div class="thumbs mosaic">
-            <ng-container *ngIf="samples[cls] && samples[cls].length; else noThumbs">
-              <div class="thumb-box" *ngFor="let f of samples[cls] | slice:0:4">
-                <img [src]="imgUrl(cls, f)" [alt]="f" />
+<!-- Premium Gallery Hero -->
+<section class="gallery-hero">
+  <div class="hero-background">
+    <div class="glass-overlay"></div>
+    <div class="floating-elements">
+      <div class="floating-circle circle-1"></div>
+      <div class="floating-circle circle-2"></div>
+      <div class="floating-circle circle-3"></div>
+    </div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-icon">
+      <mat-icon>collections</mat-icon>
+    </div>
+    <h1 class="hero-title">Fruit Gallery</h1>
+    <p class="hero-subtitle">Explore our comprehensive collection of fresh fruits with stunning visuals and detailed information</p>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <mat-icon>photo_library</mat-icon>
+        <span>{{ classes.length }} Categories</span>
+      </div>
+      <div class="stat-item">
+        <mat-icon>image</mat-icon>
+        <span>High Quality</span>
+      </div>
+      <div class="stat-item">
+        <mat-icon>explore</mat-icon>
+        <span>Interactive</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Premium Gallery Grid -->
+<section class="gallery-section">
+  <div class="container">
+    <div class="gallery-header">
+      <h2 class="section-title">Browse by Category</h2>
+      <p class="section-subtitle">Discover different types of fruits with sample images and detailed information</p>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-container">
+      <div class="loading-card">
+        <mat-icon class="loading-icon">hourglass_empty</mat-icon>
+        <h3>Loading Gallery...</h3>
+        <p>Fetching fruit categories and images</p>
+        <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
+      </div>
+    </div>
+
+    <!-- Gallery Grid -->
+    <div class="gallery-grid" *ngIf="!loading">
+      <div class="fruit-card" *ngFor="let cls of classes; trackBy: trackByClass">
+        <div class="card-wrapper">
+          <mat-card class="gallery-card">
+            <!-- Card Header -->
+            <mat-card-header class="card-header">
+              <div class="fruit-avatar">
+                <mat-icon>{{ getFruitIcon(cls) }}</mat-icon>
               </div>
-            </ng-container>
-          <ng-template #noThumbs>
-            <div class="placeholder">No images available</div>
-          </ng-template>
+              <div class="card-title-section">
+                <mat-card-title class="fruit-name">{{ cls }}</mat-card-title>
+                <mat-card-subtitle class="image-count">
+                  <mat-icon>photo</mat-icon>
+                  {{ (samples[cls] && samples[cls].length) || 0 }} images
+                </mat-card-subtitle>
+              </div>
+              <div class="card-badge">
+                <mat-icon>verified</mat-icon>
+              </div>
+            </mat-card-header>
+
+            <!-- Image Mosaic -->
+            <mat-card-content class="card-content">
+              <div class="image-mosaic">
+                <ng-container *ngIf="samples[cls] && samples[cls].length; else noImages">
+                  <div class="mosaic-item" *ngFor="let f of samples[cls] | slice:0:4; let i = index">
+                    <img [src]="imgUrl(cls, f)" [alt]="f" loading="lazy" />
+                    <div class="image-overlay">
+                      <mat-icon>visibility</mat-icon>
+                    </div>
+                  </div>
+                </ng-container>
+                <ng-template #noImages>
+                  <div class="no-images-placeholder">
+                    <mat-icon>image_not_supported</mat-icon>
+                    <span>No images available</span>
+                  </div>
+                </ng-template>
+              </div>
+            </mat-card-content>
+
+            <!-- Card Actions -->
+            <mat-card-actions class="card-actions">
+              <button mat-raised-button class="explore-btn" [attr.href]="'/explore/' + cls" target="_blank" rel="noopener">
+                <mat-icon>explore</mat-icon>
+                <span>Explore</span>
+              </button>
+              <button mat-stroked-button class="chat-btn" [routerLink]="['/chatbot']" matTooltip="Chat about {{cls}}">
+                <mat-icon>chat</mat-icon>
+                <span>Chat</span>
+              </button>
+            </mat-card-actions>
+          </mat-card>
         </div>
       </div>
-      </mat-card-content>
-      <mat-card-actions>
-  <a mat-flat-button color="primary" class="mat-flat-button" [attr.href]="'/explore/' + cls" target="_blank" rel="noopener">Explore</a>
-        <!-- per-card upload button removed intentionally; use header camera instead -->
-        <span class="spacer"></span>
-        <button mat-icon-button matTooltip="Chat about {{cls}}" [routerLink]="['/chatbot']">
-          <mat-icon>chat</mat-icon>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && classes.length === 0" class="empty-state">
+      <div class="empty-content">
+        <mat-icon class="empty-icon">collections_off</mat-icon>
+        <h3>No Categories Found</h3>
+        <p>Unable to load fruit categories at this time. Please try again later.</p>
+        <button mat-raised-button class="retry-btn" (click)="ngOnInit()">
+          <mat-icon>refresh</mat-icon>
+          Try Again
         </button>
-      </mat-card-actions>
-    </mat-card>
+      </div>
+    </div>
   </div>
-</div>
+</section>

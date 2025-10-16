@@ -1,40 +1,196 @@
-<div class="recommend-root">
-  <h2>Get fruit recommendations</h2>
-  <div class="controls">
-    <mat-form-field appearance="outline" class="disease-input">
-      <mat-label>Type a condition (or pick one)</mat-label>
-      <input matInput placeholder="e.g. high blood sugar" [(ngModel)]="typedDisease" />
-    </mat-form-field>
+<!-- Premium Header Section -->
+<div class="recommend-header">
+  <div class="header-content">
+    <div class="header-icon">
+      <mat-icon>recommend</mat-icon>
+    </div>
+    <div class="header-text">
+      <h1 class="page-title">AI Fruit Recommendations</h1>
+      <p class="page-subtitle">Get personalized fruit suggestions based on your health conditions</p>
+    </div>
+  </div>
+  <div class="header-decoration">
+    <div class="floating-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
+  </div>
+</div>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Or pick a condition</mat-label>
-      <mat-select [(ngModel)]="disease">
-        <mat-option *ngFor="let d of diseases" [value]="d">{{ d }}</mat-option>
-      </mat-select>
-    </mat-form-field>
+<!-- Main Content Container -->
+<div class="recommend-container">
+  <!-- Input Section -->
+  <div class="input-section">
+    <div class="input-card">
+      <div class="card-header">
+        <mat-icon class="card-icon">health_and_safety</mat-icon>
+        <h2 class="card-title">Tell us about your health</h2>
+      </div>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Fruits you already have</mat-label>
-      <mat-select multiple [(ngModel)]="have">
-        <mat-option *ngFor="let c of availableClasses" [value]="c">{{ c }}</mat-option>
-      </mat-select>
-    </mat-form-field>
+      <div class="input-grid">
+        <!-- Disease Input -->
+        <div class="input-group">
+          <mat-form-field appearance="outline" class="premium-input">
+            <mat-label>Describe your condition</mat-label>
+            <input matInput
+                   placeholder="e.g. high blood sugar, anemia, constipation..."
+                   [(ngModel)]="typedDisease"
+                   autocomplete="off" />
+            <mat-icon matPrefix>search</mat-icon>
+            <mat-hint>Be specific for better recommendations</mat-hint>
+          </mat-form-field>
+        </div>
 
-    <button mat-raised-button color="primary" (click)="getRecommendations()" [disabled]="!typedDisease && !disease">Recommend</button>
+        <!-- Or Divider -->
+        <div class="divider-section">
+          <div class="divider-line"></div>
+          <span class="divider-text">OR</span>
+          <div class="divider-line"></div>
+        </div>
+
+        <!-- Disease Selector -->
+        <div class="input-group">
+          <mat-form-field appearance="outline" class="premium-input">
+            <mat-label>Select a condition</mat-label>
+            <mat-select [(ngModel)]="disease">
+              <mat-option *ngFor="let d of diseases" [value]="d">
+                <div class="option-content">
+                  <mat-icon class="option-icon">{{getDiseaseIcon(d)}}</mat-icon>
+                  <span>{{ d | titlecase }}</span>
+                </div>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Available Fruits -->
+        <div class="input-group full-width">
+          <mat-form-field appearance="outline" class="premium-input">
+            <mat-label>Fruits you already have (optional)</mat-label>
+            <mat-select multiple [(ngModel)]="have" placeholder="Select fruits you own">
+              <mat-option *ngFor="let c of availableClasses" [value]="c">
+                <div class="option-content">
+                  <img class="fruit-icon" [src]="getFruitIcon(c)" [alt]="c" />
+                  <span>{{ c | titlecase }}</span>
+                </div>
+              </mat-option>
+            </mat-select>
+            <mat-hint>We'll avoid recommending fruits you already have</mat-hint>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <div class="action-section">
+        <button mat-flat-button
+                class="recommend-button"
+                (click)="getRecommendations()"
+                [disabled]="!typedDisease && !disease">
+          <mat-icon class="button-icon">psychology</mat-icon>
+          <span>Get AI Recommendations</span>
+          <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+        </button>
+      </div>
+    </div>
   </div>
 
-  <div *ngIf="loading">Loading...</div>
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-section">
+    <div class="loading-card">
+      <div class="loading-spinner">
+        <mat-progress-spinner mode="indeterminate" diameter="48" color="primary"></mat-progress-spinner>
+      </div>
+      <div class="loading-text">
+        <h3>Analyzing your health condition...</h3>
+        <p>Our AI is finding the perfect fruits for you</p>
+      </div>
+    </div>
+  </div>
 
-  <div class="results" *ngIf="recommendations.length">
-    <mat-card *ngFor="let r of recommendations" class="rec-card">
-      <mat-card-header>
-        <mat-card-title>{{ r.class }}</mat-card-title>
-        <mat-card-subtitle>{{ (r.score * 100) | number:'1.0-0' }}% match</mat-card-subtitle>
-      </mat-card-header>
-  <img mat-card-image [src]="imageUrl(r.class, r.sample)" alt="{{r.class}}" *ngIf="r.sample">
-      <mat-card-content>
-        <p>{{ r.reason }}</p>
-      </mat-card-content>
-    </mat-card>
+  <!-- Results Section -->
+  <div *ngIf="recommendations.length" class="results-section">
+    <div class="results-header">
+      <h2 class="results-title">
+        <mat-icon>restaurant</mat-icon>
+        Your Personalized Recommendations
+      </h2>
+      <p class="results-subtitle">Based on your health condition and preferences</p>
+    </div>
+
+    <div class="recommendations-grid">
+      <mat-card *ngFor="let r of recommendations; let i = index"
+                class="recommendation-card"
+                [class.featured]="i === 0">
+        <div class="card-rank" *ngIf="i < 3">#{{i + 1}}</div>
+
+        <div class="card-image-container">
+          <img mat-card-image
+               [src]="imageUrl(r.class, r.sample)"
+               [alt]="r.class"
+               *ngIf="r.sample"
+               class="fruit-image" />
+          <div class="image-overlay">
+            <div class="match-score">
+              <div class="score-circle">
+                <span class="score-number">{{ (r.score * 100) | number:'1.0-0' }}</span>
+                <span class="score-label">match</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <mat-card-content class="card-content">
+          <div class="fruit-header">
+            <h3 class="fruit-name">{{ r.class | titlecase }}</h3>
+            <div class="fruit-badge" [class]="getHealthBadgeClass(r.class)">
+              {{ getHealthBadgeText(r.class) }}
+            </div>
+          </div>
+
+          <p class="recommendation-reason">{{ r.reason }}</p>
+
+          <div class="card-actions">
+            <button mat-stroked-button
+                    class="explore-button"
+                    [routerLink]="['/explore', r.class]">
+              <mat-icon>visibility</mat-icon>
+              Explore
+            </button>
+            <button mat-stroked-button
+                    class="recipe-button"
+                    [routerLink]="['/recipes']"
+                    [queryParams]="{fruit: r.class}">
+              <mat-icon>restaurant</mat-icon>
+              Recipes
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Additional Info -->
+    <div class="info-section">
+      <mat-card class="info-card">
+        <mat-card-content>
+          <div class="info-content">
+            <mat-icon class="info-icon">info</mat-icon>
+            <div class="info-text">
+              <h4>Why these recommendations?</h4>
+              <p>Our AI analyzes nutritional data, health benefits, and scientific research to suggest fruits that may help with your specific condition. Always consult with healthcare professionals for medical advice.</p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && !recommendations.length && (typedDisease || disease)" class="empty-state">
+    <div class="empty-card">
+      <mat-icon class="empty-icon">search_off</mat-icon>
+      <h3>No recommendations found</h3>
+      <p>Try describing your condition differently or select from the dropdown options.</p>
+    </div>
   </div>
 </div>

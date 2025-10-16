@@ -167,4 +167,39 @@ export class RecipeComponent implements OnInit {
     this.mealType = '';
     this.generatedRecipe = null;
   }
+
+  getFruitIcon(fruit: string): string {
+    const icons: { [key: string]: string } = {
+      'Apple': '🍎',
+      'Banana': '🍌',
+      'Orange': '🍊',
+      'Strawberry': '🍓',
+      'Blueberry': '🫐',
+      'Mango': '🥭',
+      'Pineapple': '🍍',
+      'Kiwi': '🥝',
+      'Grape': '🍇',
+      'Watermelon': '🍉',
+      'Peach': '🍑',
+      'Pear': '🍐',
+      'Cherry': '🍒',
+      'Lemon': '🍋',
+      'Lime': '🍋',
+      'Avocado': '🥑',
+      'Coconut': '🥥',
+      'Fig': '🫠'
+    };
+    return icons[fruit] || '🍽️';
+  }
+
+  getNutritionPercentage(nutrient: string, value: number): number {
+    const maxValues = {
+      calories: 500,
+      protein: 30,
+      carbs: 80,
+      fat: 25
+    };
+    const max = maxValues[nutrient as keyof typeof maxValues] || 100;
+    return Math.min((value / max) * 100, 100);
+  }
 }

@@ -5,6 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 
 @Component({
@@ -12,7 +13,7 @@ import { RouterModule } from '@angular/router';
   templateUrl: './gallery.component.html',
   styleUrls: ['./gallery.component.scss'],
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatTooltipModule, RouterModule]
+  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatTooltipModule, MatProgressSpinnerModule, RouterModule]
 })
 export class GalleryComponent implements OnInit {
   classes: string[] = [];
@@ -42,5 +43,51 @@ export class GalleryComponent implements OnInit {
 
   imgUrl(cls: string, file: string) {
     return `/vision/image?cls=${encodeURIComponent(cls)}&file=${encodeURIComponent(file)}`;
+  }
+
+  getFruitIcon(cls: string): string {
+    const icons: { [key: string]: string } = {
+      'apple': '🍎',
+      'apples': '🍎',
+      'banana': '🍌',
+      'bananas': '🍌',
+      'orange': '🍊',
+      'oranges': '🍊',
+      'strawberry': '🍓',
+      'strawberries': '🍓',
+      'blueberry': '🫐',
+      'blueberries': '🫐',
+      'mango': '🥭',
+      'mangos': '🥭',
+      'pineapple': '🍍',
+      'pineapples': '🍍',
+      'kiwi': '🥝',
+      'kiwifruit': '🥝',
+      'grape': '🍇',
+      'grapes': '🍇',
+      'watermelon': '🍉',
+      'watermelons': '🍉',
+      'peach': '🍑',
+      'peaches': '🍑',
+      'pear': '🍐',
+      'pears': '🍐',
+      'cherry': '🍒',
+      'cherries': '🍒',
+      'lemon': '🍋',
+      'lemons': '🍋',
+      'lime': '🍋',
+      'limes': '🍋',
+      'avocado': '🥑',
+      'avocados': '🥑',
+      'coconut': '🥥',
+      'coconuts': '🥥',
+      'fig': '🫠',
+      'figs': '🫠'
+    };
+    return icons[cls.toLowerCase()] || '🍽️';
+  }
+
+  trackByClass(index: number, cls: string): string {
+    return cls;
   }
 }

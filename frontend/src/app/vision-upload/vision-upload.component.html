@@ -1,25 +1,234 @@
-<div class="vision-upload">
-  <div class="controls">
-    <input type="file" (change)="onFile($event)" accept="image/*" />
+<!-- Premium Header Section -->
+<div class="vision-header">
+  <div class="header-content">
+    <div class="header-icon">
+      <mat-icon>camera_alt</mat-icon>
+    </div>
+    <div class="header-text">
+      <h1 class="page-title">AI Fruit Recognition</h1>
+      <p class="page-subtitle">Upload a photo and let our AI identify the fruit instantly</p>
+    </div>
+  </div>
+  <div class="header-decoration">
+    <div class="floating-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
+  </div>
+</div>
 
-    <button mat-raised-button color="primary" (click)="upload()" [disabled]="!file || loading">
-      Upload & Predict
-    </button>
+<!-- Main Content Container -->
+<div class="vision-container">
+  <!-- Upload Section -->
+  <div class="upload-section">
+    <div class="upload-card">
+      <div class="card-header">
+        <mat-icon class="card-icon">cloud_upload</mat-icon>
+        <h2 class="card-title">Upload Your Fruit Photo</h2>
+      </div>
 
-    <div *ngIf="loading" class="spinner"><mat-progress-spinner mode="indeterminate" diameter="28"></mat-progress-spinner></div>
+      <div class="upload-area" [class.drag-over]="isDragOver" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+        <div class="upload-content">
+          <div class="upload-icon">
+            <mat-icon>image</mat-icon>
+          </div>
+
+          <div class="upload-text" *ngIf="!file">
+            <h3>Drag & drop your fruit image here</h3>
+            <p>or click to browse files</p>
+          </div>
+
+          <div class="file-selected" *ngIf="file">
+            <mat-icon class="file-icon">check_circle</mat-icon>
+            <div class="file-info">
+              <h4>{{ file.name }}</h4>
+              <p>{{ formatFileSize(file.size) }}</p>
+            </div>
+          </div>
+
+          <input type="file"
+                 #fileInput
+                 (change)="onFile($event)"
+                 accept="image/*"
+                 style="display: none;" />
+
+          <button mat-flat-button
+                  class="upload-button"
+                  (click)="fileInput.click()"
+                  *ngIf="!file">
+            <mat-icon>browse_files</mat-icon>
+            Choose File
+          </button>
+
+          <button mat-flat-button
+                  class="change-button"
+                  (click)="fileInput.click()"
+                  *ngIf="file">
+            <mat-icon>refresh</mat-icon>
+            Change File
+          </button>
+        </div>
+      </div>
+
+      <!-- Upload Tips -->
+      <div class="tips-section">
+        <h4>Tips for best results:</h4>
+        <ul class="tips-list">
+          <li><mat-icon>lightbulb</mat-icon> Use good lighting</li>
+          <li><mat-icon>center_focus_strong</mat-icon> Focus on the fruit</li>
+          <li><mat-icon>aspect_ratio</mat-icon> Include the whole fruit</li>
+          <li><mat-icon>clean_hands</mat-icon> Clean background preferred</li>
+        </ul>
+      </div>
+
+      <!-- Action Button -->
+      <div class="action-section">
+        <button mat-flat-button
+                class="analyze-button"
+                (click)="upload()"
+                [disabled]="!file || loading">
+          <mat-icon class="button-icon">psychology</mat-icon>
+          <span>Analyze with AI</span>
+          <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+        </button>
+      </div>
+    </div>
   </div>
 
-  <div *ngIf="preview" class="preview">
-    <img [src]="preview" alt="preview" />
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-section">
+    <div class="loading-card">
+      <div class="loading-spinner">
+        <mat-progress-spinner mode="indeterminate" diameter="48" color="primary"></mat-progress-spinner>
+      </div>
+      <div class="loading-text">
+        <h3>Analyzing your image...</h3>
+        <p>Our AI is identifying the fruit in your photo</p>
+      </div>
+    </div>
   </div>
 
-  <div *ngIf="predictions.length" class="predictions">
-    <h3>Predictions</h3>
-    <ol>
-      <li *ngFor="let p of predictions">{{ p.class }} — {{ (p.score * 100) | number:'1.0-2' }}%</li>
-    </ol>
+  <!-- Results Section -->
+  <div *ngIf="predictions.length" class="results-section">
+    <div class="results-header">
+      <h2 class="results-title">
+        <mat-icon>visibility</mat-icon>
+        AI Recognition Results
+      </h2>
+      <p class="results-subtitle">Here's what our AI detected in your image</p>
+    </div>
+
+    <!-- Image Preview -->
+    <div class="image-preview-section">
+      <div class="preview-card">
+        <div class="preview-header">
+          <mat-icon class="preview-icon">image</mat-icon>
+          <h3>Your Image</h3>
+        </div>
+        <div class="preview-image">
+          <img [src]="preview" alt="Uploaded image" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Predictions -->
+    <div class="predictions-section">
+      <div class="predictions-card">
+        <div class="predictions-header">
+          <mat-icon class="predictions-icon">analytics</mat-icon>
+          <h3>AI Predictions</h3>
+        </div>
+
+        <div class="predictions-list">
+          <div *ngFor="let prediction of predictions; let i = index"
+               class="prediction-item"
+               [class.top-prediction]="i === 0">
+            <div class="prediction-rank" *ngIf="i < 3">
+              #{{i + 1}}
+            </div>
+
+            <div class="prediction-content">
+              <div class="fruit-info">
+                <h4 class="fruit-name">{{ prediction.class | titlecase }}</h4>
+                <div class="confidence-bar">
+                  <div class="confidence-fill" [style.width.%]="prediction.score * 100"></div>
+                </div>
+                <div class="confidence-text">
+                  {{ (prediction.score * 100) | number:'1.1-1' }}% confidence
+                </div>
+              </div>
+
+              <div class="prediction-actions">
+                <button mat-stroked-button
+                        class="explore-button"
+                        [routerLink]="['/explore', prediction.class]">
+                  <mat-icon>visibility</mat-icon>
+                  Explore
+                </button>
+                <button mat-stroked-button
+                        class="recommend-button"
+                        [routerLink]="['/recommend']"
+                        [queryParams]="{fruit: prediction.class}">
+                  <mat-icon>recommend</mat-icon>
+                  Health Info
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Actions -->
+    <div class="actions-section">
+      <div class="actions-card">
+        <h4>What would you like to do next?</h4>
+        <div class="action-buttons">
+          <button mat-flat-button
+                  class="action-button primary"
+                  [routerLink]="['/recipes']"
+                  [queryParams]="{fruit: predictions[0].class}">
+            <mat-icon>restaurant</mat-icon>
+            Get Recipes
+          </button>
+          <button mat-flat-button
+                  class="action-button secondary"
+                  [routerLink]="['/gallery']">
+            <mat-icon>photo_library</mat-icon>
+            Browse Gallery
+          </button>
+          <button mat-flat-button
+                  class="action-button secondary"
+                  (click)="reset()">
+            <mat-icon>refresh</mat-icon>
+            Try Another
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
-  <div *ngIf="lowConfidence" class="not-fruit">
-    <p>Sorry — this doesn't look like a fruit image (or the model is not confident). Try another photo focused on the fruit.</p>
+
+  <!-- Low Confidence Message -->
+  <div *ngIf="lowConfidence" class="low-confidence-section">
+    <div class="low-confidence-card">
+      <div class="warning-icon">
+        <mat-icon>warning</mat-icon>
+      </div>
+      <div class="warning-content">
+        <h3>Not a fruit image</h3>
+        <p>Sorry, our AI couldn't confidently identify a fruit in your image. Try uploading a clearer photo focused on the fruit.</p>
+        <div class="warning-actions">
+          <button mat-flat-button class="retry-button" (click)="reset()">
+            <mat-icon>refresh</mat-icon>
+            Try Again
+          </button>
+          <button mat-stroked-button class="gallery-button" [routerLink]="['/gallery']">
+            <mat-icon>photo_library</mat-icon>
+            Browse Examples
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

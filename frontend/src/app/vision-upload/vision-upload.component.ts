@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
+import { RouterModule } from '@angular/router';
 import { VisionService } from '../services/vision.service';
 
 @Component({
@@ -12,7 +13,7 @@ import { VisionService } from '../services/vision.service';
   templateUrl: './vision-upload.component.html',
   styleUrls: ['./vision-upload.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, MatButtonModule, MatProgressSpinnerModule, MatSnackBarModule, MatIconModule],
+  imports: [CommonModule, FormsModule, MatButtonModule, MatProgressSpinnerModule, MatSnackBarModule, MatIconModule, RouterModule],
 })
 export class VisionUploadComponent {
   file?: File;
@@ -20,6 +21,7 @@ export class VisionUploadComponent {
   predictions: any[] = [];
   loading = false;
   lowConfidence = false;
+  isDragOver = false;
 
   constructor(private vision: VisionService, private snack: MatSnackBar) {}
 
@@ -37,6 +39,37 @@ export class VisionUploadComponent {
     const reader = new FileReader();
     reader.onload = () => (this.preview = reader.result);
     reader.readAsDataURL(this.file);
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver = true;
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver = false;
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver = false;
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      if (file.type.startsWith('image/')) {
+        this.file = file;
+        const reader = new FileReader();
+        reader.onload = () => (this.preview = reader.result);
+        reader.readAsDataURL(this.file);
+      } else {
+        this.snack.open('Please drop an image file (jpg, png, jpeg)', 'Close', { duration: 3500 });
+      }
+    }
   }
 
   upload() {
@@ -62,5 +95,22 @@ export class VisionUploadComponent {
         this.snack.open('Prediction failed — check console', 'Close', { duration: 4000 });
       },
     });
+  }
+
+  reset() {
+    this.file = undefined;
+    this.preview = undefined;
+    this.predictions = [];
+    this.loading = false;
+    this.lowConfidence = false;
+    this.isDragOver = false;
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 }
