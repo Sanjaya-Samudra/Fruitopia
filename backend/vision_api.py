@@ -19,6 +19,7 @@ sys.path.insert(0, str(FILE_DIR / "services"))
 from services.recommender import get_recommendations, DISEASES_EXTENDED
 from services.fruit_service import fruit_service
 from services.usda_api import usda_client
+from services.hybrid_recommender import hybrid_recommender
 from nlp.nlp_pipeline import extract_all_entities
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -166,6 +167,39 @@ def recommend_from_natural(text: str = Body(..., embed=True)):
     result = get_recommendations(disease, have=fruits)
     result["entities"] = entities
     return result
+
+@app.post("/recommend/hybrid")
+def recommend_hybrid(payload: dict):
+    """Hybrid ML recommender: content-based + collaborative + diversity."""
+    diseases = payload.get("diseases", [])
+    if isinstance(diseases, str):
+        diseases = [diseases]
+    have = payload.get("have", [])
+    if isinstance(have, str):
+        have = [h.strip() for h in have.split(",") if h.strip()]
+    user_id = payload.get("user_id", "anonymous")
+    preferences = payload.get("preferences", {})
+    top_k = payload.get("top_k", 5)
+    diversify = payload.get("diversify", True)
+
+    result = hybrid_recommender.recommend(
+        user_id=user_id,
+        diseases=diseases,
+        have=have,
+        preferences=preferences,
+        top_k=top_k,
+        diversify=diversify,
+    )
+    return result
+
+@app.post("/recommend/feedback")
+def record_feedback(payload: dict):
+    """Record user feedback for collaborative filtering."""
+    user_id = payload.get("user_id", "anonymous")
+    fruit = payload.get("fruit", "").strip().lower()
+    rating = float(payload.get("rating", 1.0))
+    hybrid_recommender.record_user_feedback(user_id, fruit, rating)
+    return {"status": "ok", "user_id": user_id, "fruit": fruit, "rating": rating}
 
 # ============================================================
 #  NLP ENDPOINTS
@@ -426,6 +460,8 @@ def root():
             "fruits_search": "/fruits/search?q=",
             "recommend": "/recommend",
             "recommend_natural": "/recommend/natural",
+            "recommend_hybrid": "/recommend/hybrid",
+            "recommend_feedback": "/recommend/feedback",
             "chatbot": "/chatbot/message",
             "vision_predict": "/vision/predict",
             "vision_classes": "/vision/classes",
