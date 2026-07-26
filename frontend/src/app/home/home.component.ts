@@ -31,7 +31,6 @@ export class HomeComponent {
       description: 'Get personalized fruit suggestions based on your health conditions, preferences, and nutritional needs.',
       route: '/recommend',
       color: '#818cf8',
-      comingSoon: false
     },
     {
       icon: 'smart_toy',
@@ -39,7 +38,27 @@ export class HomeComponent {
       description: 'Chat with our RAG-powered AI that answers questions from a knowledge base of 30+ fruits.',
       action: 'chat',
       color: '#f472b6',
-      comingSoon: false
+    },
+    {
+      icon: 'calendar_month',
+      title: 'Meal Planner',
+      description: 'AI-optimized weekly meal plans tailored to your health goals, dietary preferences, and nutritional targets.',
+      route: '/meal-planner',
+      color: '#a78bfa',
+    },
+    {
+      icon: 'public',
+      title: 'Fruit Culture',
+      description: 'Explore global fruit cultivation, trade routes, sustainability data, and seasonal growing calendars.',
+      route: '/fruit-culture',
+      color: '#34d399',
+    },
+    {
+      icon: 'hub',
+      title: 'Research Graph',
+      description: 'PubMed-cited evidence linking fruits to health outcomes with confidence scores and effect sizes.',
+      route: '/knowledge-graph',
+      color: '#22d3ee',
     },
     {
       icon: 'camera_alt',
@@ -47,7 +66,6 @@ export class HomeComponent {
       description: 'Identify fruits and analyze ripeness, quality, and defects using computer vision.',
       route: '/vision',
       color: '#34d399',
-      comingSoon: false
     },
     {
       icon: 'restaurant',
@@ -55,7 +73,6 @@ export class HomeComponent {
       description: 'Discover AI-generated recipes tailored to your fruits, dietary preferences, and health goals.',
       route: '/recipes',
       color: '#f59e0b',
-      comingSoon: false
     },
     {
       icon: 'grid_view',
@@ -63,15 +80,34 @@ export class HomeComponent {
       description: 'Explore 30+ fruits with detailed nutrition, health benefits, culinary uses, and cultivation info.',
       route: '/gallery',
       color: '#22d3ee',
-      comingSoon: false
     },
     {
-      icon: 'monitor_heart',
-      title: 'Health Tracking',
-      description: 'Track how fruits impact your health with personalized insights and evidence-based recommendations.',
-      route: null,
+      icon: 'qr_code_scanner',
+      title: 'Barcode Scanner',
+      description: 'Scan or enter barcodes to instantly identify fruits, varieties, countries of origin, and nutrition.',
+      route: '/barcode',
       color: '#fb923c',
-      comingSoon: true
+    },
+    {
+      icon: 'favorite',
+      title: 'Wearables Integration',
+      description: 'Connect Apple Health, Fitbit, Garmin, Whoop, Oura to get personalized fruit recommendations from your vitals.',
+      route: '/health-platform',
+      color: '#f472b6',
+    },
+    {
+      icon: 'stars',
+      title: 'Premium Plans',
+      description: 'Unlock unlimited meal plans, advanced analytics, and enterprise API access.',
+      route: '/premium',
+      color: '#fbbf24',
+    },
+    {
+      icon: 'question_answer',
+      title: 'AI Chatbot',
+      description: 'Ask anything about fruits, diseases, nutrition, and get evidence-based answers instantly.',
+      action: 'chat',
+      color: '#818cf8',
     },
   ];
 

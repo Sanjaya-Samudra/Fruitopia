@@ -20,14 +20,40 @@
       <mat-icon>auto_awesome</mat-icon>
       <span>Recommend</span>
     </button>
-    <button class="nav-link" routerLink="/recipes" routerLinkActive="active">
-      <mat-icon>restaurant</mat-icon>
-      <span>Recipes</span>
+    <button class="nav-link" routerLink="/meal-planner" routerLinkActive="active">
+      <mat-icon>calendar_month</mat-icon>
+      <span>Meal Plan</span>
     </button>
-    <button class="nav-link" routerLink="/vision" routerLinkActive="active">
-      <mat-icon>camera</mat-icon>
-      <span>Scan</span>
+    <button class="nav-link" routerLink="/fruit-culture" routerLinkActive="active">
+      <mat-icon>public</mat-icon>
+      <span>Culture</span>
     </button>
+    <div class="more-dropdown">
+      <button class="nav-link more-btn">
+        <mat-icon>more_horiz</mat-icon>
+        <span>More</span>
+      </button>
+      <div class="dropdown-content">
+        <button class="dropdown-item" routerLink="/recipes" routerLinkActive="active">
+          <mat-icon>restaurant</mat-icon> Recipes
+        </button>
+        <button class="dropdown-item" routerLink="/vision" routerLinkActive="active">
+          <mat-icon>camera</mat-icon> Vision
+        </button>
+        <button class="dropdown-item" routerLink="/barcode" routerLinkActive="active">
+          <mat-icon>qr_code_scanner</mat-icon> Barcode
+        </button>
+        <button class="dropdown-item" routerLink="/knowledge-graph" routerLinkActive="active">
+          <mat-icon>hub</mat-icon> Research
+        </button>
+        <button class="dropdown-item" routerLink="/health-platform" routerLinkActive="active">
+          <mat-icon>favorite</mat-icon> Wearables
+        </button>
+        <button class="dropdown-item" routerLink="/premium" routerLinkActive="active">
+          <mat-icon>stars</mat-icon> Premium
+        </button>
+      </div>
+    </div>
   </div>
 
   <div class="nav-actions">

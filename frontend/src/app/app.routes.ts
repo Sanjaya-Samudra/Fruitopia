@@ -6,6 +6,12 @@ import { GalleryComponent } from './gallery/gallery.component';
 import { ExploreComponent } from './explore/explore.component';
 import { RecommendComponent } from './recommend/recommend.component';
 import { RecipeComponent } from './recipe/recipe.component';
+import { MealPlannerComponent } from './meal-planner/meal-planner.component';
+import { FruitCultureComponent } from './fruit-culture/fruit-culture.component';
+import { KnowledgeGraphComponent } from './knowledge-graph/knowledge-graph.component';
+import { BarcodeScannerComponent } from './barcode-scanner/barcode-scanner.component';
+import { HealthPlatformComponent } from './health-platform/health-platform.component';
+import { PremiumComponent } from './premium/premium.component';
 
 export const routes: Routes = [
 	{ path: '', component: HomeComponent },
@@ -14,5 +20,11 @@ export const routes: Routes = [
 	{ path: 'gallery', component: GalleryComponent },
 	{ path: 'explore/:name', component: ExploreComponent },
 	{ path: 'recommend', component: RecommendComponent },
-	{ path: 'recipes', component: RecipeComponent }
+	{ path: 'recipes', component: RecipeComponent },
+	{ path: 'meal-planner', component: MealPlannerComponent },
+	{ path: 'fruit-culture', component: FruitCultureComponent },
+	{ path: 'knowledge-graph', component: KnowledgeGraphComponent },
+	{ path: 'barcode', component: BarcodeScannerComponent },
+	{ path: 'health-platform', component: HealthPlatformComponent },
+	{ path: 'premium', component: PremiumComponent }
 ];
