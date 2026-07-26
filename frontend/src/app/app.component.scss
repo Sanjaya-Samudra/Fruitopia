@@ -1,315 +1,156 @@
-/* Premium Header Layout */
-.fruitopia-toolbar {
-  display: grid;
-  grid-template-columns: 320px 1fr 200px;
-  align-items: center;
-  min-height: 80px;
-  padding: 0 24px;
-  gap: 32px;
-  position: relative;
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.premium-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 1000;
-}
-
-.premium-toolbar {
-  background: linear-gradient(135deg,
-    rgba(255, 255, 255, 0.95) 0%,
-    rgba(249, 250, 251, 0.95) 25%,
-    rgba(243, 244, 246, 0.95) 50%,
-    rgba(255, 255, 255, 0.95) 100%);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow:
-    0 8px 32px rgba(15, 81, 64, 0.08),
-    0 2px 8px rgba(15, 81, 64, 0.04),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  border-bottom: 1px solid rgba(15, 81, 64, 0.06);
-}
-
-/* Brand Section */
-.toolbar-brand {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(20px) saturate(1.5);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0 var(--space-lg);
+  height: 72px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  transition: all var(--transition-base);
+
+  &.scrolled {
+    background: rgba(15, 23, 42, 0.95);
+    box-shadow: var(--shadow-lg);
+  }
 }
 
-.brand-container {
+.nav-brand {
   display: flex;
   align-items: center;
-  gap: 16px;
-  position: relative;
+  gap: var(--space-sm);
+  text-decoration: none;
+  cursor: pointer;
 }
 
-.logo-wrapper {
-  position: relative;
+.brand-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--border-radius-md);
+  background: var(--gradient-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.brand-logo {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(255, 90, 95, 0.2);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  z-index: 2;
-}
-
-.logo-glow {
-  position: absolute;
-  top: -4px;
-  left: -4px;
-  right: -4px;
-  bottom: -4px;
-  background: linear-gradient(135deg, rgba(255, 90, 95, 0.3), rgba(255, 152, 0, 0.2));
-  border-radius: 16px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: 1;
-}
-
-.logo-wrapper:hover .logo-glow {
-  opacity: 1;
-}
-
-.logo-wrapper:hover .brand-logo {
-  transform: scale(1.05);
-  box-shadow: 0 8px 24px rgba(255, 90, 95, 0.3);
-}
-
-.brand-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  font-size: 1.3rem;
+  box-shadow: var(--shadow-glow);
+  animation: pulse-glow 3s infinite;
 }
 
 .brand-text {
-  font-weight: 800;
-  font-size: 1.5rem;
-  letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #0f5140 0%, #2d5a47 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
   line-height: 1.2;
 }
 
 .brand-subtitle {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: rgba(15, 81, 64, 0.7);
-  letter-spacing: 0.02em;
+  font-size: 0.65rem;
+  color: var(--text-accent);
+  letter-spacing: 0.15em;
   text-transform: uppercase;
+  font-weight: 500;
 }
 
-/* Navigation Section */
-.toolbar-navigation {
+.nav-links {
   display: flex;
-  justify-content: center;
   align-items: center;
+  gap: var(--space-xs);
 }
 
-.nav-menu {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.6);
-  padding: 8px 16px;
-  border-radius: 24px;
-  box-shadow: inset 0 1px 2px rgba(15, 81, 64, 0.04);
-  border: 1px solid rgba(15, 81, 64, 0.06);
-}
-
-.nav-item {
+.nav-link {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 16px;
-  border-radius: 20px;
+  padding: 8px 16px;
+  border-radius: var(--border-radius-md);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
   font-weight: 500;
-  font-size: 0.875rem;
-  color: rgba(15, 81, 64, 0.8);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
+  transition: all var(--transition-base);
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+
+  mat-icon {
+    font-size: 1.2rem;
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  &:hover {
+    color: var(--text-primary);
+    background: var(--bg-glass);
+  }
+
+  &.active {
+    color: var(--text-primary);
+    background: var(--gradient-primary);
+    box-shadow: var(--shadow-glow);
+  }
 }
 
-.nav-item::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(15, 81, 64, 0.08), transparent);
-  transition: left 0.5s ease;
-}
-
-.nav-item:hover::before {
-  left: 100%;
-}
-
-.nav-item:hover {
-  background: rgba(15, 81, 64, 0.06);
-  color: #0f5140;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(15, 81, 64, 0.1);
-}
-
-.nav-item.active {
-  background: linear-gradient(135deg, #0f5140 0%, #2d5a47 100%);
-  color: white;
-  box-shadow: 0 4px 16px rgba(15, 81, 64, 0.2);
-}
-
-.nav-item mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-}
-
-/* Actions Section */
-.toolbar-actions {
+.nav-actions {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
+  gap: var(--space-sm);
 }
 
-.chat-button {
+.chat-toggle-btn {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 20px;
-  border-radius: 24px;
-  font-weight: 600;
-  font-size: 0.875rem;
-  background: linear-gradient(135deg, #ff5a5f 0%, #ff9800 100%);
+  padding: 10px 20px;
+  border-radius: 50px;
+  background: var(--gradient-warm);
   color: white;
-  box-shadow: 0 4px 16px rgba(255, 90, 95, 0.3);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
+  border: none;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
 
-.chat-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s ease;
-}
-
-.chat-button:hover::before {
-  left: 100%;
-}
-
-.chat-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(255, 90, 95, 0.4);
-  background: linear-gradient(135deg, #e64a4f 0%, #e68900 100%);
-}
-
-.chat-button mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-}
-
-/* Responsive Design */
-@media (max-width: 1024px) {
-  .fruitopia-toolbar {
-    grid-template-columns: 280px 1fr 180px;
-    padding: 0 16px;
-    gap: 16px;
-    min-height: 70px;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(239, 68, 68, 0.5);
   }
 
-  .nav-menu {
-    padding: 6px 12px;
-    gap: 4px;
+  mat-icon {
+    font-size: 1.2rem;
   }
+}
 
-  .nav-item {
-    padding: 8px 12px;
-    font-size: 0.8rem;
-    gap: 4px;
-  }
+.main-content {
+  margin-top: 72px;
+  flex: 1;
+}
 
-  .nav-item span {
+// Mobile
+@media (max-width: 900px) {
+  .nav-links {
     display: none;
   }
 
-  .brand-text {
-    font-size: 1.25rem;
+  .chat-toggle-btn span {
+    display: none;
   }
 
-  .brand-subtitle {
-    font-size: 0.7rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .fruitopia-toolbar {
-    grid-template-columns: 1fr;
-    padding: 16px;
-    gap: 16px;
-    min-height: auto;
-  }
-
-  .toolbar-brand {
-    justify-content: center;
-  }
-
-  .toolbar-navigation {
-    order: 2;
-  }
-
-  .toolbar-actions {
-    order: 3;
-    justify-content: center;
-  }
-
-  .nav-menu {
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 8px;
-  }
-
-  .nav-item {
-    flex: 1;
-    min-width: 80px;
-    justify-content: center;
-  }
-
-  .brand-info {
-    text-align: center;
+  .chat-toggle-btn {
+    padding: 10px;
   }
 }
-
-@media (max-width: 480px) {
-  .fruitopia-toolbar {
-    padding: 12px;
-  }
-
-  .nav-item {
-    padding: 6px 8px;
-    font-size: 0.75rem;
-  }
-
-  .chat-button {
-    padding: 10px 16px;
-    font-size: 0.8rem;
-  }
-
-  .brand-logo {
-    width: 40px;
-    height: 40px;
-  }
-}
-
-/* Main Content */
-.main-content { padding: 18px 24px }
-
