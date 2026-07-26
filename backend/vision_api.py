@@ -188,6 +188,7 @@ def init_chatbot():
     if chatbot_initialized:
         return
     try:
+        sys.path.append(str(FILE_DIR / "chatbot"))
         from custom_chatbot import initialize_chatbot as init_func, get_response as resp_func
         init_func()
         get_response_func = resp_func

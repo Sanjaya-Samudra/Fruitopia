@@ -12,3 +12,5 @@ nltk
 huggingface_hub
 Pillow
 python-dotenv
+openai
+httpx
