@@ -1,585 +1,436 @@
-"""Clean, minimal Fruitopia backend module.
+"""Fruitopia AI Platform - Production Backend"""
 
-This file exposes only the endpoints the frontend needs and avoids optional
-heavy dependencies so it imports reliably. Once this is stable we can
-add guarded model loading separately.
-"""
+import json, os, logging, difflib, sys, math
+from pathlib import Path
+from typing import Optional, List, Dict
+from uuid import uuid4
 
 from fastapi import FastAPI, File, UploadFile, HTTPException, Query, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse
-from pathlib import Path
-from typing import Optional
-import json
-import os
-import logging
-import math
-import difflib
-import sys
-from uuid import uuid4
 
-# Add backend directory to Python path for relative imports
-backend_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, backend_dir)
-
-FILE_DIR = Path(__file__).resolve().parent  # backend/
+FILE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = FILE_DIR.parent
-# initialize logger early so .env loader can use it
-logger = logging.getLogger('vision_api')
-if not logger.handlers:
-    logging.basicConfig(level=logging.INFO)
-# Optional .env loader: if a file named backend/.env exists, load simple KEY=VALUE pairs into os.environ.
+DATA_DIR = PROJECT_ROOT / "data" / "FruitImageDataset"
+
+sys.path.insert(0, str(FILE_DIR))
+sys.path.insert(0, str(FILE_DIR / "services"))
+
+from services.recommender import get_recommendations, DISEASES_EXTENDED
+from services.fruit_service import fruit_service
+from services.usda_api import usda_client
+from nlp.nlp_pipeline import extract_all_entities
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logger = logging.getLogger("fruitopia")
+
 try:
-    env_path = FILE_DIR / '.env'
+    env_path = FILE_DIR / ".env"
     if env_path.exists():
-        with open(env_path, 'r', encoding='utf-8') as envf:
-            for ln in envf:
+        with open(env_path) as f:
+            for ln in f:
                 ln = ln.strip()
-                if not ln or ln.startswith('#') or '=' not in ln:
+                if not ln or ln.startswith("#") or "=" not in ln:
                     continue
-                k, v = ln.split('=', 1)
-                k = k.strip()
-                v = v.strip().strip('"').strip("'")
-                if k:
-                    os.environ.setdefault(k, v)
-        logger.info(f"Loaded environment overrides from {env_path}")
+                k, v = ln.split("=", 1)
+                os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
 except Exception:
-    logger.info('Failed to load backend/.env (ignored)')
-DATA_DIR = PROJECT_ROOT / 'data' / 'FruitImageDataset'
-RECS_FILE = FILE_DIR / 'ml' / 'disease_recs.json'
-SYN_FILE = FILE_DIR / 'ml' / 'disease_synonyms.json'
-META_FILE = FILE_DIR / 'ml' / 'metadata.json'
+    pass
 
-app = FastAPI(title='Fruitopia - clean backend')
+app = FastAPI(title="Fruitopia AI Platform", version="2.0.0",
+              description="AI-Powered Intelligent Fruit Recommendation System")
 
-
-@app.on_event('startup')
-def _startup_load_model():
-    try:
-        _ensure_model()
-        if _MODEL is not None:
-            logger.info('startup: torch model is loaded and ready')
-        else:
-            logger.info('startup: torch model not loaded (will use fallback)')
-    except Exception:
-        logger.exception('startup: unexpected error while loading model')
-
-# Development CORS: allow Angular dev server to call this API
 app.add_middleware(
     CORSMiddleware,
-    # Allow both common dev-server hostnames so the frontend can call the API
-    # whether the browser uses 'localhost' or '127.0.0.1'.
-    allow_origins=["http://localhost:4200", "http://127.0.0.1:4200"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
-def _load_json_safe(path: Path) -> dict:
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except Exception:
-        return {}
-
-
-def _get_available_classes() -> list:
-    if META_FILE.exists():
-        try:
-            with open(META_FILE, 'r', encoding='utf-8') as f:
-                meta = json.load(f)
-                classes = meta.get('classes', [])
-                if classes:
-                    return sorted(classes)
-        except Exception:
-            pass
-    if DATA_DIR.exists():
-        return sorted([p.name for p in DATA_DIR.iterdir() if p.is_dir()])
-    return []
-
-
-def _env_flag(key: str) -> bool:
-    """Return True if environment variable 'key' is set to a truthy value, or if backend/.env contains it.
-    This is tolerant to being imported in worker processes that may not inherit parent env settings.
-    """
-    val = os.environ.get(key)
-    if val is not None:
-        return val in ('1', 'true', 'True', 'yes', 'on')
-    # fallback: try to read backend/.env
-    try:
-        env_path = FILE_DIR / '.env'
-        if env_path.exists():
-            with open(env_path, 'r', encoding='utf-8') as f:
-                for ln in f:
-                    ln = ln.strip()
-                    if not ln or ln.startswith('#') or '=' not in ln:
-                        continue
-                    k, v = ln.split('=', 1)
-                    if k.strip() == key:
-                        vv = v.strip().strip('"').strip("'")
-                        return vv in ('1', 'true', 'True', 'yes', 'on')
-    except Exception:
-        pass
-    return False
-
-
-# Lazy model state
+# ---- Lazy Model Loading ----
 _MODEL = None
 _MODEL_CLASSES = None
 
 def _ensure_model():
-    """Attempt to lazily load a PyTorch model saved by ml/train.py at ml/models/fruit_classifier.pt.
-    This function swallows import errors so the server remains usable without torch.
-    """
     global _MODEL, _MODEL_CLASSES
     if _MODEL is not None:
         return
     try:
-        model_path = PROJECT_ROOT / 'ml' / 'models' / 'fruit_classifier.pt'
+        model_path = PROJECT_ROOT / "ml" / "models" / "fruit_classifier.best.pt"
         if not model_path.exists():
-            logger.info(f"_ensure_model: no model file at {model_path}")
+            model_path = PROJECT_ROOT / "ml" / "models" / "fruit_classifier.pt"
+        if not model_path.exists():
+            logger.info("No model file found")
             return
-        # guarded imports
-        import torch
+        import torch, torch.nn as nn
         from torchvision import models
-        import torch.nn as nn
-
-        data = torch.load(str(model_path), map_location='cpu')
-        classes = data.get('classes')
-        if not classes or 'model_state' not in data:
-            logger.warning(f"_ensure_model: model file {model_path} missing required keys")
+        data = torch.load(str(model_path), map_location="cpu")
+        classes = data.get("classes")
+        if not classes or "model_state" not in data:
             return
         model = models.mobilenet_v2(pretrained=False)
         model.classifier[1] = nn.Linear(model.last_channel, len(classes))
-        model.load_state_dict(data['model_state'])
+        model.load_state_dict(data["model_state"])
         model.eval()
         _MODEL = model
         _MODEL_CLASSES = classes
-        logger.info(f"_ensure_model: loaded model from {model_path} with {len(classes)} classes")
+        logger.info(f"Model loaded with {len(classes)} classes")
     except Exception as e:
-        logger.info(f"_ensure_model: could not load model ({e}); continuing without torch-model")
-        _MODEL = None
-        _MODEL_CLASSES = None
+        logger.info(f"Model load skipped: {e}")
 
+@app.on_event("startup")
+def _startup():
+    _ensure_model()
 
-@app.get('/recommend/diseases')
-def recommend_diseases():
-    data = _load_json_safe(RECS_FILE)
-    return {'diseases': sorted(list(data.keys()))}
+# ============================================================
+#  FRUIT EXPLORE & DATABASE ENDPOINTS
+# ============================================================
 
+@app.get("/fruits")
+def list_fruits():
+    return {"fruits": fruit_service.get_all_fruits(), "total": fruit_service.get_fruit_count()}
 
-@app.post('/recommend')
-def recommend(payload: dict):
-    disease_raw = (payload.get('disease') or '').strip().lower()
-    have = payload.get('have') or []
-    have = [h.strip().lower() for h in have if h]
+@app.get("/fruits/search")
+def search_fruits(q: str = Query("", alias="q")):
+    if not q:
+        return {"results": fruit_service.get_all_fruits()[:10]}
+    results = fruit_service.search_fruits(q)
+    return {"query": q, "results": results}
 
-    data = _load_json_safe(RECS_FILE)
-    syn = _load_json_safe(SYN_FILE)
+@app.get("/fruits/search/benefit")
+def search_by_benefit(benefit: str = Query("", alias="b")):
+    results = fruit_service.search_by_benefit(benefit)
+    return {"benefit": benefit, "results": results}
 
-    disease_key: Optional[str] = None
-    if not disease_raw:
-        disease_key = 'general' if 'general' in data else (next(iter(data.keys())) if data else None)
+@app.get("/fruits/seasonality")
+def fruit_seasonality():
+    return {"seasonality": fruit_service.get_fruit_seasonality()}
 
-    if not disease_key and disease_raw in data:
-        disease_key = disease_raw
+@app.get("/fruits/{slug}")
+def get_fruit(slug: str):
+    if slug in ("search", "seasonality"):
+        raise HTTPException(status_code=404, detail="Invalid fruit name")
+    fruit = fruit_service.get_fruit(slug)
+    if not fruit:
+        raise HTTPException(status_code=404, detail="Fruit not found")
+    return fruit
 
-    if not disease_key:
-        for k, vals in syn.items():
-            if any(disease_raw == v.lower() for v in vals):
-                disease_key = k
-                break
+@app.get("/fruits/{slug}/nutrition")
+def get_fruit_nutrition(slug: str):
+    fruit = fruit_service.get_fruit(slug)
+    if not fruit:
+        raise HTTPException(status_code=404, detail="Fruit not found")
+    nutrition = fruit.get("nutritionalFacts", {})
+    health = fruit.get("healthBenefits", [])
+    return {"fruit": slug, "nutrition": nutrition, "health_benefits": health}
 
-    if not disease_key and data:
-        candidates = list(data.keys()) + [v for vals in syn.values() for v in vals]
-        match = difflib.get_close_matches(disease_raw, candidates, n=1, cutoff=0.6)
-        if match:
-            m = match[0]
-            if m in data:
-                disease_key = m
-            else:
-                for k, vals in syn.items():
-                    if m in vals:
-                        disease_key = k
-                        break
+@app.get("/fruits/{slug}/usda")
+def get_usda_nutrition(slug: str):
+    data = usda_client.search_by_fruit_name(slug)
+    return data
 
-    if not disease_key:
-        disease_key = 'general' if 'general' in data else (next(iter(data.keys())) if data else None)
+# ============================================================
+#  RECOMMENDATION ENGINE ENDPOINTS
+# ============================================================
 
-    if not disease_key:
-        return {'recommendations': [], 'disease': None}
+@app.get("/recommend/diseases")
+def recommend_diseases_list():
+    return {"diseases": sorted(DISEASES_EXTENDED.keys()), "total": len(DISEASES_EXTENDED)}
 
-    candidates = data.get(disease_key, [])
-    filtered = [c for c in candidates if c.get('class', '').strip().lower() not in have]
+@app.get("/recommend/diseases/{disease}")
+def recommend_disease_detail(disease: str):
+    info = DISEASES_EXTENDED.get(disease)
+    if not info:
+        raise HTTPException(status_code=404, detail="Disease not found")
+    return {"disease": disease, "info": info}
 
-    if not filtered:
-        return {'recommendations': [], 'message': 'No new recommendations — you already have the suggested items or none match.', 'disease': disease_key}
+@app.post("/recommend")
+def recommend_fruits(payload: dict):
+    disease = payload.get("disease", payload.get("text", "")).strip()
+    have = payload.get("have", [])
+    if isinstance(have, str):
+        have = [h.strip() for h in have.split(",") if h.strip()]
+    result = get_recommendations(disease, have)
+    if not result["recommendations"]:
+        entities = extract_all_entities(disease)
+        if entities["diseases"]:
+            result = get_recommendations(entities["diseases"][0], have)
+    return result
 
-    out = []
-    for item in filtered[:3]:
-        cls = item.get('class')
-        sample_file = None
-        if cls:
-            class_dir = DATA_DIR / cls
-            if class_dir.exists() and class_dir.is_dir():
-                files = [p.name for p in sorted(class_dir.iterdir()) if p.is_file()]
-                if files:
-                    sample_file = files[0]
-        itm = dict(item)
-        if sample_file:
-            itm['sample'] = sample_file
-        out.append(itm)
-    return {'recommendations': out, 'disease': disease_key}
+@app.post("/recommend/natural")
+def recommend_from_natural(text: str = Body(..., embed=True)):
+    entities = extract_all_entities(text)
+    disease = entities["diseases"][0] if entities["diseases"] else "general"
+    fruits = entities.get("fruits", [])
+    result = get_recommendations(disease, have=fruits)
+    result["entities"] = entities
+    return result
 
+# ============================================================
+#  NLP ENDPOINTS
+# ============================================================
 
-@app.get('/vision/health')
-def vision_health():
-    # report whether the torch model could be loaded (lazy)
-    try:
-        _ensure_model()
-    except Exception:
-        pass
-    return {'ok': True, 'model_loaded': _MODEL is not None}
+@app.post("/nlp/extract")
+def nlp_extract(text: str = Body(..., embed=True)):
+    entities = extract_all_entities(text)
+    return entities
 
+# ============================================================
+#  CHATBOT ENDPOINT - RAG Pipeline
+# ============================================================
 
-@app.get('/vision/classes')
-def vision_classes():
-    return {'classes': _get_available_classes()}
-
-
-@app.get('/vision/samples')
-def vision_samples(class_name: str = Query(..., alias='cls'), n: int = Query(6, alias='n')):
-    cls_dir = DATA_DIR / class_name
-    if not cls_dir.exists() or not cls_dir.is_dir():
-        return {'samples': []}
-    files = [p.name for p in sorted(cls_dir.iterdir()) if p.is_file()]
-    return {'samples': files[:n]}
-
-
-@app.get('/explore/{name}')
-def explore_data(name: str):
-    """Return per-fruit JSON stored under data/explore/<name>.json if available."""
-    p = PROJECT_ROOT / 'data' / 'explore' / f"{name}.json"
-    if not p.exists() or not p.is_file():
-        # also try lowercased filename
-        p2 = PROJECT_ROOT / 'data' / 'explore' / f"{name.lower()}.json"
-        if p2.exists() and p2.is_file():
-            p = p2
-        else:
-            raise HTTPException(status_code=404, detail='not found')
-    try:
-        with open(p, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        return data
-    except Exception as e:
-        logger.info(f"explore_data: failed to read {p}: {e}")
-        raise HTTPException(status_code=500, detail='failed to read data')
-
-
-@app.get('/explore')
-def explore_list():
-    """Return a list of available fruit JSON files under data/explore for debugging and discovery."""
-    d = PROJECT_ROOT / 'data' / 'explore'
-    if not d.exists() or not d.is_dir():
-        return {'available': []}
-    files = [p.name for p in sorted(d.iterdir()) if p.is_file() and p.suffix.lower() == '.json']
-    # also return names without extension
-    names = [p[:-5] if p.lower().endswith('.json') else p for p in files]
-    return {'available': names}
-
-
-@app.get('/vision/image')
-def vision_image(class_name: str = Query(..., alias='cls'), filename: str = Query(..., alias='file')):
-    if '..' in filename or '/' in filename or '\\' in filename:
-        raise HTTPException(status_code=400, detail='invalid filename')
-    fpath = DATA_DIR / class_name / filename
-    if not fpath.exists() or not fpath.is_file():
-        raise HTTPException(status_code=404, detail='file not found')
-    return FileResponse(str(fpath))
-
-
-@app.post('/vision/predict')
-async def predict_stub(file: Optional[UploadFile] = File(None), image: Optional[UploadFile] = File(None)):
-    # Accept either 'file' or 'image' as the multipart form field for compatibility
-    upload = file or image
-    if not upload:
-        return JSONResponse({'error': 'no file uploaded; expected form field named "file"'}, status_code=422)
-
-    # save upload to a temp path
-    try:
-        tmp_dir = FILE_DIR / 'tmp'
-        tmp_dir.mkdir(exist_ok=True)
-        tmp_path = tmp_dir / (getattr(upload, 'filename', 'upload.jpg'))
-        with open(tmp_path, 'wb') as f:
-            f.write(await upload.read())
-    except Exception as e:
-        logger.info(f"predict_stub: failed to save upload: {e}")
-        return JSONResponse({'error': 'failed to save uploaded file'}, status_code=500)
-
-    try:
-        # try torch model first (lazy-loaded)
-        _ensure_model()
-        if _MODEL is not None:
-            try:
-                import torch
-                from torchvision import transforms
-                from PIL import Image
-
-                transform = transforms.Compose([
-                    transforms.Resize((224, 224)),
-                    transforms.ToTensor(),
-                ])
-                img = Image.open(str(tmp_path)).convert('RGB')
-                tensor = transform(img).unsqueeze(0)
-                with torch.no_grad():
-                    outputs = _MODEL(tensor)
-                    probs = torch.softmax(outputs, dim=1).squeeze(0)
-                    topk = torch.topk(probs, k=min(3, probs.numel()))
-                    preds = []
-                    for idx, score in zip(topk.indices.tolist(), topk.values.tolist()):
-                        cls_name = _MODEL_CLASSES[idx] if _MODEL_CLASSES and idx < len(_MODEL_CLASSES) else str(idx)
-                        preds.append({'class': cls_name, 'score': float(score)})
-                try:
-                    tmp_path.unlink()
-                except Exception:
-                    pass
-                return JSONResponse({'predictions': preds, 'source': 'torch-model'})
-            except Exception as e:
-                logger.info(f"predict_stub: torch inference failed: {e}")
-
-        # fallback: try local helper identify_fruit
-        try:
-            from vision.image_recognition import identify_fruit  # type: ignore
-            res = identify_fruit(str(tmp_path))
-            preds = []
-            if isinstance(res, str):
-                preds = [{'class': res, 'score': 0.9}]
-            elif isinstance(res, list):
-                if res and isinstance(res[0], (list, tuple)):
-                    preds = [{'class': r[0], 'score': float(r[1])} for r in res]
-                else:
-                    preds = [{'class': r, 'score': 0.9} for r in res]
-            elif isinstance(res, dict):
-                preds = res.get('predictions') or []
-            else:
-                preds = [{'class': str(res), 'score': 0.9}]
-            try:
-                tmp_path.unlink()
-            except Exception:
-                pass
-            return JSONResponse({'predictions': preds, 'source': 'local-identify'})
-        except Exception as e:
-            logger.info(f"predict_stub: identify_fruit helper not available or failed: {e}")
-
-        # fallback to dev mock if enabled
-        if _env_flag('BACKEND_FAKE_PREDICT'):
-            fname = getattr(upload, 'filename', None) or 'unknown.jpg'
-            fake_classes = _get_available_classes() or ['apple', 'banana', 'orange']
-            idx = sum(ord(c) for c in fname) % len(fake_classes)
-            fake = {
-                'predictions': [
-                    {'class': fake_classes[idx], 'score': 0.87},
-                    {'class': fake_classes[(idx + 1) % len(fake_classes)], 'score': 0.08},
-                ],
-                'source': 'dev-mock',
-            }
-            try:
-                tmp_path.unlink()
-            except Exception:
-                pass
-            return JSONResponse(fake)
-
-        # nothing available
-        try:
-            tmp_path.unlink()
-        except Exception:
-            pass
-        return JSONResponse({'error': 'model not available in this environment'}, status_code=501)
-    except Exception as e:
-        logger.info(f"predict_stub: unexpected error: {e}")
-        try:
-            tmp_path.unlink()
-        except Exception:
-            pass
-        return JSONResponse({'error': 'internal error during prediction'}, status_code=500)
-
-
-# --- Chatbot Endpoint ---
-# Add chatbot directory to path
-sys.path.append(os.path.join(FILE_DIR, 'chatbot'))
-
-# Initialize the custom chatbot on startup
 chatbot_initialized = False
-initialize_chatbot_func = None
 get_response_func = None
 
 def init_chatbot():
     global chatbot_initialized, get_response_func
-    if not chatbot_initialized:
-        try:
-            from custom_chatbot import initialize_chatbot as init_func, get_response as response_func  # type: ignore
-            init_func()
-            get_response_func = response_func
-            chatbot_initialized = True
-            logger.info("Chatbot initialized successfully")
-        except Exception as e:
-            logger.error(f"Chatbot initialization failed: {e}")
-            get_response_func = lambda msg: "I'm sorry, I'm having trouble processing your request right now."
+    if chatbot_initialized:
+        return
+    try:
+        from custom_chatbot import initialize_chatbot as init_func, get_response as resp_func
+        init_func()
+        get_response_func = resp_func
+        chatbot_initialized = True
+        logger.info("Chatbot initialized")
+    except Exception as e:
+        logger.error(f"Chatbot init failed: {e}")
 
-# In-memory session storage (for demo; use Redis/DB in production)
-chat_sessions = {}
+chat_sessions: Dict[str, dict] = {}
+
+@app.post("/chatbot/message")
+def chatbot_message(message: str = Body(..., embed=True), session_id: Optional[str] = Body(None, embed=True)):
+    if not chatbot_initialized:
+        init_chatbot()
+    if not session_id:
+        session_id = str(uuid4())
+    if session_id not in chat_sessions:
+        chat_sessions[session_id] = {"history": []}
+    try:
+        bot_response = get_response_func(message) if get_response_func else "I'm ready to help with fruit questions!"
+    except Exception:
+        bot_response = "I'm having trouble processing your request."
+    chat_sessions[session_id]["history"].append({"user": message, "bot": bot_response})
+    return {"response": bot_response, "session_id": session_id}
+
+# ============================================================
+#  RECIPE GENERATOR
+# ============================================================
+
+RECIPE_TEMPLATES = {
+    "detox": {
+        "title": "Fruit Detox Bowl",
+        "tagline": "Cleanse and refresh with antioxidant-rich fruits",
+    },
+    "energy": {
+        "title": "Energizing Fruit Smoothie",
+        "tagline": "Natural energy boost from vitamin-packed fruits",
+    },
+    "immunity": {
+        "title": "Immunity Booster Fruit Salad",
+        "tagline": "Strengthen your immune system with vitamin C rich fruits",
+    },
+    "protein": {
+        "title": "Protein-Packed Fruit Parfait",
+        "tagline": "Post-workout recovery with fruits and protein",
+    },
+}
 
 @app.post("/recipes/generate")
 def generate_recipe(
     fruits: list = Body(..., embed=True),
     dietary_preferences: Optional[list] = Body(None, embed=True),
     cuisine_type: Optional[str] = Body(None, embed=True),
-    meal_type: Optional[str] = Body(None, embed=True)
+    meal_type: Optional[str] = Body(None, embed=True),
 ):
-    """Generate a recipe based on selected fruits and preferences."""
     if not fruits:
-        raise HTTPException(status_code=400, detail="At least one fruit must be selected")
+        raise HTTPException(status_code=400, detail="At least one fruit required")
+    primary = fruits[0].lower()
+    fruit_data = fruit_service.get_fruit(primary)
 
-    # For now, generate a mock recipe. Later integrate with GPT models
-    primary_fruit = fruits[0].lower()
-
-    # Mock recipe templates based on fruit type
-    recipe_templates = {
-        "apple": {
-            "title": "Fresh Apple Cinnamon Oatmeal",
-            "ingredients": [
-                "2 cups rolled oats",
-                "2 cups milk (or almond milk)",
-                "2 apples, diced",
-                "1 tsp cinnamon",
-                "2 tbsp honey",
-                "1/4 cup chopped walnuts",
-                "Pinch of salt"
-            ],
-            "instructions": [
-                "In a saucepan, bring milk to a gentle boil",
-                "Add oats and reduce heat to simmer",
-                "Cook for 5 minutes, stirring occasionally",
-                "Add diced apples, cinnamon, and honey",
-                "Continue cooking for another 3-4 minutes until apples are tender",
-                "Serve topped with walnuts and a drizzle of honey"
-            ],
-            "nutrition": {"calories": 320, "protein": 10, "carbs": 55, "fat": 8},
-            "prep_time": "15 minutes",
-            "servings": 2
-        },
-        "banana": {
-            "title": "Banana Protein Smoothie Bowl",
-            "ingredients": [
-                "2 ripe bananas",
-                "1 cup Greek yogurt",
-                "1/2 cup almond milk",
-                "2 tbsp peanut butter",
-                "1 tbsp chia seeds",
-                "1/2 cup mixed berries",
-                "2 tbsp granola"
-            ],
-            "instructions": [
-                "Add bananas, yogurt, almond milk, and peanut butter to a blender",
-                "Blend until smooth and creamy",
-                "Pour into a bowl",
-                "Top with mixed berries, chia seeds, and granola",
-                "Serve immediately for best texture"
-            ],
-            "nutrition": {"calories": 380, "protein": 18, "carbs": 45, "fat": 12},
-            "prep_time": "10 minutes",
-            "servings": 1
-        },
-        "berry": {
-            "title": "Mixed Berry Antioxidant Salad",
-            "ingredients": [
-                "2 cups mixed berries (strawberries, blueberries, raspberries)",
-                "2 cups mixed greens",
-                "1/4 cup feta cheese",
-                "1/4 cup walnuts",
-                "2 tbsp balsamic vinaigrette",
-                "1 tbsp honey",
-                "Fresh mint leaves"
-            ],
-            "instructions": [
-                "Wash and prepare all berries",
-                "In a large bowl, combine mixed greens and berries",
-                "Crumble feta cheese over the salad",
-                "Add walnuts and torn mint leaves",
-                "Drizzle with balsamic vinaigrette and honey",
-                "Toss gently and serve immediately"
-            ],
-            "nutrition": {"calories": 280, "protein": 8, "carbs": 35, "fat": 14},
-            "prep_time": "15 minutes",
-            "servings": 2
-        }
-    }
-
-    # Default recipe if fruit not in templates
-    default_recipe = {
-        "title": f"Fresh {primary_fruit.title()} Delight",
-        "ingredients": [
-            f"2 cups fresh {primary_fruit}s",
-            "1 cup Greek yogurt",
-            "2 tbsp honey",
-            "1 tsp vanilla extract",
-            "1/2 cup granola",
-            "Fresh herbs for garnish"
-        ],
-        "instructions": [
-            f"Prepare the {primary_fruit}s by washing and cutting into pieces",
-            "In a bowl, mix yogurt, honey, and vanilla",
-            f"Gently fold in the prepared {primary_fruit}s",
-            "Divide into serving bowls",
-            "Top with granola and fresh herbs",
-            "Serve chilled or at room temperature"
-        ],
-        "nutrition": {"calories": 280, "protein": 12, "carbs": 45, "fat": 8},
-        "prep_time": "15 minutes",
-        "servings": 2
-    }
-
-    # Get recipe template
-    recipe = recipe_templates.get(primary_fruit, default_recipe)
-
-    # Apply dietary preferences (basic filtering)
+    recipe_type = "immunity"
     if dietary_preferences:
-        if "Vegan" in dietary_preferences:
-            recipe["ingredients"] = [ing.replace("Greek yogurt", "coconut yogurt").replace("feta cheese", "vegan feta") for ing in recipe["ingredients"]]
-        if "Gluten-Free" in dietary_preferences:
-            recipe["ingredients"] = [ing for ing in recipe["ingredients"] if "oats" not in ing.lower()]
+        prefs_lower = [p.lower() for p in dietary_preferences]
+        if "detox" in prefs_lower or "cleanse" in prefs_lower:
+            recipe_type = "detox"
+        elif "energy" in prefs_lower or "pre-workout" in prefs_lower:
+            recipe_type = "energy"
+        elif "protein" in prefs_lower or "post-workout" in prefs_lower:
+            recipe_type = "protein"
 
-    # Apply meal type adjustments
+    template = RECIPE_TEMPLATES.get(recipe_type, RECIPE_TEMPLATES["immunity"])
+
+    suggestion = {"recipe": template["title"], "tagline": template["tagline"], "fruit": primary}
+
+    if fruit_data:
+        benefits = fruit_data.get("healthBenefits", [])[:2]
+        col = fruit_data.get("appearance", {}).get("colors", ["green"])[0]
+        suggestion["benefits"] = benefits
+        suggestion["color"] = col
+
+    if dietary_preferences:
+        suggestion["dietary"] = dietary_preferences
     if meal_type:
-        if meal_type.lower() == "breakfast":
-            recipe["title"] = f"Breakfast {recipe['title']}"
-        elif meal_type.lower() == "dessert":
-            recipe["title"] = f"{recipe['title']} Dessert"
+        suggestion["meal_type"] = meal_type
+    if cuisine_type:
+        suggestion["cuisine"] = cuisine_type
+    suggestion["suggested_pairings"] = fruit_data.get("culinaryInformation", {}).get("pairings", []) if fruit_data else []
 
-    return recipe
+    return suggestion
 
-@app.post("/chatbot/message")
-def chatbot_message(message: str = Body(..., embed=True), session_id: Optional[str] = Body(None, embed=True)):
-    # Initialize chatbot if not already done
-    if not chatbot_initialized:
-        init_chatbot()
-        
-    if not session_id:
-        session_id = str(uuid4())
+# ============================================================
+#  VISION / IMAGE RECOGNITION
+# ============================================================
 
-    # Initialize session if new
-    if session_id not in chat_sessions:
-        chat_sessions[session_id] = {"history": []}
+@app.get("/vision/health")
+def vision_health():
+    _ensure_model()
+    return {"ok": True, "model_loaded": _MODEL is not None}
 
-    # Get response from custom chatbot
+@app.get("/vision/classes")
+def vision_classes():
+    classes = []
+    if DATA_DIR.exists():
+        classes = sorted([p.name for p in DATA_DIR.iterdir() if p.is_dir()])
+    return {"classes": classes}
+
+@app.get("/vision/samples")
+def vision_samples(class_name: str = Query(..., alias="cls"), n: int = Query(6, alias="n")):
+    cls_dir = DATA_DIR / class_name
+    if not cls_dir.exists():
+        return {"samples": []}
+    files = sorted([p.name for p in cls_dir.iterdir() if p.is_file()])
+    return {"samples": files[:n]}
+
+@app.get("/vision/image")
+def vision_image(class_name: str = Query(..., alias="cls"), filename: str = Query(..., alias="file")):
+    if ".." in filename or "/" in filename or "\\" in filename:
+        raise HTTPException(status_code=400, detail="invalid filename")
+    fpath = DATA_DIR / class_name / filename
+    if not fpath.exists():
+        raise HTTPException(status_code=404, detail="file not found")
+    return FileResponse(str(fpath))
+
+@app.post("/vision/predict")
+async def predict_fruit(file: Optional[UploadFile] = File(None), image: Optional[UploadFile] = File(None)):
+    upload = file or image
+    if not upload:
+        return JSONResponse({"error": "no file uploaded"}, status_code=422)
     try:
-        bot_response = get_response_func(message)
+        tmp_dir = FILE_DIR / "tmp"
+        tmp_dir.mkdir(exist_ok=True)
+        tmp_path = tmp_dir / (getattr(upload, "filename", "upload.jpg"))
+        with open(tmp_path, "wb") as f:
+            f.write(await upload.read())
     except Exception as e:
-        logger.error(f"Chatbot error: {e}")
-        bot_response = "I'm sorry, I'm having trouble processing your request right now."
+        return JSONResponse({"error": f"failed to save: {e}"}, status_code=500)
 
-    # Update session history
-    chat_sessions[session_id]["history"].append({"user": message, "bot": bot_response})
+    try:
+        _ensure_model()
+        if _MODEL is not None:
+            try:
+                import torch
+                from torchvision import transforms
+                from PIL import Image
+                transform = transforms.Compose([
+                    transforms.Resize((224, 224)),
+                    transforms.ToTensor(),
+                ])
+                img = Image.open(str(tmp_path)).convert("RGB")
+                tensor = transform(img).unsqueeze(0)
+                with torch.no_grad():
+                    outputs = _MODEL(tensor)
+                    probs = torch.softmax(outputs, dim=1).squeeze(0)
+                    topk = torch.topk(probs, k=min(5, probs.numel()))
+                    preds = []
+                    for idx, score in zip(topk.indices.tolist(), topk.values.tolist()):
+                        cls_name = _MODEL_CLASSES[idx] if _MODEL_CLASSES and idx < len(_MODEL_CLASSES) else str(idx)
+                        preds.append({"class": cls_name, "score": float(score), "confidence": f"{score*100:.1f}%"})
+                try:
+                    tmp_path.unlink()
+                except Exception:
+                    pass
+                return JSONResponse({"predictions": preds, "source": "torch-model"})
+            except Exception as e:
+                logger.info(f"Torch inference failed: {e}")
 
-    return {"response": bot_response, "session_id": session_id}
+        try:
+            from vision.image_recognition import identify_fruit
+            res = identify_fruit(str(tmp_path))
+            preds = []
+            if isinstance(res, str):
+                preds = [{"class": res, "score": 0.9, "confidence": "90.0%"}]
+            elif isinstance(res, list):
+                preds = [{"class": r[0], "score": float(r[1]), "confidence": f"{float(r[1])*100:.1f}%"} if isinstance(r, (list, tuple)) else {"class": r, "score": 0.9} for r in res]
+            elif isinstance(res, dict):
+                preds = res.get("predictions", [])
+            try:
+                tmp_path.unlink()
+            except Exception:
+                pass
+            return JSONResponse({"predictions": preds, "source": "local-identify"})
+        except Exception:
+            pass
+
+        try:
+            tmp_path.unlink()
+        except Exception:
+            pass
+        return JSONResponse({"error": "model not available"}, status_code=501)
+    except Exception as e:
+        logger.error(f"Predict error: {e}")
+        try:
+            tmp_path.unlink()
+        except Exception:
+            pass
+        return JSONResponse({"error": "internal error"}, status_code=500)
+
+# ============================================================
+#  USDA INTEGRATION ENDPOINTS
+# ============================================================
+
+@app.get("/usda/search")
+def usda_search(query: str = Query(..., alias="q")):
+    return usda_client.search_foods(query)
+
+@app.get("/usda/fruit/{fruit_name}")
+def usda_fruit(fruit_name: str):
+    return usda_client.search_by_fruit_name(fruit_name)
+
+# ============================================================
+#  HEALTH & DISEASE EDUCATION
+# ============================================================
+
+@app.get("/health/conditions")
+def health_conditions():
+    return {"conditions": [
+        {"id": k, "name": k.replace("_", " ").title(),
+         "severity": v.get("severity", "medium"),
+         "category": v.get("category", "general"),
+         "synonyms": v.get("synonyms", [])[:3]}
+        for k, v in DISEASES_EXTENDED.items()
+    ]}
+
+# ============================================================
+#  ROOT / INFO
+# ============================================================
+
+@app.get("/")
+def root():
+    return {
+        "app": "Fruitopia AI Platform",
+        "version": "2.0.0",
+        "endpoints": {
+            "fruits": "/fruits",
+            "fruits_search": "/fruits/search?q=",
+            "recommend": "/recommend",
+            "recommend_natural": "/recommend/natural",
+            "chatbot": "/chatbot/message",
+            "vision_predict": "/vision/predict",
+            "vision_classes": "/vision/classes",
+            "nlp_extract": "/nlp/extract",
+            "usda_search": "/usda/search?q=",
+            "recipes": "/recipes/generate",
+            "health_conditions": "/health/conditions",
+        },
+    }

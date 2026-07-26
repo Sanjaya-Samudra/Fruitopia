@@ -9,3 +9,6 @@ scikit-learn
 pandas
 numpy
 nltk
+huggingface_hub
+Pillow
+python-dotenv

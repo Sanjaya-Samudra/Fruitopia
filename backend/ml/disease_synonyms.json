@@ -1,7 +1,18 @@
 {
-  "diabetes": ["diabetes", "high blood sugar", "sugar", "hyperglycemia", "high sugar"],
-  "anemia": ["anemia", "iron deficiency", "low iron"],
-  "constipation": ["constipation", "slow bowels", "irregular bowel", "constipated"],
-  "hypertension": ["hypertension", "high blood pressure", "high bp", "blood pressure"],
-  "general": ["general", "healthy", "wellness", "maintenance"]
+  "diabetes": ["high blood sugar", "diabetic", "type 2 diabetes", "type 1 diabetes", "glucose intolerance", "insulin resistance", "hyperglycemia", "blood sugar", "sugar problem"],
+  "heart_disease": ["cardiovascular disease", "coronary artery disease", "heart failure", "cardiac", "heart condition", "cholesterol", "high cholesterol", "hyperlipidemia", "heart health", "cardio"],
+  "hypertension": ["high blood pressure", "high bp", "elevated blood pressure", "hypertensive", "blood pressure"],
+  "anemia": ["low iron", "iron deficiency", "low hemoglobin", "fatigue", "weakness", "tiredness", "low energy"],
+  "constipation": ["irregular bowel", "hard stools", "difficulty passing stool", "blocked", "irregularity", "bowel issues"],
+  "obesity": ["overweight", "weight management", "weight loss", "high bmi", "fatigue", "weight gain"],
+  "inflammation": ["arthritis", "joint pain", "swelling", "inflammatory", "rheumatoid", "gout", "inflamed"],
+  "digestive_issues": ["indigestion", "bloating", "gas", "ibs", "irritable bowel", "acid reflux", "gerd", "stomach", "digestion"],
+  "immune_support": ["weak immune", "frequent cold", "immunity", "infection prone", "low immunity", "get sick often"],
+  "bone_health": ["osteoporosis", "weak bones", "bone density", "fracture prone", "calcium deficiency"],
+  "kidney_health": ["kidney disease", "kidney stones", "renal", "chronic kidney", "urinary tract"],
+  "liver_health": ["fatty liver", "liver disease", "hepatic", "liver detox", "cirrhosis"],
+  "anxiety": ["stress", "depression", "mood", "mental health", "brain fog", "cognitive decline", "memory"],
+  "skin_health": ["acne", "skin glow", "dull skin", "aging skin", "wrinkles", "dry skin", "eczema"],
+  "pregnancy": ["pregnant", "prenatal", "expecting", "maternal health", "breastfeeding", "lactation"],
+  "eye_health": ["vision", "eyesight", "cataract", "macular degeneration", "night blindness", "glaucoma"]
 }
