@@ -23,6 +23,12 @@ from services.hybrid_recommender import hybrid_recommender
 from vision.image_analyzer import vision_pipeline
 from services.auth_service import user_store, session_manager
 from nlp.nlp_pipeline import extract_all_entities
+from services.meal_planner import meal_planner
+from services.health_platform import health_platform
+from services.knowledge_graph import knowledge_graph
+from services.barcode_scanner import barcode_scanner
+from services.fruit_culture import fruit_culture
+from services.premium import premium_manager
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger("fruitopia")
@@ -557,6 +563,201 @@ def health_conditions():
     ]}
 
 # ============================================================
+#  MEAL PLANNER ENGINE (Phase 6)
+# ============================================================
+
+@app.post("/meal-planner/generate")
+def generate_meal_plan(payload: dict = Body(...)):
+    days = payload.get("days", 7)
+    goals = payload.get("goals", [])
+    diseases = payload.get("diseases", [])
+    dietary_prefs = payload.get("dietary_preferences", [])
+    available_fruits = payload.get("available_fruits", [])
+    meals_per_day = payload.get("meals_per_day", None)
+    calories_target = payload.get("calories_target", None)
+    plan = meal_planner.generate_meal_plan(
+        days=days, goals=goals, diseases=diseases,
+        dietary_prefs=dietary_prefs, available_fruits=available_fruits,
+        meals_per_day=meals_per_day, calories_target=calories_target,
+    )
+    shopping = meal_planner.generate_shopping_list(plan)
+    return {"meal_plan": plan, "shopping_list": shopping}
+
+@app.get("/meal-planner/goals")
+def list_meal_goals():
+    return {"goals": {k: v for k, v in meal_planner.GOAL_NUTRIENT_MAP.items()}}
+
+@app.get("/meal-planner/fruits")
+def meal_planner_fruits():
+    fruits = meal_planner.get_all_fruits()
+    return {"fruits": [{"name": f["name"], "display_name": f["display_name"], "calories_kcal": f["calories_kcal"], "protein_g": f["protein_g"]} for f in fruits]}
+
+# ============================================================
+#  HEALTH PLATFORM INTEGRATION (Phase 7)
+# ============================================================
+
+@app.get("/health/platforms")
+def list_health_platforms():
+    return {"platforms": health_platform.list_available_platforms()}
+
+@app.post("/health/platforms/connect")
+def connect_health_platform(payload: dict = Body(...)):
+    platform_id = payload.get("platform_id", "")
+    profile_type = payload.get("profile_type", "office_worker")
+    result = health_platform.connect_platform(platform_id, profile_type=profile_type)
+    return result
+
+@app.post("/health/platforms/disconnect")
+def disconnect_health_platform(platform_id: str = Body(..., embed=True)):
+    result = health_platform.disconnect_platform(platform_id)
+    return result
+
+@app.get("/health/metrics")
+def get_health_metrics(platform_id: str = Query(None)):
+    return health_platform.get_health_metrics(platform_id)
+
+@app.post("/health/recommendations")
+def health_based_recommendations(payload: dict = Body(...)):
+    platform_id = payload.get("platform_id", "")
+    fruits_db = fruit_service.get_all_fruits()
+    fruit_dict = {}
+    for f in fruits_db:
+        name = f.get("fruitName", "").lower()
+        if name:
+            nutrition = f.get("nutritionalFacts", {})
+            fruit_dict[name] = {"nutrition": nutrition}
+    recs = health_platform.get_fruit_recommendations_from_health_data(platform_id, fruit_dict)
+    return {"recommendations": recs}
+
+@app.get("/health/sync-status")
+def health_sync_status():
+    return health_platform.get_sync_status()
+
+# ============================================================
+#  EVIDENCE KNOWLEDGE GRAPH (Phase 8)
+# ============================================================
+
+@app.get("/knowledge-graph/stats")
+def kg_stats():
+    return knowledge_graph.get_graph_statistics()
+
+@app.get("/knowledge-graph/fruit/{fruit_name}")
+def kg_fruit_evidence(fruit_name: str):
+    evidence = knowledge_graph.get_fruit_evidence(fruit_name)
+    relationships = knowledge_graph.get_fruit_relationships(fruit_name)
+    return {"fruit": fruit_name, "evidence": evidence, "relationships": relationships}
+
+@app.get("/knowledge-graph/disease/{disease_tag}")
+def kg_disease_evidence(disease_tag: str):
+    evidence = knowledge_graph.get_disease_evidence(disease_tag)
+    return {"disease": disease_tag, "evidence": evidence}
+
+@app.get("/knowledge-graph/search")
+def kg_search(query: str = Query(..., alias="q")):
+    return knowledge_graph.search_graph(query)
+
+@app.get("/knowledge-graph/recommendations")
+def kg_recommendations(condition: str = Query(None), nutrient: str = Query(None)):
+    recs = knowledge_graph.get_top_evidence_based_recommendations(
+        condition=condition, nutrient_goal=nutrient
+    )
+    return {"recommendations": recs}
+
+# ============================================================
+#  BARCODE SCANNER (Phase 9)
+# ============================================================
+
+@app.post("/barcode/lookup")
+def barcode_lookup(barcode: str = Body(..., embed=True)):
+    validation = barcode_scanner.validate_barcode(barcode)
+    if not validation["valid"]:
+        return validation
+    result = barcode_scanner.lookup_barcode(barcode)
+    return result
+
+@app.get("/barcode/history")
+def barcode_history(limit: int = Query(20)):
+    return {"scans": barcode_scanner.get_scan_history(limit)}
+
+@app.get("/barcode/search/country")
+def barcode_search_country(country: str = Query(..., alias="country")):
+    results = barcode_scanner.search_by_country(country)
+    return {"country": country, "results": results}
+
+# ============================================================
+#  FRUIT CULTURE ENCYCLOPEDIA (Scope Expansion)
+# ============================================================
+
+@app.get("/culture/fruits")
+def culture_fruits():
+    return {"cultures": fruit_culture.get_all_fruit_cultures()}
+
+@app.get("/culture/fruit/{fruit_name}")
+def culture_fruit_detail(fruit_name: str):
+    return {
+        "fruit": fruit_name,
+        "cultivation": fruit_culture.get_cultivation_info(fruit_name),
+        "trade": fruit_culture.get_trade_info(fruit_name),
+        "sustainability": fruit_culture.get_sustainability_info(fruit_name),
+        "varieties": fruit_culture.get_varieties(fruit_name),
+        "fun_facts": fruit_culture.get_fun_facts(fruit_name),
+    }
+
+@app.get("/culture/global-stats")
+def culture_global_stats():
+    return fruit_culture.get_global_stats()
+
+@app.get("/culture/seasonal")
+def culture_seasonal(hemisphere: str = Query("northern_hemisphere"), season: str = Query(None)):
+    return fruit_culture.get_seasonal_fruits(hemisphere, season)
+
+@app.get("/culture/tropical-calendar")
+def culture_tropical():
+    return {"tropical": fruit_culture.get_tropical_calendar()}
+
+@app.get("/culture/compare")
+def culture_compare(fruit_a: str = Query(...), fruit_b: str = Query(...)):
+    return fruit_culture.compare_fruits(fruit_a, fruit_b)
+
+@app.get("/culture/search")
+def culture_search(query: str = Query(..., alias="q")):
+    return fruit_culture.search_culture(query)
+
+# ============================================================
+#  PREMIUM TIER & SUBSCRIPTION (Phase 11)
+# ============================================================
+
+@app.get("/premium/tiers")
+def premium_tiers():
+    return {"tiers": premium_manager.list_tiers()}
+
+@app.post("/premium/subscribe")
+def premium_subscribe(payload: dict = Body(...)):
+    user_id = payload.get("user_id", "")
+    tier_id = payload.get("tier", "free")
+    billing_cycle = payload.get("billing_cycle", "monthly")
+    result = premium_manager.create_subscription(user_id, tier_id, billing_cycle)
+    return result
+
+@app.post("/premium/cancel")
+def premium_cancel(user_id: str = Body(..., embed=True)):
+    return premium_manager.cancel_subscription(user_id)
+
+@app.post("/premium/upgrade")
+def premium_upgrade(payload: dict = Body(...)):
+    user_id = payload.get("user_id", "")
+    new_tier = payload.get("tier", "basic")
+    billing_cycle = payload.get("billing_cycle", None)
+    return premium_manager.upgrade_subscription(user_id, new_tier, billing_cycle)
+
+@app.get("/premium/subscription")
+def premium_get_subscription(user_id: str = Query(...)):
+    sub = premium_manager.get_subscription(user_id)
+    if not sub:
+        raise HTTPException(status_code=404, detail="No subscription found")
+    return sub
+
+# ============================================================
 #  ROOT / INFO
 # ============================================================
 
@@ -579,5 +780,11 @@ def root():
             "usda_search": "/usda/search?q=",
             "recipes": "/recipes/generate",
             "health_conditions": "/health/conditions",
+            "meal_planner": "/meal-planner/generate",
+            "health_platforms": "/health/platforms",
+            "knowledge_graph": "/knowledge-graph/stats",
+            "barcode_scanner": "/barcode/lookup",
+            "fruit_culture": "/culture/fruits",
+            "premium_tiers": "/premium/tiers",
         },
     }
