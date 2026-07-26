@@ -20,6 +20,7 @@ from services.recommender import get_recommendations, DISEASES_EXTENDED
 from services.fruit_service import fruit_service
 from services.usda_api import usda_client
 from services.hybrid_recommender import hybrid_recommender
+from vision.image_analyzer import vision_pipeline
 from services.auth_service import user_store, session_manager
 from nlp.nlp_pipeline import extract_all_entities
 
@@ -477,6 +478,57 @@ async def predict_fruit(file: Optional[UploadFile] = File(None), image: Optional
         except Exception:
             pass
         return JSONResponse({"error": "internal error"}, status_code=500)
+
+@app.post("/vision/analyze")
+async def vision_analyze(file: Optional[UploadFile] = File(None), image: Optional[UploadFile] = File(None)):
+    """Enhanced vision: classify + analyze ripeness, quality, defects."""
+    upload = file or image
+    if not upload:
+        return JSONResponse({"error": "no file uploaded"}, status_code=422)
+    try:
+        tmp_dir = FILE_DIR / "tmp"
+        tmp_dir.mkdir(exist_ok=True)
+        tmp_path = tmp_dir / (getattr(upload, "filename", "upload.jpg"))
+        with open(tmp_path, "wb") as f:
+            f.write(await upload.read())
+    except Exception as e:
+        return JSONResponse({"error": f"failed to save: {e}"}, status_code=500)
+
+    try:
+        predicted_class = None
+        _ensure_model()
+        if _MODEL is not None:
+            try:
+                import torch
+                from torchvision import transforms
+                from PIL import Image
+                transform = transforms.Compose([
+                    transforms.Resize((224, 224)),
+                    transforms.ToTensor(),
+                ])
+                img = Image.open(str(tmp_path)).convert("RGB")
+                tensor = transform(img).unsqueeze(0)
+                with torch.no_grad():
+                    outputs = _MODEL(tensor)
+                    probs = torch.softmax(outputs, dim=1).squeeze(0)
+                    top_idx = int(torch.argmax(probs))
+                    predicted_class = _MODEL_CLASSES[top_idx] if _MODEL_CLASSES and top_idx < len(_MODEL_CLASSES) else None
+            except Exception:
+                pass
+
+        result = vision_pipeline.analyze_fruit_image(str(tmp_path), predicted_class)
+        try:
+            tmp_path.unlink()
+        except Exception:
+            pass
+        return JSONResponse(result)
+    except Exception as e:
+        logger.error(f"Analyze error: {e}")
+        try:
+            tmp_path.unlink()
+        except Exception:
+            pass
+        return JSONResponse({"error": "analysis failed"}, status_code=500)
 
 # ============================================================
 #  USDA INTEGRATION ENDPOINTS
