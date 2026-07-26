@@ -20,6 +20,7 @@ from services.recommender import get_recommendations, DISEASES_EXTENDED
 from services.fruit_service import fruit_service
 from services.usda_api import usda_client
 from services.hybrid_recommender import hybrid_recommender
+from services.auth_service import user_store, session_manager
 from nlp.nlp_pipeline import extract_all_entities
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -209,6 +210,63 @@ def record_feedback(payload: dict):
 def nlp_extract(text: str = Body(..., embed=True)):
     entities = extract_all_entities(text)
     return entities
+
+# ============================================================
+#  USER AUTHENTICATION & PROFILES
+# ============================================================
+
+@app.post("/auth/register")
+def auth_register(payload: dict = Body(...)):
+    email = payload.get("email", "").strip().lower()
+    password = payload.get("password", "")
+    name = payload.get("name", email.split("@")[0])
+    if not email or not password:
+        raise HTTPException(status_code=400, detail="Email and password required")
+    if len(password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    try:
+        user = user_store.create_user(email, password, name)
+        token = session_manager.create_session(email)
+        return {"user": user, "token": token}
+    except ValueError as e:
+        raise HTTPException(status_code=409, detail=str(e))
+
+@app.post("/auth/login")
+def auth_login(payload: dict = Body(...)):
+    email = payload.get("email", "").strip().lower()
+    password = payload.get("password", "")
+    user = user_store.authenticate(email, password)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    token = session_manager.create_session(email)
+    return {"user": user, "token": token}
+
+@app.get("/auth/me")
+def auth_me(authorization: str = Query("", alias="token")):
+    email = session_manager.get_user_email(authorization)
+    if not email:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    user = user_store.get_user(email)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"user": user}
+
+@app.post("/auth/profile")
+def update_profile(payload: dict = Body(...)):
+    token = payload.get("token", "")
+    email = session_manager.get_user_email(token)
+    if not email:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    profile_updates = payload.get("profile", {})
+    user = user_store.update_profile(email, profile_updates)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"user": user}
+
+@app.post("/auth/logout")
+def auth_logout(token: str = Body(..., embed=True)):
+    session_manager.revoke_session(token)
+    return {"status": "logged_out"}
 
 # ============================================================
 #  CHATBOT ENDPOINT - RAG Pipeline
