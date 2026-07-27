@@ -2,9 +2,10 @@
 
 Uses the fruit encyclopedia as a knowledge base with vector search + LLM for natural,
 factual responses. Falls back gracefully if no LLM API key is configured.
+Supports OpenAI (GPT-4o-mini) and Groq (GPT OSS 120B, Llama 3.3 70B, etc.)
 """
 
-import os, json, re, time
+import os, json, re, time, sys
 from pathlib import Path
 from typing import List, Dict, Optional, Tuple
 import numpy as np
@@ -203,7 +204,11 @@ class FruitKnowledgeBase:
 
 
 class RAGChatbot:
-    """LLM-powered RAG chatbot with graceful fallback."""
+    """LLM-powered RAG chatbot with Groq (primary) and OpenAI (secondary) support."""
+
+    GROQ_DEFAULT_MODEL = "openai/gpt-oss-120b"
+    GROQ_FALLBACK_MODEL = "llama-3.3-70b-versatile"
+    OPENAI_MODEL = "gpt-4o-mini"
 
     def __init__(self):
         self.knowledge_base = FruitKnowledgeBase()
@@ -212,16 +217,31 @@ class RAGChatbot:
         self._init_llm()
 
     def _init_llm(self):
-        openai_key = os.environ.get("OPENAI_API_KEY", "")
-        if openai_key:
-            self.llm_available = True
-            self.llm_type = "openai"
+        groq_key = os.environ.get("GROQ_API_KEY", "")
+        if groq_key:
             try:
-                from openai import OpenAI
-                self.openai_client = OpenAI(api_key=openai_key)
-                print("RAG Chatbot: OpenAI LLM initialized")
-            except Exception:
-                self.llm_available = False
+                from groq import Groq
+                self.groq_client = Groq(api_key=groq_key)
+                self.llm_available = True
+                self.llm_type = "groq"
+                print(f"RAG Chatbot: Groq LLM initialized (model: {self.GROQ_DEFAULT_MODEL})")
+            except Exception as e:
+                print(f"Groq init failed: {e}")
+
+        if not self.llm_available:
+            openai_key = os.environ.get("OPENAI_API_KEY", "")
+            if openai_key:
+                try:
+                    from openai import OpenAI
+                    self.openai_client = OpenAI(api_key=openai_key)
+                    self.llm_available = True
+                    self.llm_type = "openai"
+                    print("RAG Chatbot: OpenAI LLM initialized")
+                except Exception as e:
+                    print(f"OpenAI init failed: {e}")
+
+        if not self.llm_available:
+            print("RAG Chatbot: No LLM API key found, using template fallback")
 
     def generate_response(self, message: str) -> str:
         message_lower = message.lower().strip()
@@ -238,34 +258,69 @@ class RAGChatbot:
         if not context:
             return self._fallback_response(message)
 
-        if self.llm_available and self.llm_type == "openai":
+        if self.llm_available:
             return self._llm_response(message, context, sources)
         else:
             return self._template_response(message, context, sources)
 
     def _llm_response(self, message: str, context: str, sources: List[Dict]) -> str:
-        try:
-            fruit_list = self.knowledge_base.get_fruit_summaries()
-            response = self.openai_client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": f"""You are Fruitopia AI, a friendly nutrition expert assistant.
+        fruit_list = self.knowledge_base.get_fruit_summaries()
+        system_prompt = f"""You are Fruitopia AI, a friendly nutrition expert assistant.
 You have access to a fruit knowledge base with detailed information about 30+ fruits.
 Answer the user's question based ONLY on the context provided. If the context doesn't contain enough information, say so.
 
 Available fruits: {fruit_list}
 
 Keep responses concise, informative, and friendly. Include specific nutrient facts when relevant.
-Never make up medical claims. Always suggest consulting a doctor for medical advice."""},
-                    {"role": "user", "content": f"Context from fruit database:\n{context}\n\nUser question: {message}"}
-                ],
-                temperature=0.3,
-                max_tokens=500,
-            )
-            return response.choices[0].message.content.strip()
+Never make up medical claims. Always suggest consulting a doctor for medical advice."""
+
+        user_prompt = f"Context from fruit database:\n{context}\n\nUser question: {message}"
+
+        try:
+            if self.llm_type == "groq":
+                response = self.groq_client.chat.completions.create(
+                    model=self.GROQ_DEFAULT_MODEL,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    temperature=0.3,
+                    max_tokens=500,
+                )
+                return response.choices[0].message.content.strip()
+
+            elif self.llm_type == "openai":
+                response = self.openai_client.chat.completions.create(
+                    model=self.OPENAI_MODEL,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    temperature=0.3,
+                    max_tokens=500,
+                )
+                return response.choices[0].message.content.strip()
+
         except Exception as e:
-            print(f"LLM call failed: {e}")
-            return self._template_response(message, context, sources)
+            print(f"Primary LLM call failed ({self.llm_type}): {e}")
+
+            if self.llm_type == "groq":
+                try:
+                    print(f"Trying Groq fallback model: {self.GROQ_FALLBACK_MODEL}")
+                    response = self.groq_client.chat.completions.create(
+                        model=self.GROQ_FALLBACK_MODEL,
+                        messages=[
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": user_prompt}
+                        ],
+                        temperature=0.3,
+                        max_tokens=500,
+                    )
+                    return response.choices[0].message.content.strip()
+                except Exception as e2:
+                    print(f"Groq fallback also failed: {e2}")
+
+        return self._template_response(message, context, sources)
 
     def _template_response(self, message: str, context: str, sources: List[Dict]) -> str:
         fruits_in_context = list(set(r.get("fruit", "").title() for r in sources if r.get("fruit")))
