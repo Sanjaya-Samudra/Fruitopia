@@ -134,7 +134,7 @@ export class MealPlannerComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.http.get<any>('/meal-planner/goals').subscribe({
+    this.http.get<any>('/api/meal-planner/goals').subscribe({
       next: r => this.goals = Object.keys(r.goals || {}),
       error: () => this.goals = ['weight_loss','muscle_build','immunity','energy_boost','heart_health','digestion','detox']
     });
@@ -148,7 +148,7 @@ export class MealPlannerComponent implements OnInit {
   generate() {
     this.loading = true;
     this.error = '';
-    this.http.post<any>('/meal-planner/generate', {
+    this.http.post<any>('/api/meal-planner/generate', {
       days: this.days, goals: this.selectedGoals, dietary_preferences: this.selectedPrefs
     }).subscribe({
       next: r => {

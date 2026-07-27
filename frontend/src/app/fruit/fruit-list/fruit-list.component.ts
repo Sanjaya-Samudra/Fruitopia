@@ -1,39 +1,55 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatToolbarModule } from '@angular/material/toolbar';
+import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonModule } from '@angular/material/button';
-import { FruitopiaApiService } from '../fruitopia-api.service';
-import { HttpClientModule } from '@angular/common/http';
+import { MatIconModule } from '@angular/material/icon';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-fruit-list',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatToolbarModule,
-    MatCardModule,
-    MatChipsModule,
-    MatButtonModule,
-    HttpClientModule
-  ],
+  imports: [CommonModule, RouterModule, MatCardModule, MatButtonModule, MatIconModule],
   templateUrl: './fruit-list.component.html',
   styleUrls: ['./fruit-list.component.scss']
 })
 export class FruitListComponent implements OnInit {
   fruits: any[] = [];
-  constructor(private api: FruitopiaApiService) {}
+  loading = true;
+  error = '';
+
+  constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.api.getFruits().subscribe((data: any) => {
-      this.fruits = data;
+    this.http.get<any>('/api/fruits').subscribe({
+      next: (data) => {
+        this.fruits = data.fruits || data || [];
+        this.loading = false;
+      },
+      error: () => {
+        this.error = 'Failed to load fruits';
+        this.loading = false;
+      }
     });
   }
 
-  viewDetails(fruit: any) {
-    // Implement navigation to fruit-detail or modal popup
-    alert('Fruit details: ' + fruit.name);
+  imgUrl(cls: string) {
+    return `/api/vision/image?cls=${encodeURIComponent(cls)}&file=0.jpg`;
+  }
+
+  getFruitIcon(name: string): string {
+    const icons: { [key: string]: string } = {
+      'apple': '🍎', 'banana': '🍌', 'orange': '🍊',
+      'strawberry': '🍓', 'blueberry': '🫐', 'mango': '🥭',
+      'pineapple': '🍍', 'kiwi': '🥝', 'grape': '🍇',
+      'watermelon': '🍉', 'peach': '🍑', 'pear': '🍐',
+      'cherry': '🍒', 'lemon': '🍋', 'lime': '🍋',
+      'avocado': '🥑', 'coconut': '🥥', 'fig': '🫠',
+      'pomegranate': '🍎', 'apricot': '🍑', 'plum': '🍑',
+      'raspberry': '🍓', 'blackberry': '🍓', 'guava': '🍈',
+      'passionfruit': '🍈', 'tomato': '🍅', 'cantaloupe': '🍈',
+      'grapefruit': '🍊', 'olive': '🫒', 'acerola': '🍒'
+    };
+    return icons[name.toLowerCase()] || '🍏';
   }
 }
-

@@ -37,22 +37,22 @@ export class RecommendService {
   constructor(private http: HttpClient) {}
 
   listDiseases(): Observable<{ diseases: string[]; total: number }> {
-    return this.http.get<{ diseases: string[]; total: number }>('/recommend/diseases');
+    return this.http.get<{ diseases: string[]; total: number }>('/api/recommend/diseases');
   }
 
   getDiseaseInfo(disease: string): Observable<{ disease: string; info: DiseaseInfo }> {
-    return this.http.get<{ disease: string; info: DiseaseInfo }>(`/recommend/diseases/${disease}`);
+    return this.http.get<{ disease: string; info: DiseaseInfo }>(`/api/recommend/diseases/${disease}`);
   }
 
   recommend(disease: string, have: string[] = []): Observable<RecommendResult> {
-    return this.http.post<RecommendResult>('/recommend', { disease, have });
+    return this.http.post<RecommendResult>('/api/recommend', { disease, have });
   }
 
   recommendNatural(text: string): Observable<RecommendResult & { entities: NlpEntity }> {
-    return this.http.post<RecommendResult & { entities: NlpEntity }>('/recommend/natural', { text });
+    return this.http.post<RecommendResult & { entities: NlpEntity }>('/api/recommend/natural', { text });
   }
 
   extractNlp(text: string): Observable<NlpEntity> {
-    return this.http.post<NlpEntity>('/nlp/extract', { text });
+    return this.http.post<NlpEntity>('/api/nlp/extract', { text });
   }
 }

@@ -42,7 +42,7 @@ export class ChatService {
 
   sendMessage(message: string): Observable<{ response: string; session_id: string }> {
     this.messages.push({ role: 'user', content: message, timestamp: new Date() });
-    return this.http.post<{ response: string; session_id: string }>('/chatbot/message', {
+    return this.http.post<{ response: string; session_id: string }>('/api/chatbot/message', {
       message,
       session_id: this.sessionId
     });

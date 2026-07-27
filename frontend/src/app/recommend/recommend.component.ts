@@ -39,7 +39,7 @@ export class RecommendComponent implements OnInit {
       this.diseases = [];
     } });
     // fetch classes for checkbox list (simple xhr to vision/classes)
-    fetch('/vision/classes').then(r => r.json()).then(j => this.availableClasses = j.classes || []);
+    fetch('/api/vision/classes').then(r => r.json()).then(j => this.availableClasses = j.classes || []);
   }
 
   getRecommendations() {
@@ -53,7 +53,7 @@ export class RecommendComponent implements OnInit {
 
   imageUrl(cls: string, sample?: string) {
     if (!sample) return '';
-    return '/vision/image?cls=' + encodeURIComponent(cls) + '&file=' + encodeURIComponent(sample);
+    return '/api/vision/image?cls=' + encodeURIComponent(cls) + '&file=' + encodeURIComponent(sample);
   }
 
   getDiseaseIcon(disease: string): string {

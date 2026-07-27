@@ -1,72 +1,9 @@
 {
-  "/vision": {
+  "/api": {
     "target": "http://127.0.0.1:8000",
     "secure": false,
-    "changeOrigin": true
-  },
-  "/recommend": {
-    "target": "http://127.0.0.1:8000",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/chatbot": {
-    "target": "http://127.0.0.1:8000",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/fruits": {
-    "target": "http://127.0.0.1:8000",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/nlp": {
-    "target": "http://127.0.0.1:8000",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/usda": {
-    "target": "http://127.0.0.1:8000",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/recipes": {
-    "target": "http://127.0.0.1:8000",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/health": {
-    "target": "http://127.0.0.1:8000",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/meal-planner": {
-    "target": "http://127.0.0.1:8000",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/culture": {
-    "target": "http://127.0.0.1:8000",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/knowledge-graph": {
-    "target": "http://127.0.0.1:8000",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/barcode": {
-    "target": "http://127.0.0.1:8000",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/premium": {
-    "target": "http://127.0.0.1:8000",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/auth": {
-    "target": "http://127.0.0.1:8000",
-    "secure": false,
-    "changeOrigin": true
+    "changeOrigin": true,
+    "pathRewrite": { "^/api": "" },
+    "logLevel": "debug"
   }
 }

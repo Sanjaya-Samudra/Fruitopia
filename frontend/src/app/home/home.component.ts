@@ -17,7 +17,7 @@ import { ChatService } from '../services/chat.service';
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent {
-  imageBase = '/vision/image?cls=';
+  imageBase = '/api/vision/image?cls=';
 
   heroFruits = [
     { name: 'Blueberries', cls: 'blueberries' },

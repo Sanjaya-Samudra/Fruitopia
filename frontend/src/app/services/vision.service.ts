@@ -20,22 +20,22 @@ export class VisionService {
   predict(image: File): Observable<PredictResult> {
     const fd = new FormData();
     fd.append('file', image, image.name);
-    return this.http.post<PredictResult>('/vision/predict', fd);
+    return this.http.post<PredictResult>('/api/vision/predict', fd);
   }
 
   getClasses(): Observable<{ classes: string[] }> {
-    return this.http.get<{ classes: string[] }>('/vision/classes');
+    return this.http.get<{ classes: string[] }>('/api/vision/classes');
   }
 
   getHealth(): Observable<{ ok: boolean; model_loaded: boolean }> {
-    return this.http.get<{ ok: boolean; model_loaded: boolean }>('/vision/health');
+    return this.http.get<{ ok: boolean; model_loaded: boolean }>('/api/vision/health');
   }
 
   getSamples(cls: string, n: number = 6): Observable<{ samples: string[] }> {
-    return this.http.get<{ samples: string[] }>(`/vision/samples?cls=${encodeURIComponent(cls)}&n=${n}`);
+    return this.http.get<{ samples: string[] }>(`/api/vision/samples?cls=${encodeURIComponent(cls)}&n=${n}`);
   }
 
   getImageUrl(cls: string, file: string): string {
-    return `/vision/image?cls=${encodeURIComponent(cls)}&file=${encodeURIComponent(file)}`;
+    return `/api/vision/image?cls=${encodeURIComponent(cls)}&file=${encodeURIComponent(file)}`;
   }
 }

@@ -63,30 +63,30 @@ export class FruitService {
   constructor(private http: HttpClient) {}
 
   listFruits(): Observable<{ fruits: FruitSummary[]; total: number }> {
-    return this.http.get<{ fruits: FruitSummary[]; total: number }>('/fruits');
+    return this.http.get<{ fruits: FruitSummary[]; total: number }>('/api/fruits');
   }
 
   getFruit(slug: string): Observable<FruitDetail> {
-    return this.http.get<FruitDetail>(`/fruits/${slug}`);
+    return this.http.get<FruitDetail>(`/api/fruits/${slug}`);
   }
 
   getNutrition(slug: string): Observable<NutritionInfo> {
-    return this.http.get<NutritionInfo>(`/fruits/${slug}/nutrition`);
+    return this.http.get<NutritionInfo>(`/api/fruits/${slug}/nutrition`);
   }
 
   getUsdaData(slug: string): Observable<UsdaNutrition> {
-    return this.http.get<UsdaNutrition>(`/fruits/${slug}/usda`);
+    return this.http.get<UsdaNutrition>(`/api/fruits/${slug}/usda`);
   }
 
   search(query: string): Observable<{ query: string; results: SearchResult[] }> {
-    return this.http.get<{ query: string; results: SearchResult[] }>(`/fruits/search?q=${encodeURIComponent(query)}`);
+    return this.http.get<{ query: string; results: SearchResult[] }>(`/api/fruits/search?q=${encodeURIComponent(query)}`);
   }
 
   searchByBenefit(benefit: string): Observable<any> {
-    return this.http.get(`/fruits/search/benefit?b=${encodeURIComponent(benefit)}`);
+    return this.http.get(`/api/fruits/search/benefit?b=${encodeURIComponent(benefit)}`);
   }
 
   getSeasonality(): Observable<{ seasonality: SeasonalityInfo[] }> {
-    return this.http.get<{ seasonality: SeasonalityInfo[] }>('/fruits/seasonality');
+    return this.http.get<{ seasonality: SeasonalityInfo[] }>('/api/fruits/seasonality');
   }
 }

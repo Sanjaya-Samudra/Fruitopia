@@ -1,26 +1,43 @@
-<div class="fruit-list-wrapper">
-	<div class="fruit-list-container">
-		<div class="fruit-list-grid">
-			<mat-card *ngFor="let fruit of fruits" class="fruit-card glass-card" tabindex="0">
-				<mat-card-header>
-					<mat-card-title>
-						<span class="fruit-icon">{{ fruit.icon || '🍏' }}</span>
-						<span class="fruit-name">{{ fruit.name }}</span>
-					</mat-card-title>
-					<mat-card-subtitle>{{ fruit.tagline }}</mat-card-subtitle>
-				</mat-card-header>
-				<img mat-card-image [src]="fruit.image" alt="{{ fruit.name }}" />
-				<mat-card-content>
-					<p class="fruit-desc">{{ fruit.description }}</p>
-					<div class="fruit-benefits">
-						<button mat-stroked-button *ngFor="let benefit of fruit.benefits" class="benefit-btn wow-btn">{{ benefit }}</button>
-					</div>
-				</mat-card-content>
-				<mat-card-actions>
-					<button mat-raised-button color="accent" class="details-btn" (click)="viewDetails(fruit)">Details</button>
-				</mat-card-actions>
-			</mat-card>
-		</div>
-	</div>
-</div>
+<div class="fruit-list-page">
+  <section class="fl-hero">
+    <div class="fl-hero-bg"></div>
+    <div class="fl-hero-content">
+      <div class="fl-hero-icon">🍎</div>
+      <h1 class="fl-hero-title">Fruit Encyclopedia</h1>
+      <p class="fl-hero-subtitle">Discover 30+ fruits with detailed nutrition, health benefits, and cultivation data</p>
+    </div>
+  </section>
 
+  <div class="fl-container">
+    <div *ngIf="loading" class="fl-loading">
+      <div class="fl-loading-spinner"></div>
+      <p>Loading fruits...</p>
+    </div>
+
+    <div *ngIf="error" class="fl-error">{{ error }}</div>
+
+    <div class="fl-grid" *ngIf="!loading">
+      <div class="fl-card" *ngFor="let fruit of fruits">
+        <div class="fl-card-bg"></div>
+        <div class="fl-card-content">
+          <div class="fl-card-icon">{{ getFruitIcon(fruit.slug || fruit.name) }}</div>
+          <h3 class="fl-card-title">{{ fruit.name }}</h3>
+          <span class="fl-card-sci">{{ fruit.scientificName }}</span>
+          <p class="fl-card-desc">{{ fruit.description }}</p>
+          <div class="fl-card-meta">
+            <span class="fl-meta"><strong>Calories:</strong> {{ fruit.calories || '—' }} kcal</span>
+            <span class="fl-meta"><strong>Origin:</strong> {{ fruit.origin || '—' }}</span>
+            <span class="fl-meta"><strong>Season:</strong> {{ fruit.season || '—' }}</span>
+          </div>
+          <div class="fl-card-benefits" *ngIf="fruit.health_benefits?.length">
+            <span class="fl-benefit" *ngFor="let b of fruit.health_benefits.slice(0,3)">{{ b }}</span>
+          </div>
+          <div class="fl-card-actions">
+            <a class="fl-btn fl-btn-primary" [routerLink]="['/explore', fruit.slug]">View Details</a>
+            <a class="fl-btn fl-btn-secondary" [routerLink]="['/gallery']">Gallery</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

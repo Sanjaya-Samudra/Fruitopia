@@ -24,7 +24,7 @@ export class GalleryComponent implements OnInit {
 
   ngOnInit(): void {
     this.loading = true;
-    this.http.get<any>('/vision/classes').subscribe({
+    this.http.get<any>('/api/vision/classes').subscribe({
       next: (res) => {
         this.classes = res.classes || [];
         this.classes.forEach(c => this.loadSamples(c));
@@ -35,14 +35,14 @@ export class GalleryComponent implements OnInit {
   }
 
   loadSamples(cls: string) {
-    this.http.get<any>(`/vision/samples?cls=${encodeURIComponent(cls)}&n=6`).subscribe({
+    this.http.get<any>(`/api/vision/samples?cls=${encodeURIComponent(cls)}&n=6`).subscribe({
       next: res => { this.samples[cls] = res.samples || [] },
       error: () => { this.samples[cls] = [] }
     });
   }
 
   imgUrl(cls: string, file: string) {
-    return `/vision/image?cls=${encodeURIComponent(cls)}&file=${encodeURIComponent(file)}`;
+    return `/api/vision/image?cls=${encodeURIComponent(cls)}&file=${encodeURIComponent(file)}`;
   }
 
   getFruitIcon(cls: string): string {

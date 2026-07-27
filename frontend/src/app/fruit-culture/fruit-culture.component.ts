@@ -110,8 +110,8 @@ export class FruitCultureComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.http.get<any>('/culture/global-stats').subscribe(r => this.globalStats = r);
-    this.http.get<any>('/culture/fruits').subscribe(r => {
+    this.http.get<any>('/api/culture/global-stats').subscribe(r => this.globalStats = r);
+    this.http.get<any>('/api/culture/fruits').subscribe(r => {
       this.cultures = Object.entries(r.cultures || {}).map(([k,v]:any) => ({
         name: k, origin: v.origin, regions: v.primary_regions,
         production: v.global_production_tonnes, varieties: v.variety_count
@@ -121,7 +121,7 @@ export class FruitCultureComponent implements OnInit {
   }
 
   selectFruit(name: string) {
-    this.http.get<any>(`/culture/fruit/${name}`).subscribe(r => this.detail = r);
+    this.http.get<any>(`/api/culture/fruit/${name}`).subscribe(r => this.detail = r);
   }
 
   filter() {

@@ -178,14 +178,9 @@ export class ExploreComponent implements OnInit {
     }
 
     const key = this.name.toLowerCase();
-    // Try same-origin SPA route first so the Angular app serves the page and
-    // the component can fetch JSON via XHR; fall back to direct backend URL
-    // and static fallbacks if needed.
     const candidates = [
-      `/explore/${key}`,
-      `http://127.0.0.1:8000/explore/${key}`,
-      `/backend/data/explore/${key}.json`,
-      `/data/explore/${key}.json`,
+      `/api/fruits/${key}`,
+      `http://127.0.0.1:8000/api/fruits/${key}`,
       `/assets/explore/${key}.json`
     ];
 
@@ -201,9 +196,9 @@ export class ExploreComponent implements OnInit {
           this.fruit = res;
             // after we have the fruit JSON, fetch dataset sample filenames and build gallery
           const jsonImgs = (this.fruit?.appearance?.images || []).filter((i: string) => !!i);
-          this.http.get(`/vision/samples?cls=${encodeURIComponent(key)}&n=6`).pipe(catchError(() => of({samples:[]}))).subscribe((resp: any) => {
+          this.http.get(`/api/vision/samples?cls=${encodeURIComponent(key)}&n=6`).pipe(catchError(() => of({samples:[]}))).subscribe((resp: any) => {
             const samples = resp && resp.samples ? resp.samples : [];
-            const datasetUrls = samples.map((f: string) => `/vision/image?cls=${encodeURIComponent(key)}&file=${encodeURIComponent(f)}`);
+            const datasetUrls = samples.map((f: string) => `/api/vision/image?cls=${encodeURIComponent(key)}&file=${encodeURIComponent(f)}`);
             this.datasetSamples = samples;
             // Only use dataset images, not JSON images
             this.gallery = [...datasetUrls];

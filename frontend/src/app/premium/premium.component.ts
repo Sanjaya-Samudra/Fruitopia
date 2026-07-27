@@ -58,7 +58,7 @@ export class PremiumComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.http.get<any>('/premium/tiers').subscribe(r => {
+    this.http.get<any>('/api/premium/tiers').subscribe(r => {
       this.tiers = Object.entries(r.tiers || {}).map(([k,v]: any) => ({ id: k, ...v }));
     });
   }

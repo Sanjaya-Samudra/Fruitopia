@@ -101,12 +101,12 @@ export class KnowledgeGraphComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.http.get<any>('/knowledge-graph/stats').subscribe(r => this.stats = r);
+    this.http.get<any>('/api/knowledge-graph/stats').subscribe(r => this.stats = r);
   }
 
   search() {
     if (!this.query.trim()) return;
-    this.http.get<any>('/knowledge-graph/search', { params: { q: this.query } }).subscribe(r => {
+    this.http.get<any>('/api/knowledge-graph/search', { params: { q: this.query } }).subscribe(r => {
       this.searchResult = r;
       this.fruitData = null;
     });
@@ -114,7 +114,7 @@ export class KnowledgeGraphComponent implements OnInit {
 
   loadFruit(name: string) {
     this.currentFruit = name;
-    this.http.get<any>(`/knowledge-graph/fruit/${name}`).subscribe(r => this.fruitData = r);
+    this.http.get<any>(`/api/knowledge-graph/fruit/${name}`).subscribe(r => this.fruitData = r);
   }
 
   entries(obj: any): [string,any][] { return Object.entries(obj || {}); }

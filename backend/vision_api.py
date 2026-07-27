@@ -16,6 +16,19 @@ DATA_DIR = PROJECT_ROOT / "data" / "FruitImageDataset"
 sys.path.insert(0, str(FILE_DIR))
 sys.path.insert(0, str(FILE_DIR / "services"))
 
+try:
+    env_path = FILE_DIR / ".env"
+    if env_path.exists():
+        with open(env_path) as f:
+            for ln in f:
+                ln = ln.strip()
+                if not ln or ln.startswith("#") or "=" not in ln:
+                    continue
+                k, v = ln.split("=", 1)
+                os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+except Exception:
+    pass
+
 from services.recommender import get_recommendations, DISEASES_EXTENDED
 from services.fruit_service import fruit_service
 from services.usda_api import usda_client
@@ -32,19 +45,6 @@ from services.premium import premium_manager
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger("fruitopia")
-
-try:
-    env_path = FILE_DIR / ".env"
-    if env_path.exists():
-        with open(env_path) as f:
-            for ln in f:
-                ln = ln.strip()
-                if not ln or ln.startswith("#") or "=" not in ln:
-                    continue
-                k, v = ln.split("=", 1)
-                os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
-except Exception:
-    pass
 
 app = FastAPI(title="Fruitopia AI Platform", version="2.0.0",
               description="AI-Powered Intelligent Fruit Recommendation System")

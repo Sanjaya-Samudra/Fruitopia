@@ -1,155 +1,208 @@
-/* ---------- Theme variables ---------- */
-$primary-1: #43c6ac;
-$primary-2: #f8ffae;
-$accent-text: #2d3a3a;
-
-/* ---------- Header / Nav / Search ---------- */
-.glassy-toolbar,
-.fruitopia-toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 120;
-  background: linear-gradient(90deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
-  backdrop-filter: blur(6px);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.4rem 1rem;
-  box-shadow: 0 2px 10px rgba(15,81,64,0.06);
+.fruit-list-page {
+  min-height: 100vh;
+  position: relative;
 }
-.toolbar-logo {
-  font-size: 1.15rem;
+
+.fl-hero {
+  position: relative;
+  padding: 80px 24px 60px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.fl-hero-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 50%, rgba(129,140,248,.12) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 50%, rgba(52,211,153,.1) 0%, transparent 60%);
+  z-index: 0;
+}
+
+.fl-hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.fl-hero-icon { font-size: 56px; margin-bottom: 16px; }
+
+.fl-hero-title {
+  font-size: 2.4rem;
   font-weight: 800;
-  color: $accent-text;
-}
-.toolbar-nav {
-  display: flex;
-  gap: 0.4rem;
-}
-.nav-btn {
-  min-width: 40px;
-  height: 36px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.6);
-  color: $accent-text;
-}
-.nav-btn mat-icon { font-size: 18px; }
-
-.main-content {
-  max-width: 980px;
-  width: 100%;
-  margin: 0.8rem auto 1.2rem auto;
-  padding: 0 0.6rem;
+  background: linear-gradient(135deg, #818cf8, #34d399);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0 0 12px;
 }
 
-.glassy-search {
-  display: flex;
-  gap: 0.6rem;
-  align-items: center;
-  justify-content: center;
-  padding: 0.4rem;
-  margin-bottom: 0.8rem;
-  background: linear-gradient(90deg, rgba(255,255,255,0.85), rgba(255,255,255,0.72));
-  border-radius: 999px;
-  box-shadow: 0 6px 18px rgba(67,198,172,0.06);
-}
-.search-field { width: 280px; }
-.search-btn { height: 36px; padding: 0 10px; }
-
-/* ---------- Page background and container ---------- */
-.fruit-list-wrapper { padding: 12px 0 24px 0 }
-.fruit-list-container {
+.fl-hero-subtitle {
+  font-size: 1.05rem;
+  color: var(--text-muted, #94a3b8);
+  max-width: 600px;
   margin: 0 auto;
-  max-width: 1140px;
-  padding: 8px 12px 18px 12px;
 }
 
-/* ---------- Grid and cards (compact) ---------- */
-.fruit-list-grid {
+.fl-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px 60px;
+}
+
+.fl-loading {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text-muted, #94a3b8);
+}
+
+.fl-loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(129,140,248,.2);
+  border-top-color: #818cf8;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.fl-error {
+  text-align: center;
+  padding: 40px 20px;
+  color: #f87171;
+  background: rgba(248,113,113,.08);
+  border-radius: 16px;
+  border: 1px solid rgba(248,113,113,.2);
+}
+
+.fl-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.fl-card {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  transition: transform .3s ease, box-shadow .3s ease;
+  border: 1px solid var(--border-color, rgba(255,255,255,.08));
+}
+
+.fl-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,.3);
+  border-color: rgba(129,140,248,.3);
+}
+
+.fl-card-bg {
+  position: absolute;
+  inset: 0;
+  background: var(--surface, rgba(255,255,255,.04));
+  z-index: 0;
+  border-radius: 20px;
+}
+
+.fl-card-content {
+  position: relative;
+  z-index: 1;
+  padding: 28px 24px;
+}
+
+.fl-card-icon { font-size: 42px; margin-bottom: 12px; }
+
+.fl-card-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: var(--text-primary, #f1f5f9);
+}
+
+.fl-card-sci {
+  font-size: .78rem;
+  color: var(--text-muted, #94a3b8);
+  font-style: italic;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.fl-card-desc {
+  font-size: .84rem;
+  line-height: 1.5;
+  color: var(--text-secondary, #94a3b8);
+  margin: 0 0 14px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.fl-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.fl-meta {
+  font-size: .75rem;
+  color: var(--text-muted, #94a3b8);
+  background: rgba(255,255,255,.04);
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.fl-meta strong { color: var(--text-secondary, #cbd5e1); }
+
+.fl-card-benefits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.fl-benefit {
+  font-size: .72rem;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(52,211,153,.1);
+  color: #34d399;
+  border: 1px solid rgba(52,211,153,.2);
+}
+
+.fl-card-actions {
+  display: flex;
   gap: 10px;
 }
 
-.glass-card {
-  background: rgba(255,255,255,0.98);
-  border-radius: 10px;
-  border: 1px solid rgba(67,198,172,0.08);
-  padding: 10px;
-  box-shadow: 0 6px 18px rgba(15,81,64,0.04);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-height: 200px;
-  align-items: stretch;
+.fl-btn {
+  padding: 10px 22px;
+  border-radius: 12px;
+  font-size: .82rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all .2s;
+  border: none;
 }
 
-.glass-card:hover { transform: translateY(-6px); box-shadow: 0 10px 26px rgba(15,81,64,0.08); }
-
-.fruit-card {
-  width: 100%;
+.fl-btn-primary {
+  background: linear-gradient(135deg, #818cf8, #6366f1);
+  color: #fff;
 }
 
-.fruit-card mat-card-header { padding: 6px 4px; }
-.fruit-card mat-card-title { font-size: 0.95rem; font-weight: 700; }
-.fruit-card mat-card-subtitle { font-size: 0.74rem; color: #61706b; }
+.fl-btn-primary:hover { opacity: .9; transform: translateY(-1px); }
 
-.fruit-card img { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; }
-/* ensure consistent card heights so grid looks aligned */
-.glass-card { min-height: 320px }
-
-.fruit-desc { font-size: 0.83rem; color: #2d3a3a; margin: 6px 0; }
-
-.fruit-benefits { display:flex; flex-wrap:wrap; gap:6px; }
-.wow-btn { font-size: 0.72rem; padding: 4px 8px; border-radius: 999px; }
-.details-btn { font-size: 0.72rem; padding: 4px 8px; border-radius: 8px; }
-
-/* ---------- Chatbot floating button ---------- */
-.chatbot-widget {
-  position: fixed;
-  bottom: 18px;
-  right: 18px;
-  z-index: 999;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #ffffff, #f7fff9);
-  box-shadow: 0 12px 30px rgba(15,81,64,0.12);
-  border: 1px solid rgba(67,198,172,0.12);
-}
-.chatbot-emoji { font-size: 18px; }
-.chatbot-label { font-size: 0.88rem; font-weight:700; color: $accent-text; }
-
-/* ---------- Responsive tweaks ---------- */
-@media (max-width: 900px) {
-  .fruit-list-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
-  .search-field { width: 200px; }
+.fl-btn-secondary {
+  background: rgba(255,255,255,.06);
+  color: var(--text-primary, #f1f5f9);
+  border: 1px solid var(--border-color, rgba(255,255,255,.1));
 }
 
-@media (max-width: 480px) {
-  .fruit-list-grid { grid-template-columns: 1fr; gap: 8px; }
-  .fruit-card img { height: 120px; }
-  .toolbar-logo { font-size: 1rem; }
-  .nav-btn { min-width: 34px; height: 34px; }
-  .glassy-search { padding: 6px; }
-}
-.chatbot-label {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: #2d3a3a;
-}
+.fl-btn-secondary:hover { background: rgba(255,255,255,.1); }
 
-@media (max-width: 600px) {
-  .fruit-list-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  mat-card-image {
-    height: 160px;
-  }
+@media (max-width: 768px) {
+  .fl-hero { padding: 60px 16px 40px; }
+  .fl-hero-title { font-size: 1.8rem; }
+  .fl-grid { grid-template-columns: 1fr; gap: 18px; }
+  .fl-container { padding: 0 16px 40px; }
 }

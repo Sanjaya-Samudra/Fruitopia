@@ -85,7 +85,7 @@ export class BarcodeScannerComponent {
   lookup() {
     if (!this.barcode.trim()) return;
     this.error = '';
-    this.http.post<any>('/barcode/lookup', { barcode: this.barcode.trim() }).subscribe({
+    this.http.post<any>('/api/barcode/lookup', { barcode: this.barcode.trim() }).subscribe({
       next: r => this.result = r,
       error: () => this.error = 'Failed to look up barcode. Ensure backend is running.'
     });
@@ -93,6 +93,6 @@ export class BarcodeScannerComponent {
 
   searchCountry() {
     if (!this.country.trim()) return;
-    this.http.get<any>('/barcode/search/country', { params: { country: this.country } }).subscribe(r => this.countryResults = r.results || []);
+    this.http.get<any>('/api/barcode/search/country', { params: { country: this.country } }).subscribe(r => this.countryResults = r.results || []);
   }
 }

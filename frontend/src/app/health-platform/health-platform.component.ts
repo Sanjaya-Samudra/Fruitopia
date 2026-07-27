@@ -83,23 +83,23 @@ export class HealthPlatformComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.http.get<any>('/health/platforms').subscribe(r => this.platforms = r.platforms || []);
+    this.http.get<any>('/api/health/platforms').subscribe(r => this.platforms = r.platforms || []);
   }
 
   connect(id: string) {
-    this.http.post<any>('/health/platforms/connect', { platform_id: id, profile_type: this.selectedProfile }).subscribe({
+    this.http.post<any>('/api/health/platforms/connect', { platform_id: id, profile_type: this.selectedProfile }).subscribe({
       next: r => {
         if (r.status === 'connected') {
           this.connected[id] = true;
-          this.http.get<any>('/health/metrics', { params: { platform_id: id } }).subscribe(m => this.metrics = m);
-          this.http.post<any>('/health/recommendations', { platform_id: id }).subscribe(r2 => this.recs = r2.recommendations || []);
+          this.http.get<any>('/api/health/metrics', { params: { platform_id: id } }).subscribe(m => this.metrics = m);
+          this.http.post<any>('/api/health/recommendations', { platform_id: id }).subscribe(r2 => this.recs = r2.recommendations || []);
         }
       }
     });
   }
 
   disconnect(id: string) {
-    this.http.post<any>('/health/platforms/disconnect', { platform_id: id }).subscribe(() => delete this.connected[id]);
+    this.http.post<any>('/api/health/platforms/disconnect', { platform_id: id }).subscribe(() => delete this.connected[id]);
   }
 
   entries(obj: any): [string,any][] { return Object.entries(obj || {}); }
