@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, OnInit, OnDestroy } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,9 +18,15 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   messages: ChatMessage[] = [];
   inputMessage = '';
   loading = false;
+  isDragging = false;
+  dragStartX = 0;
+  dragStartY = 0;
+  panelX = 0;
+  panelY = 0;
 
   @ViewChild('messageContainer') private messageContainer?: ElementRef;
   @ViewChild('inputField') private inputField?: ElementRef;
+  @ViewChild('chatPanel') private chatPanel?: ElementRef;
 
   private subscription?: Subscription;
 
@@ -32,6 +38,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
       this.messages = this.chatService.messages;
       if (open) {
         setTimeout(() => this.scrollToBottom(), 100);
+        setTimeout(() => this.inputField?.nativeElement?.focus(), 300);
       }
     });
   }
@@ -51,10 +58,8 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   sendMessage() {
     const msg = this.inputMessage.trim();
     if (!msg || this.loading) return;
-
     this.inputMessage = '';
     this.loading = true;
-
     this.chatService.sendMessage(msg).subscribe({
       next: (res) => {
         this.chatService.setSessionId(res.session_id);
@@ -77,6 +82,49 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
         this.loading = false;
       }
     });
+  }
+
+  formatMessage(text: string): string {
+    if (!text) return '';
+    let html = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/```(\w*)\n?([\s\S]*?)```/g, '<div class="code-block"><code>$2</code></div>')
+      .replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>')
+      .replace(/\n- (.+)/g, '<li>$1</li>')
+      .replace(/\n\d+\. (.+)/g, '<li>$1</li>')
+      .replace(/\n{2,}/g, '</p><p>')
+      .replace(/\n/g, '<br>');
+    if (html.includes('<li>')) {
+      html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+    }
+    return '<p>' + html + '</p>';
+  }
+
+  startDrag(event: MouseEvent) {
+    this.isDragging = true;
+    this.dragStartX = event.clientX - this.panelX;
+    this.dragStartY = event.clientY - this.panelY;
+    event.preventDefault();
+  }
+
+  @HostListener('document:mousemove', ['$event'])
+  onDrag(event: MouseEvent) {
+    if (!this.isDragging) return;
+    this.panelX = event.clientX - this.dragStartX;
+    this.panelY = event.clientY - this.dragStartY;
+    const panel = this.chatPanel?.nativeElement;
+    if (panel) {
+      panel.style.transform = `translate(${this.panelX}px, ${this.panelY}px)`;
+    }
+  }
+
+  @HostListener('document:mouseup')
+  stopDrag() {
+    this.isDragging = false;
   }
 
   private scrollToBottom() {

@@ -10,24 +10,37 @@ import { HttpClient } from '@angular/common/http';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, MatIconModule],
   template: `
-    <div class="page-container">
-      <div class="page-title">
-        <h1><span class="gradient-text">Meal Planner</span></h1>
-        <p class="subtitle">AI-optimized meal plans tailored to your health goals</p>
+    <div class="page-hero">
+      <div class="hero-bg">
+        <div class="glass-overlay"></div>
+        <div class="floating-shapes">
+          <div class="shape s1"></div>
+          <div class="shape s2"></div>
+          <div class="shape s3"></div>
+        </div>
       </div>
+      <div class="hero-content">
+        <div class="hero-icon">
+          <mat-icon>restaurant_menu</mat-icon>
+        </div>
+        <h1 class="gradient-text">Meal Planner</h1>
+        <p class="hero-subtitle">AI-optimized meal plans tailored to your health goals</p>
+      </div>
+    </div>
 
-      <div class="planner-card">
+    <div class="page-section">
+      <div class="premium-card">
         <div class="form-row">
           <div class="field">
             <label>Number of Days</label>
-            <input type="number" [(ngModel)]="days" min="1" max="30" class="input">
+            <input type="number" [(ngModel)]="days" min="1" max="30" class="premium-input">
           </div>
         </div>
 
         <div class="form-row">
           <div class="field">
             <label>Health Goals</label>
-            <div class="chip-row">
+            <div class="chip-group">
               <button *ngFor="let g of goals" class="chip" [class.active]="selectedGoals.includes(g)" (click)="toggle(selectedGoals, g)">{{ g.replace('_',' ') }}</button>
             </div>
           </div>
@@ -36,7 +49,7 @@ import { HttpClient } from '@angular/common/http';
         <div class="form-row">
           <div class="field">
             <label>Dietary Preferences</label>
-            <div class="chip-row">
+            <div class="chip-group">
               <button *ngFor="let p of dietaryPrefs" class="chip" [class.active]="selectedPrefs.includes(p)" (click)="toggle(selectedPrefs, p)">{{ p.replace('_',' ') }}</button>
             </div>
           </div>
@@ -49,11 +62,15 @@ import { HttpClient } from '@angular/common/http';
 
       <div *ngIf="error" class="error-banner">{{ error }}</div>
 
+      <div *ngIf="loading" class="loading-section">
+        <div class="spinner"></div>
+      </div>
+
       <div *ngIf="planData" class="results">
-        <div class="summary-row">
-          <div class="summary-card" *ngFor="let s of summary">
-            <div class="summary-val">{{ s.val }}</div>
-            <div class="summary-lbl">{{ s.lbl }}</div>
+        <div class="hero-stats">
+          <div class="stat-item" *ngFor="let s of summary">
+            <div class="stat-value">{{ s.val }}</div>
+            <div class="stat-label">{{ s.lbl }}</div>
           </div>
         </div>
 
@@ -87,19 +104,9 @@ import { HttpClient } from '@angular/common/http';
     </div>
   `,
   styles: [`
-    .planner-card { background: var(--surface); border-radius: 20px; padding: 32px; margin-bottom: 24px; border: 1px solid var(--border-color); }
     .form-row { margin-bottom: 20px; }
     .field label { display: block; font-size: .85rem; color: var(--text-muted); margin-bottom: 10px; font-weight: 500; letter-spacing: .3px; }
-    .input { width: 100px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border-color); background: rgba(255,255,255,.05); color: var(--text-primary); font-size: 1rem; }
-    .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
-    .chip { padding: 8px 18px; border-radius: 50px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); cursor: pointer; font-size: .82rem; transition: all .2s; }
-    .chip:hover { border-color: var(--primary); color: var(--text-primary); }
-    .chip.active { background: var(--gradient-primary); border-color: transparent; color: #fff; font-weight: 600; }
-    .error-banner { background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.3); border-radius: 12px; padding: 14px 20px; color: #fca5a5; margin-bottom: 20px; }
-    .summary-row { display: grid; grid-template-columns: repeat(auto-fit,minmax(120px,1fr)); gap: 12px; margin-bottom: 28px; }
-    .summary-card { background: var(--surface); border-radius: 14px; padding: 20px 16px; text-align: center; border: 1px solid var(--border-color); }
-    .summary-val { font-size: 1.4rem; font-weight: 800; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .summary-lbl { font-size: .7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-top: 4px; }
+    .premium-input { width: 100px; }
     .day-card { background: var(--surface); border-radius: 20px; padding: 28px; margin-bottom: 20px; border: 1px solid var(--border-color); }
     .day-card h3 { display: flex; align-items: center; gap: 8px; font-size: 1.05rem; color: var(--text-primary); margin-bottom: 18px; }
     .meal-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 14px; }

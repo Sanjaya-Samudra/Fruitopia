@@ -1,26 +1,37 @@
 <div class="chat-overlay">
-  <div class="chat-panel" *ngIf="isOpen">
-    <div class="chat-header">
+  <div class="chat-panel" #chatPanel *ngIf="isOpen" [class.dragging]="isDragging">
+    <div class="chat-header" (mousedown)="startDrag($event)">
       <div class="header-info">
         <div class="header-avatar">🤖</div>
         <div class="header-text">
           <div class="title">Fruitopia AI Assistant</div>
-          <div class="subtitle">Powered by RAG + Knowledge Base</div>
+          <div class="subtitle">Nutrition • Health • Recipes</div>
         </div>
       </div>
-      <button class="close-btn" (click)="closeChat()">
-        <mat-icon>close</mat-icon>
-      </button>
+      <div class="header-actions">
+        <span class="drag-hint" title="Drag to move"><mat-icon>drag_indicator</mat-icon></span>
+        <button class="close-btn" (click)="closeChat()" title="Minimize">
+          <mat-icon>keyboard_arrow_down</mat-icon>
+        </button>
+      </div>
     </div>
 
     <div class="chat-messages" #messageContainer>
-      <div *ngFor="let msg of messages" class="message" [class.user]="msg.role === 'user'" [class.bot]="msg.role === 'bot'">
-        {{ msg.content }}
-        <div class="timestamp">{{ msg.timestamp | date:'shortTime' }}</div>
+      <div *ngFor="let msg of messages" class="message-row" [class.user-row]="msg.role === 'user'" [class.bot-row]="msg.role === 'bot'">
+        <div class="msg-avatar" *ngIf="msg.role === 'bot'">🤖</div>
+        <div class="message" [class.user-msg]="msg.role === 'user'" [class.bot-msg]="msg.role === 'bot'">
+          <div class="msg-content" [innerHTML]="formatMessage(msg.content)"></div>
+          <div class="msg-time">{{ msg.timestamp | date:'h:mm a' }}</div>
+        </div>
+        <div class="msg-avatar" *ngIf="msg.role === 'user'">👤</div>
       </div>
-      <div *ngIf="loading" class="message bot">
-        <mat-spinner diameter="16"></mat-spinner>
-        Thinking...
+      <div *ngIf="loading" class="message-row bot-row">
+        <div class="msg-avatar">🤖</div>
+        <div class="message bot-msg typing">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
       </div>
     </div>
 
@@ -29,7 +40,7 @@
         #inputField
         [(ngModel)]="inputMessage"
         (keyup.enter)="sendMessage()"
-        placeholder="Ask about fruits, health, recipes..."
+        placeholder="Ask about fruits, nutrition, recipes..."
         [disabled]="loading"
       />
       <button class="send-btn" (click)="sendMessage()" [disabled]="!inputMessage.trim() || loading">

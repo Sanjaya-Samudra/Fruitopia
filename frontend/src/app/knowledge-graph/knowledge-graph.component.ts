@@ -1,40 +1,55 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-knowledge-graph',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatIconModule],
   template: `
-    <div class="page-container">
-      <div class="page-title">
-        <h1><span class="gradient-text">Evidence Research Graph</span></h1>
-        <p class="subtitle">PubMed-cited research connecting fruits, nutrients, and health outcomes</p>
-      </div>
-
-      <div *ngIf="stats" class="stat-bar">
-        <div class="stat-card" *ngFor="let s of entries(stats)">
-          <div class="stat-val">{{ s[1] }}</div>
-          <div class="stat-lbl">{{ fmt(s[0]) }}</div>
+    <div class="page-hero">
+      <div class="hero-bg">
+        <div class="glass-overlay"></div>
+        <div class="floating-shapes">
+          <div class="shape s1"></div>
+          <div class="shape s2"></div>
+          <div class="shape s3"></div>
         </div>
       </div>
+      <div class="hero-content">
+        <div class="hero-icon">
+          <mat-icon>hub</mat-icon>
+        </div>
+        <h1 class="gradient-text">Evidence Research Graph</h1>
+        <p class="hero-subtitle">PubMed-cited research connecting fruits, nutrients, and health outcomes</p>
+        <div class="hero-stats" *ngIf="stats">
+          <div class="stat-item" *ngFor="let s of entries(stats)">
+            <div class="stat-value">{{ s[1] }}</div>
+            <div class="stat-label">{{ fmt(s[0]) }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
+    <div class="page-section">
       <div class="search-bar">
-        <input type="text" [(ngModel)]="query" placeholder="Search fruits, diseases, or nutrients..." class="search-input">
+        <input type="text" [(ngModel)]="query" placeholder="Search fruits, diseases, or nutrients..." class="premium-input">
         <button class="btn-primary" (click)="search()">Search</button>
       </div>
 
       <div *ngIf="searchResult" class="search-results">
         <div *ngIf="searchResult.fruits?.length" class="result-group">
           <h4>Fruits</h4>
-          <div class="chip-row"><span class="chip" *ngFor="let f of searchResult.fruits" (click)="loadFruit(f.name)">{{ f.name }}</span></div>
+          <div class="chip-group">
+            <span class="chip" *ngFor="let f of searchResult.fruits" (click)="loadFruit(f.name)">{{ f.name }}</span>
+          </div>
         </div>
         <div *ngIf="searchResult.evidence?.length" class="result-group">
           <h4>Evidence ({{ searchResult.evidence.length }})</h4>
           <div class="evidence-list">
-            <div class="evidence-card" *ngFor="let e of searchResult.evidence">
+            <div class="premium-card" *ngFor="let e of searchResult.evidence">
               <strong>{{ e.title }}</strong>
               <p class="ev-conf">Confidence: {{ (e.confidence * 100).toFixed(0) }}%</p>
             </div>
@@ -46,12 +61,12 @@ import { HttpClient } from '@angular/common/http';
         <h2>{{ currentFruit | titlecase }}</h2>
         <div *ngIf="fruitData.relationships?.direct_relationships?.length" class="relationships">
           <h4>Relationships</h4>
-          <div class="chip-row">
+          <div class="chip-group">
             <span class="chip" *ngFor="let r of fruitData.relationships.direct_relationships.slice(0,10)">{{ r.target }} ({{ r.type | lowercase }})</span>
           </div>
         </div>
         <div class="evidence-grid" *ngIf="fruitData.evidence?.length">
-          <div class="evidence-card" *ngFor="let e of fruitData.evidence">
+          <div class="premium-card" *ngFor="let e of fruitData.evidence">
             <h4>{{ e.title }}</h4>
             <p class="ev-journal">{{ e.journal }} ({{ e.year }})</p>
             <p class="ev-summary">{{ e.summary }}</p>
@@ -69,18 +84,14 @@ import { HttpClient } from '@angular/common/http';
     </div>
   `,
   styles: [`
-    .stat-bar { display: grid; grid-template-columns: repeat(auto-fit,minmax(140px,1fr)); gap: 12px; margin-bottom: 28px; }
-    .stat-card { background: var(--surface); border-radius: 14px; padding: 18px; text-align: center; border: 1px solid var(--border-color); }
-    .stat-val { font-size: 1.3rem; font-weight: 700; color: var(--primary); }
-    .stat-lbl { font-size: .65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-top: 4px; }
     .search-bar { display: flex; gap: 12px; margin-bottom: 24px; }
-    .search-input { flex:1; padding: 14px 20px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--surface); color: var(--text-primary); font-size: .95rem; }
-    .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
-    .chip { padding: 6px 16px; border-radius: 20px; background: rgba(255,255,255,.06); border: 1px solid var(--border-color); cursor: pointer; font-size: .82rem; transition: all .2s; }
-    .chip:hover { border-color: var(--primary); }
-    .evidence-grid, .evidence-list { display: grid; grid-template-columns: repeat(auto-fill,minmax(340px,1fr)); gap: 16px; }
-    .evidence-card { background: var(--surface); border-radius: 14px; padding: 20px; border: 1px solid var(--border-color); border-left: 3px solid var(--primary); }
-    .evidence-card h4 { font-size: .9rem; margin-bottom: 6px; line-height: 1.3; }
+    .premium-input { flex: 1; }
+    .result-group { margin-bottom: 20px; }
+    .result-group h4 { margin-bottom: 10px; }
+    .evidence-list, .evidence-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(340px,1fr)); gap: 16px; }
+    .evidence-list .premium-card, .evidence-grid .premium-card { border-left: 3px solid var(--primary); }
+    .premium-card h4 { font-size: .9rem; margin-bottom: 6px; line-height: 1.3; }
+    .ev-conf { font-size: .82rem; color: var(--text-muted); margin-top: 6px; }
     .ev-journal { font-size: .78rem; color: var(--text-muted); font-style: italic; }
     .ev-summary { font-size: .82rem; line-height: 1.5; margin: 10px 0; }
     .ev-meta { display: flex; flex-wrap: wrap; gap: 12px; font-size: .78rem; align-items: center; }

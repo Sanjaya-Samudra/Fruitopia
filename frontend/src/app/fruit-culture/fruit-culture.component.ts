@@ -2,32 +2,45 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-fruit-culture',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, MatIconModule],
   template: `
-    <div class="page-container">
-      <div class="page-title">
-        <h1><span class="gradient-text">Fruit Culture Encyclopedia</span></h1>
-        <p class="subtitle">Global cultivation, trade, and sustainability data for every fruit</p>
-      </div>
-
-      <div *ngIf="globalStats" class="stat-bar">
-        <div class="stat-card" *ngFor="let s of entries(globalStats).slice(0,6)">
-          <div class="stat-val">{{ s[1] | number }}</div>
-          <div class="stat-lbl">{{ fmt(s[0]) }}</div>
+    <div class="page-hero">
+      <div class="hero-bg">
+        <div class="glass-overlay"></div>
+        <div class="floating-shapes">
+          <div class="shape s1"></div>
+          <div class="shape s2"></div>
+          <div class="shape s3"></div>
         </div>
       </div>
+      <div class="hero-content">
+        <div class="hero-icon">
+          <mat-icon>spa</mat-icon>
+        </div>
+        <h1 class="gradient-text">Fruit Culture Encyclopedia</h1>
+        <p class="hero-subtitle">Global cultivation, trade, and sustainability data for every fruit</p>
+        <div class="hero-stats" *ngIf="globalStats">
+          <div class="stat-item" *ngFor="let s of entries(globalStats).slice(0,6)">
+            <div class="stat-value">{{ s[1] | number }}</div>
+            <div class="stat-label">{{ fmt(s[0]) }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
+    <div class="page-section">
       <div class="search-bar">
-        <input type="text" [(ngModel)]="query" placeholder="Search fruit culture..." class="search-input" (input)="filter()">
+        <input type="text" [(ngModel)]="query" placeholder="Search fruit culture..." class="premium-input" (input)="filter()">
       </div>
 
       <div class="culture-grid">
-        <div class="culture-card" *ngFor="let fruit of filteredCultures" (click)="selectFruit(fruit.name)">
+        <div class="premium-card culture-card" *ngFor="let fruit of filteredCultures" (click)="selectFruit(fruit.name)">
           <h3>{{ fruit.name }}</h3>
           <p class="origin">{{ fruit.origin }}</p>
           <p class="regions">{{ fruit.regions?.slice(0,3).join(', ') }}</p>
@@ -39,7 +52,7 @@ import { HttpClient } from '@angular/common/http';
       </div>
 
       <div class="modal-overlay" *ngIf="detail" (click)="detail=null">
-        <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="premium-card modal-content" (click)="$event.stopPropagation()">
           <button class="modal-close" (click)="detail=null">&times;</button>
           <h2>{{ detail.fruit | titlecase }}</h2>
           <div class="modal-grid">
@@ -66,8 +79,8 @@ import { HttpClient } from '@angular/common/http';
             </div>
             <div class="modal-section full">
               <h4>Varieties ({{ detail.varieties?.length }})</h4>
-              <div class="variety-chips">
-                <span class="variety-chip" *ngFor="let v of detail.varieties">{{ v }}</span>
+              <div class="chip-group">
+                <span class="chip" *ngFor="let v of detail.varieties">{{ v }}</span>
               </div>
               <h4 style="margin-top:16px">Fun Facts</h4>
               <ul><li *ngFor="let f of detail.fun_facts">{{ f }}</li></ul>
@@ -78,25 +91,23 @@ import { HttpClient } from '@angular/common/http';
     </div>
   `,
   styles: [`
-    .stat-bar { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 12px; margin-bottom: 28px; }
-    .stat-card { background: var(--surface); border-radius: 14px; padding: 18px 14px; text-align: center; border: 1px solid var(--border-color); }
-    .stat-val { font-size: 1.2rem; font-weight: 700; color: var(--primary); }
-    .stat-lbl { font-size: .65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-top: 4px; }
-    .search-bar { margin-bottom: 24px; }
-    .search-input { width: 100%; padding: 14px 20px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--surface); color: var(--text-primary); font-size: .95rem; box-sizing: border-box; }
-    .culture-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap: 18px; }
-    .culture-card { background: var(--surface); border-radius: 16px; padding: 24px; border: 1px solid var(--border-color); cursor: pointer; transition: all .25s; }
-    .culture-card:hover { transform: translateY(-3px); border-color: var(--primary); box-shadow: 0 8px 30px rgba(0,0,0,.3); }
+    .culture-card h3 { margin: 0 0 4px; }
     .origin { font-size: .85rem; color: var(--text-muted); margin: 8px 0; }
     .regions { font-size: .8rem; color: var(--primary); }
     .culture-footer { display: flex; justify-content: space-between; font-size: .75rem; color: var(--text-muted); margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-color); }
-    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.7); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+    .modal-content { max-width: 800px; width: 100%; max-height: 85vh; overflow-y: auto; position: relative; }
+    .modal-close { position: absolute; top: 12px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 1.8rem; cursor: pointer; line-height: 1; }
+    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 16px; }
     .modal-section.full { grid-column: 1 / -1; }
     .info-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: .82rem; }
     .info-key { color: var(--text-muted); }
     .info-val { color: var(--text-primary); font-weight: 500; text-align: right; }
-    .variety-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-    .variety-chip { padding: 4px 12px; border-radius: 20px; background: rgba(255,255,255,.06); font-size: .78rem; }
+    .search-bar { margin-bottom: 24px; }
+    .premium-input { width: 100%; box-sizing: border-box; }
+    .culture-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap: 18px; }
+    .culture-card { cursor: pointer; }
+    .culture-card:hover { transform: translateY(-3px); border-color: var(--primary); box-shadow: 0 8px 30px rgba(0,0,0,.3); }
     @media (max-width:768px) { .modal-grid { grid-template-columns: 1fr; } }
   `]
 })
