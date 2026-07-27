@@ -1,4 +1,3 @@
-<!-- Hero Section -->
 <section class="hero-section">
   <div class="hero-content">
     <div class="hero-text">
@@ -6,18 +5,15 @@
         <span class="badge-dot"></span>
         Powered by AI & Machine Learning
       </div>
-
       <h1 class="hero-title">
         <span class="gradient-text">Discover the Perfect</span>
         <span class="hero-subtitle">Fruits for Your Health</span>
       </h1>
-
       <p class="hero-description">
         Fruitopia AI analyzes your health conditions, preferences, and nutritional needs
         to recommend the ideal fruits. Powered by machine learning, computer vision,
         and a comprehensive fruit knowledge base with 30+ fruits.
       </p>
-
       <div class="hero-actions">
         <button mat-raised-button class="cta-button" routerLink="/recommend">
           <mat-icon>auto_awesome</mat-icon>
@@ -28,7 +24,6 @@
           Explore Features
         </button>
       </div>
-
       <div class="hero-stats">
         <div class="hero-stat">
           <div class="stat-number">30+</div>
@@ -42,17 +37,12 @@
           <div class="stat-number">24/7</div>
           <div class="stat-label">AI Assistant</div>
         </div>
-        <div class="hero-stat">
-          <div class="stat-number">300+</div>
-          <div class="stat-label">Knowledge Chunks</div>
-        </div>
       </div>
     </div>
-
     <div class="hero-visual">
       <div class="hero-image-grid">
         <div class="hero-fruit-card" *ngFor="let item of heroFruits">
-          <img [src]="item.image" [alt]="item.name" loading="lazy">
+          <img [src]="imageBase + item.cls + '&file=0.jpg'" [alt]="item.name" loading="lazy">
           <div class="fruit-overlay">{{ item.name }}</div>
         </div>
       </div>
@@ -60,7 +50,6 @@
   </div>
 </section>
 
-<!-- Marquee -->
 <section class="marquee-section">
   <div class="marquee-track">
     <div class="marquee-item" *ngFor="let item of marqueeItems">
@@ -74,46 +63,41 @@
   </div>
 </section>
 
-<!-- Features Section -->
 <section id="features" class="features-section">
   <div class="section-header">
     <h2>AI-Powered Features</h2>
     <p>Advanced technology to help you make smarter fruit choices</p>
   </div>
-
   <div class="features-grid">
     <mat-card class="feature-card" *ngFor="let feature of features"
               [style.--feature-color]="feature.color"
-              (click)="navigateFeature(feature)">
+              [routerLink]="feature.route || null"
+              (click)="feature.action === 'chat' ? openChat() : null">
       <div class="feature-icon" [style.background]="feature.color + '20'">
         <mat-icon [style.color]="feature.color">{{ feature.icon }}</mat-icon>
       </div>
       <h3>{{ feature.title }}</h3>
       <p>{{ feature.description }}</p>
       <button mat-button class="feature-link" [style.color]="feature.color">
-        Try Now
-        <mat-icon>arrow_forward</mat-icon>
+        Try Now <mat-icon>arrow_forward</mat-icon>
       </button>
     </mat-card>
   </div>
 </section>
 
-<!-- Fruit Showcase -->
 <section class="showcase-section">
   <div class="section-header">
     <h2>Explore Our Fruits</h2>
-    <p>Comprehensive information about 30+ fruits with nutrition, health benefits, recipes, and more</p>
+    <p>Comprehensive information about 30+ fruits with nutrition, health benefits, and more</p>
   </div>
-
   <div class="showcase-grid">
     <div class="showcase-item" *ngFor="let fruit of showcaseFruits" [routerLink]="['/explore', fruit.slug]">
-      <img [src]="fruit.image" [alt]="fruit.name" loading="lazy">
+      <img [src]="imageBase + fruit.slug + '&file=0.jpg'" [alt]="fruit.name" loading="lazy">
       <div class="showcase-label">{{ fruit.name }}</div>
     </div>
   </div>
 </section>
 
-<!-- CTA Section -->
 <section class="cta-section">
   <div class="cta-content">
     <h2>Ready to Transform Your Health?</h2>

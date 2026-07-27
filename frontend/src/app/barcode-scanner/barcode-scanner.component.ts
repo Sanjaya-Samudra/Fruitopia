@@ -1,58 +1,76 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { BarcodeService } from '../services/barcode.service';
+import { RouterModule } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-barcode-scanner',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule, MatIconModule],
   template: `
-    <div class="page">
-      <div class="page-header">
-        <h1>Barcode Scanner</h1>
-        <p>Look up fruit information by barcode</p>
+    <div class="page-container">
+      <div class="page-title">
+        <h1><span class="gradient-text">Barcode Scanner</span></h1>
+        <p class="subtitle">Look up fruit information by barcode</p>
       </div>
 
-      <div class="scanner-section">
-        <input type="text" [(ngModel)]="barcode" placeholder="Enter barcode (e.g. 040100000101)" class="scan-input" maxlength="14">
-        <button class="btn-primary" (click)="lookup()" [disabled]="!barcode">Look Up</button>
+      <div class="scanner-card">
+        <div class="scan-row">
+          <input type="text" [(ngModel)]="barcode" placeholder="Enter barcode (e.g. 040100000101)" class="scan-input" maxlength="14">
+          <button class="btn-primary" (click)="lookup()" [disabled]="!barcode.trim()">Look Up</button>
+        </div>
       </div>
 
-      <div class="result" *ngIf="result">
-        <div class="found" *ngIf="result.found">
+      <div *ngIf="error" class="error-banner">{{ error }}</div>
+
+      <div *ngIf="result" class="result-card">
+        <div *ngIf="result.found" class="result-found">
           <h2>{{ result.fruit | titlecase }}</h2>
-          <div class="info-grid">
-            <div><strong>Variety:</strong> {{ result.variety }}</div>
-            <div><strong>Brand:</strong> {{ result.brand }}</div>
-            <div><strong>Country:</strong> {{ result.country_of_origin }}</div>
-            <div><strong>Barcode:</strong> {{ result.barcode }}</div>
+          <div class="result-grid">
+            <div class="result-item"><span class="r-key">Variety</span><span class="r-val">{{ result.variety }}</span></div>
+            <div class="result-item"><span class="r-key">Brand</span><span class="r-val">{{ result.brand }}</span></div>
+            <div class="result-item"><span class="r-key">Country of Origin</span><span class="r-val">{{ result.country_of_origin }}</span></div>
+            <div class="result-item"><span class="r-key">Barcode</span><span class="r-val">{{ result.barcode }}</span></div>
           </div>
+          <button class="btn-primary" style="margin-top:16px" [routerLink]="['/explore', result.fruit]">View Fruit Details</button>
         </div>
-        <div class="not-found" *ngIf="!result.found">
-          <p>{{ result.message }}</p>
+        <div *ngIf="!result.found" class="result-not-found">
+          <mat-icon>search_off</mat-icon>
+          <p>{{ result.message || 'Fruit not found in database.' }}</p>
         </div>
       </div>
 
-      <div class="country-search">
-        <h3>Search by Country</h3>
-        <input type="text" [(ngModel)]="country" placeholder="Country name..." class="scan-input">
-        <button class="btn-primary" (click)="searchCountry()">Search</button>
-        <div class="country-results" *ngIf="countryResults?.length">
-          <div class="barcode-chip" *ngFor="let r of countryResults">{{ r.variety }} {{ r.fruit }} ({{ r.country }})</div>
+      <div class="country-section">
+        <h3>Search by Country of Origin</h3>
+        <div class="scan-row">
+          <input type="text" [(ngModel)]="country" placeholder="Enter country name..." class="scan-input">
+          <button class="btn-primary" (click)="searchCountry()">Search</button>
+        </div>
+        <div *ngIf="countryResults?.length" class="country-results">
+          <div class="country-chip" *ngFor="let r of countryResults">
+            {{ r.variety }} {{ r.fruit }} <span class="country-tag">{{ r.country }}</span>
+          </div>
         </div>
       </div>
     </div>
   `,
   styles: [`
-    .scanner-section, .country-search { background: var(--surface); border-radius: 16px; padding: 24px; margin-bottom: 24px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-    .scan-input { flex: 1; min-width: 200px; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,.05); color: var(--text); font-size: 1rem; letter-spacing: 2px; }
-    .result { background: var(--surface); border-radius: 14px; padding: 24px; margin-bottom: 24px; }
-    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
-    .not-found { color: var(--text-muted); }
-    .country-results { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; width: 100%; }
-    .barcode-chip { background: rgba(255,255,255,.05); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: .8rem; }
-    @media (max-width:768px) { .info-grid { grid-template-columns: 1fr; } }
+    .scanner-card, .country-section { background: var(--surface); border-radius: 20px; padding: 28px; border: 1px solid var(--border-color); margin-bottom: 20px; }
+    .scan-row { display: flex; gap: 12px; }
+    .scan-input { flex:1; padding: 14px 20px; border-radius: 12px; border: 1px solid var(--border-color); background: rgba(255,255,255,.05); color: var(--text-primary); font-size: 1rem; letter-spacing: 2px; }
+    .result-card { background: var(--surface); border-radius: 20px; padding: 28px; border: 1px solid var(--border-color); margin-bottom: 20px; }
+    .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+    .result-item { display: flex; flex-direction: column; gap: 2px; }
+    .r-key { font-size: .72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; }
+    .r-val { font-size: .95rem; font-weight: 600; }
+    .result-not-found { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+    .result-not-found mat-icon { font-size: 48px; width: 48px; height: 48px; margin-bottom: 12px; opacity: .5; }
+    .country-results { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .country-chip { padding: 8px 16px; border-radius: 20px; background: rgba(255,255,255,.06); border: 1px solid var(--border-color); font-size: .82rem; }
+    .country-tag { color: var(--primary); font-weight: 600; margin-left: 6px; }
+    @media (max-width:768px) { .result-grid { grid-template-columns: 1fr; } }
   `]
 })
 export class BarcodeScannerComponent {
@@ -60,16 +78,21 @@ export class BarcodeScannerComponent {
   country = '';
   result: any = null;
   countryResults: any[] = [];
+  error = '';
 
-  constructor(private service: BarcodeService) {}
+  constructor(private http: HttpClient) {}
 
   lookup() {
-    if (!this.barcode) return;
-    this.service.lookup(this.barcode).subscribe(r => this.result = r);
+    if (!this.barcode.trim()) return;
+    this.error = '';
+    this.http.post<any>('/barcode/lookup', { barcode: this.barcode.trim() }).subscribe({
+      next: r => this.result = r,
+      error: () => this.error = 'Failed to look up barcode. Ensure backend is running.'
+    });
   }
 
   searchCountry() {
-    if (!this.country) return;
-    this.service.searchByCountry(this.country).subscribe(r => this.countryResults = r.results);
+    if (!this.country.trim()) return;
+    this.http.get<any>('/barcode/search/country', { params: { country: this.country } }).subscribe(r => this.countryResults = r.results || []);
   }
 }

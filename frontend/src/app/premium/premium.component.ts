@@ -1,28 +1,32 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PremiumService } from '../services/barcode.service';
-
-interface TierInfo { name: string; price_monthly: number; price_yearly: number; features: Record<string, boolean>; }
+import { RouterModule } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-premium',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   template: `
-    <div class="page">
-      <div class="page-header">
-        <h1>Premium Plans</h1>
-        <p>Unlock the full power of the Fruitopia platform</p>
+    <div class="page-container">
+      <div class="page-title">
+        <h1><span class="gradient-text">Premium Plans</span></h1>
+        <p class="subtitle">Unlock the full power of the Fruitopia platform</p>
       </div>
+
       <div class="tier-grid">
-        <div class="tier-card" *ngFor="let t of getTierEntries()">
+        <div class="tier-card" *ngFor="let t of tiers" [class.popular]="t.name === 'Pro'">
+          <div class="tier-badge" *ngIf="t.name === 'Pro'">Most Popular</div>
           <h2>{{ t.name }}</h2>
-          <div class="price"><span class="amount">\${{ t.price_monthly }}</span><span class="period">/month</span></div>
-          <p class="yearly">\${{ t.price_yearly }}/year</p>
-          <ul class="features">
-            <li *ngFor="let item of getFeatureList(t.features)" [class.inc]="item[1]" [class.missing]="!item[1]">
-              <span class="feature-icon">{{ item[1] ? '+' : '-' }}</span>
-              <span class="feature-name">{{ item[0] }}</span>
+          <div class="tier-price">
+            <span class="price-amount">\${{ t.price_monthly }}</span>
+            <span class="price-period">/month</span>
+          </div>
+          <p class="price-yearly">\${{ t.price_yearly }}/year</p>
+          <ul class="feature-list">
+            <li *ngFor="let f of getFeatures(t.features)" [class.included]="f[1]" [class.excluded]="!f[1]">
+              <span class="feature-check">{{ f[1] ? '✓' : '—' }}</span>
+              {{ f[0] }}
             </li>
           </ul>
         </div>
@@ -30,33 +34,36 @@ interface TierInfo { name: string; price_monthly: number; price_yearly: number; 
     </div>
   `,
   styles: [`
-    .tier-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px,1fr)); gap: 24px; }
-    .tier-card { background: var(--surface); border-radius: 20px; padding: 28px 20px; text-align: center; border: 1px solid var(--border); transition: transform .2s; }
-    .tier-card:hover { transform: translateY(-4px); border-color: var(--primary); }
-    .price { margin: 16px 0; }
-    .amount { font-size: 2.5rem; font-weight: 800; color: var(--primary); }
-    .period { font-size: .9rem; color: var(--text-muted); }
-    .yearly { font-size: .8rem; color: var(--text-muted); margin-bottom: 20px; }
-    .features { list-style: none; padding: 0; text-align: left; }
-    .features li { padding: 6px 0; font-size: .8rem; border-bottom: 1px solid rgba(255,255,255,.05); display: flex; gap: 8px; align-items: center; }
-    .feature-icon { width: 16px; text-align: center; font-weight: 700; }
-    .inc .feature-icon { color: var(--primary); }
-    .missing .feature-icon { color: var(--text-muted); }
-    .inc { color: var(--text); }
-    .missing { color: var(--text-muted); opacity: .5; }
+    .tier-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 22px; }
+    .tier-card { background: var(--surface); border-radius: 22px; padding: 32px 24px; border: 1px solid var(--border-color); text-align: center; position: relative; transition: all .25s; }
+    .tier-card:hover { transform: translateY(-4px); }
+    .tier-card.popular { border-color: var(--primary); box-shadow: 0 0 30px rgba(129,140,248,.15); }
+    .tier-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--gradient-primary); color: #fff; font-size: .7rem; font-weight: 700; padding: 4px 18px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; }
+    .tier-card h2 { font-size: 1.2rem; margin-bottom: 16px; }
+    .tier-price { margin: 16px 0; }
+    .price-amount { font-size: 2.8rem; font-weight: 800; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .price-period { font-size: .9rem; color: var(--text-muted); }
+    .price-yearly { font-size: .8rem; color: var(--text-muted); margin-bottom: 24px; }
+    .feature-list { list-style: none; padding: 0; text-align: left; }
+    .feature-list li { padding: 8px 0; font-size: .82rem; border-bottom: 1px solid rgba(255,255,255,.04); display: flex; align-items: center; gap: 10px; }
+    .feature-check { width: 20px; text-align: center; }
+    .included { color: var(--text-primary); }
+    .included .feature-check { color: var(--primary); font-weight: 700; }
+    .excluded { color: var(--text-muted); opacity: .5; }
   `]
 })
 export class PremiumComponent implements OnInit {
-  tiers: Record<string, TierInfo> = {};
+  tiers: any[] = [];
 
-  constructor(private service: PremiumService) {}
+  constructor(private http: HttpClient) {}
 
-  ngOnInit() { this.service.getTiers().subscribe(r => this.tiers = r.tiers); }
+  ngOnInit() {
+    this.http.get<any>('/premium/tiers').subscribe(r => {
+      this.tiers = Object.entries(r.tiers || {}).map(([k,v]: any) => ({ id: k, ...v }));
+    });
+  }
 
-  getTierEntries(): TierInfo[] { return Object.values(this.tiers); }
-
-  getFeatureList(features: any): [string, boolean][] {
-    if (!features) return [];
-    return Object.entries(features).map(([k, v]) => [k.replace(/_/g, ' '), v as boolean]);
+  getFeatures(features: any): [string, boolean][] {
+    return Object.entries(features || {}).map(([k,v]) => [k.replace(/_/g,' '), v as boolean]);
   }
 }

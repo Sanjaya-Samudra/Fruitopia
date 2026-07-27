@@ -1,73 +1,85 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MealPlannerService, MealPlan, ShoppingItem } from '../services/meal-planner.service';
+import { RouterModule } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-meal-planner',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule, MatIconModule],
   template: `
-    <div class="page">
-      <div class="page-header">
-        <h1>Meal Planner</h1>
-        <p>AI-optimized meal plans based on your health goals</p>
+    <div class="page-container">
+      <div class="page-title">
+        <h1><span class="gradient-text">Meal Planner</span></h1>
+        <p class="subtitle">AI-optimized meal plans tailored to your health goals</p>
       </div>
 
-      <div class="planner-form">
-        <div class="form-grid">
+      <div class="planner-card">
+        <div class="form-row">
           <div class="field">
-            <label>Days</label>
-            <input type="number" [(ngModel)]="days" min="1" max="30">
+            <label>Number of Days</label>
+            <input type="number" [(ngModel)]="days" min="1" max="30" class="input">
           </div>
+        </div>
+
+        <div class="form-row">
           <div class="field">
-            <label>Goals <small>(select all that apply)</small></label>
-            <div class="chip-group">
-              <button *ngFor="let g of goals" class="chip" [class.active]="selectedGoals.includes(g)" (click)="toggleGoal(g)">{{ g }}</button>
-            </div>
-          </div>
-          <div class="field">
-            <label>Dietary Preferences</label>
-            <div class="chip-group">
-              <button *ngFor="let p of dietaryPrefs" class="chip" [class.active]="selectedPrefs.includes(p)" (click)="togglePref(p)">{{ p }}</button>
+            <label>Health Goals</label>
+            <div class="chip-row">
+              <button *ngFor="let g of goals" class="chip" [class.active]="selectedGoals.includes(g)" (click)="toggle(selectedGoals, g)">{{ g.replace('_',' ') }}</button>
             </div>
           </div>
         </div>
-        <button class="btn-primary" (click)="generatePlan()" [disabled]="loading">
+
+        <div class="form-row">
+          <div class="field">
+            <label>Dietary Preferences</label>
+            <div class="chip-row">
+              <button *ngFor="let p of dietaryPrefs" class="chip" [class.active]="selectedPrefs.includes(p)" (click)="toggle(selectedPrefs, p)">{{ p.replace('_',' ') }}</button>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-primary" (click)="generate()" [disabled]="loading">
           {{ loading ? 'Generating...' : 'Generate Meal Plan' }}
         </button>
       </div>
 
-      <div *ngIf="plan" class="plan-result">
-        <h2>Your {{ days }}-Day Meal Plan</h2>
-        <div class="summary-cards">
-          <div class="summary-card" *ngFor="let item of summaryItems">
-            <span class="val">{{ item.value }}</span>
-            <span class="lbl">{{ item.label }}</span>
+      <div *ngIf="error" class="error-banner">{{ error }}</div>
+
+      <div *ngIf="planData" class="results">
+        <div class="summary-row">
+          <div class="summary-card" *ngFor="let s of summary">
+            <div class="summary-val">{{ s.val }}</div>
+            <div class="summary-lbl">{{ s.lbl }}</div>
           </div>
         </div>
 
-        <div class="days" *ngFor="let day of plan.days; let i = index">
-          <h3>{{ day.date }}</h3>
+        <div class="day-card" *ngFor="let day of planData.days; let i = index">
+          <h3><mat-icon>calendar_today</mat-icon> {{ day.date }}</h3>
           <div class="meal-grid">
             <div class="meal-card" *ngFor="let meal of day.meals">
-              <div class="meal-type">{{ meal.type | titlecase }}</div>
-              <div class="meal-fruit">{{ meal.fruit }}</div>
-              <div class="meal-recipe">{{ meal.recipe?.title }}</div>
+              <div class="meal-header">
+                <span class="meal-type">{{ meal.type }}</span>
+                <span class="meal-fruit">{{ meal.fruit }}</span>
+              </div>
+              <div class="meal-recipe">{{ meal.recipe?.title || meal.fruit + ' serving' }}</div>
               <div class="meal-nutrition">
-                <span *ngFor="let n of getEntries(meal.nutrition)" class="nut">{{ fmt(n[0]) }}: {{ n[1] }}</span>
+                <span *ngFor="let n of entries(meal.nutrition)" class="nut-badge">{{ n[0] }}: {{ n[1] }}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div *ngIf="shoppingList?.length" class="shopping">
+        <div *ngIf="shopping?.length" class="shopping-section">
           <h3>Shopping List</h3>
           <div class="shopping-grid">
-            <div class="shop-item" *ngFor="let item of shoppingList">
-              <span class="item-fruit">{{ item.fruit }}</span>
-              <span class="item-qty">{{ item.quantity }} {{ item.unit }}</span>
-              <span class="item-season">{{ item.season }}</span>
+            <div class="shop-item" *ngFor="let item of shopping">
+              <span class="shop-name">{{ item.fruit }}</span>
+              <span class="shop-qty">{{ item.quantity }} {{ item.unit }}</span>
+              <span class="shop-season">{{ item.season }}</span>
             </div>
           </div>
         </div>
@@ -75,75 +87,84 @@ import { MealPlannerService, MealPlan, ShoppingItem } from '../services/meal-pla
     </div>
   `,
   styles: [`
-    .planner-form { background: var(--surface); border-radius: 16px; padding: 28px; margin-bottom: 32px; }
-    .form-grid { display: grid; grid-template-columns: 1fr 2fr 2fr; gap: 24px; margin-bottom: 20px; }
-    .field label { display: block; font-size: .85rem; color: var(--text-muted); margin-bottom: 8px; }
-    .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
-    .chip { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer; font-size: .8rem; }
-    .chip.active { background: var(--gradient-primary); border-color: transparent; color: #fff; }
-    .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 16px; margin: 20px 0; }
-    .summary-card { background: var(--surface); border-radius: 12px; padding: 16px; text-align: center; }
-    .summary-card .val { display: block; font-size: 1.4rem; font-weight: 700; color: var(--primary); }
-    .summary-card .lbl { font-size: .75rem; color: var(--text-muted); }
-    .meal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 16px; }
-    .meal-card { background: var(--surface); border-radius: 12px; padding: 16px; border-left: 3px solid var(--primary); }
-    .meal-type { font-size: .7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); font-weight: 600; }
-    .meal-fruit { font-size: 1.1rem; font-weight: 600; margin: 6px 0; }
-    .meal-nutrition { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-    .nut { font-size: .7rem; background: rgba(255,255,255,.05); padding: 2px 8px; border-radius: 4px; }
-    .shopping-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 12px; }
-    .shop-item { background: var(--surface); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; }
-    .item-fruit { font-weight: 600; }
-    .item-qty { font-size: .8rem; color: var(--text-muted); }
-    .item-season { font-size: .75rem; color: var(--primary); }
-    @media (max-width:768px) { .form-grid { grid-template-columns: 1fr; } }
+    .planner-card { background: var(--surface); border-radius: 20px; padding: 32px; margin-bottom: 24px; border: 1px solid var(--border-color); }
+    .form-row { margin-bottom: 20px; }
+    .field label { display: block; font-size: .85rem; color: var(--text-muted); margin-bottom: 10px; font-weight: 500; letter-spacing: .3px; }
+    .input { width: 100px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border-color); background: rgba(255,255,255,.05); color: var(--text-primary); font-size: 1rem; }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip { padding: 8px 18px; border-radius: 50px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); cursor: pointer; font-size: .82rem; transition: all .2s; }
+    .chip:hover { border-color: var(--primary); color: var(--text-primary); }
+    .chip.active { background: var(--gradient-primary); border-color: transparent; color: #fff; font-weight: 600; }
+    .error-banner { background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.3); border-radius: 12px; padding: 14px 20px; color: #fca5a5; margin-bottom: 20px; }
+    .summary-row { display: grid; grid-template-columns: repeat(auto-fit,minmax(120px,1fr)); gap: 12px; margin-bottom: 28px; }
+    .summary-card { background: var(--surface); border-radius: 14px; padding: 20px 16px; text-align: center; border: 1px solid var(--border-color); }
+    .summary-val { font-size: 1.4rem; font-weight: 800; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .summary-lbl { font-size: .7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-top: 4px; }
+    .day-card { background: var(--surface); border-radius: 20px; padding: 28px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+    .day-card h3 { display: flex; align-items: center; gap: 8px; font-size: 1.05rem; color: var(--text-primary); margin-bottom: 18px; }
+    .meal-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 14px; }
+    .meal-card { background: rgba(255,255,255,.03); border-radius: 14px; padding: 18px; border-left: 3px solid var(--primary); }
+    .meal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .meal-type { font-size: .7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); font-weight: 700; }
+    .meal-fruit { font-size: 1rem; font-weight: 700; }
+    .meal-recipe { font-size: .85rem; color: var(--text-muted); margin-bottom: 10px; }
+    .meal-nutrition { display: flex; flex-wrap: wrap; gap: 6px; }
+    .nut-badge { font-size: .7rem; background: rgba(255,255,255,.06); padding: 3px 10px; border-radius: 6px; color: var(--text-secondary); }
+    .shopping-section { margin-top: 28px; }
+    .shopping-section h3 { font-size: 1.1rem; margin-bottom: 16px; }
+    .shopping-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap: 12px; }
+    .shop-item { background: var(--surface); border-radius: 12px; padding: 16px 20px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 4px; }
+    .shop-name { font-weight: 600; font-size: .95rem; }
+    .shop-qty { font-size: .8rem; color: var(--text-muted); }
+    .shop-season { font-size: .75rem; color: var(--accent); }
   `]
 })
 export class MealPlannerComponent implements OnInit {
   days = 7;
   goals: string[] = [];
-  dietaryPrefs = ['vegan', 'low_carb', 'high_protein', 'low_sugar', 'keto', 'gluten_free'];
+  dietaryPrefs = ['vegan','low_carb','high_protein','low_sugar','keto','gluten_free'];
   selectedGoals: string[] = [];
   selectedPrefs: string[] = [];
   loading = false;
-  plan: MealPlan | null = null;
-  shoppingList: ShoppingItem[] | null = null;
-  summaryItems: { label: string; value: string }[] = [];
+  error = '';
+  planData: any = null;
+  shopping: any[] = [];
+  summary: {lbl:string;val:string}[] = [];
 
-  constructor(private service: MealPlannerService) {}
+  constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.service.getGoals().subscribe(r => this.goals = Object.keys(r.goals));
-  }
-
-  toggleGoal(g: string) {
-    const i = this.selectedGoals.indexOf(g);
-    i >= 0 ? this.selectedGoals.splice(i, 1) : this.selectedGoals.push(g);
-  }
-
-  togglePref(p: string) {
-    const i = this.selectedPrefs.indexOf(p);
-    i >= 0 ? this.selectedPrefs.splice(i, 1) : this.selectedPrefs.push(p);
-  }
-
-  fmt(k: string): string { return k.replace(/_/g, ' '); }
-
-  getEntries(obj: any): [string, any][] { return Object.entries(obj || {}); }
-
-  generatePlan() {
-    this.loading = true;
-    this.service.generatePlan({
-      days: this.days,
-      goals: this.selectedGoals,
-      dietary_preferences: this.selectedPrefs,
-    }).subscribe(r => {
-      this.plan = r.meal_plan;
-      this.shoppingList = r.shopping_list;
-      this.summaryItems = Object.entries(r.meal_plan.summary.average_daily_nutrition || {}).map(([k, v]) => ({
-        label: k.replace(/_/g, ' '),
-        value: typeof v === 'number' ? v.toFixed(1) : String(v),
-      }));
-      this.loading = false;
+    this.http.get<any>('/meal-planner/goals').subscribe({
+      next: r => this.goals = Object.keys(r.goals || {}),
+      error: () => this.goals = ['weight_loss','muscle_build','immunity','energy_boost','heart_health','digestion','detox']
     });
   }
+
+  toggle(arr: string[], val: string) {
+    const i = arr.indexOf(val);
+    i >= 0 ? arr.splice(i,1) : arr.push(val);
+  }
+
+  generate() {
+    this.loading = true;
+    this.error = '';
+    this.http.post<any>('/meal-planner/generate', {
+      days: this.days, goals: this.selectedGoals, dietary_preferences: this.selectedPrefs
+    }).subscribe({
+      next: r => {
+        this.planData = r.meal_plan;
+        this.shopping = r.shopping_list || [];
+        this.summary = Object.entries(r.meal_plan?.summary?.average_daily_nutrition || {}).map(([k,v]) => ({
+          lbl: k.replace(/_/g,' '), val: typeof v === 'number' ? v.toFixed(1) : String(v)
+        }));
+        this.loading = false;
+      },
+      error: e => {
+        this.error = 'Failed to generate meal plan. Make sure the backend is running.';
+        this.loading = false;
+      }
+    });
+  }
+
+  entries(obj: any): [string,any][] { return Object.entries(obj || {}); }
 }
